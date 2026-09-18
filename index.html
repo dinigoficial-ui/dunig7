@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAC DONAL- Ecosistema Studio 3D & VIP</title>
+    <title>CASA de las PAPAS - Ecosistema Studio 3D & VIP</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -48,7 +48,7 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-black tracking-widest text-white font-futurista">
-                       MAC<span class="text-amber-400">DONAL</span>
+                       CASA de las<span class="text-amber-400">PAPAS</span>
                     </h1>
                     <p class="text-[8px] text-amber-500/70 uppercase tracking-[0.25em] font-bold font-futurista">
                         MERIDA VENEZUELA
@@ -287,7 +287,7 @@
                             <div onclick="activarBotonUbicacion(this, 'vendaval')" class="flex items-center space-x-4 p-3 hover:bg-neutral-800 rounded-xl transition cursor-pointer border border-neutral-800">
                                 <div class="bg-neutral-800 p-3 rounded-full text-neutral-300">🏢</div>
                                 <div>
-                                    <h4 class="font-semibold text-sm">HVX5+G5H, Mérida(Local Principal)</h4>
+                                    <h4 class="font-semibold text-sm">HVX5+G5H, Mérida (Local Principal)</h4>
                                     <p class="text-xs text-neutral-400">Mérida, Venezuela</p>
                                 </div>
                             </div>
@@ -382,8 +382,8 @@
     <footer class="border-t border-stone-950 bg-black/80 p-4 text-center text-[10px] text-stone-600 font-mono tracking-widest mt-12">© 2026 D'UNIG LUXURY ECOSISTEMA. TODOS LOS DERECHOS RESERVADOS.</footer>
 
     <script>
-        const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co";  
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
+        const SUPABASE_URL = "https://vcymfspywjabnbddbruh.supabase.co";  
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZjeW1mc3B5d2phYm5iZGRicnVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Njg1MjIsImV4cCI6MjEwMDI0NDUyMn0.bXamCrThn-oGgK_6Ol2w3cSoxUd0pJDHW0_UkPqGEuA"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let carrito = [];
@@ -409,7 +409,7 @@
 
         async function guardarOrdenEnCentral(nuevaOrden) {
             const SUPABASE_CENTRAL_URL = "https://cmaishgahyzlhszwaozg.supabase.co/rest/v1/ordenes_central";
-            const SUPABASE_CENTRAL_ANON_OR_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtYWlzaGdhaHl6bGhzendhb3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MjMxMzEsImV4cCI6MjEwMDQ5OTEzMX0.8JVrpQKocnyZa3qLxsX9ZxjygYy4QY3kp_VSvrL1qNQ";
+            const SUPABASE_CENTRAL_ANON_OR_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtYWlzaGdhaHl6bGhzendhb3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MjMxMzEsImV4cCI6MjEwMDQ5OTEzMX0.8JVrpQKocnyZa3qLxsX9ZxjygYy4QY3kp_VSvrL1qNQ";
 
             const nombreComercio = nuevaOrden.nombre || "Casa de las Papas";
             const direccionComercio = nuevaOrden.direccion || "HVX5+G5H, Mérida";
@@ -594,11 +594,7 @@
                 await cargarTarifaDeliveryDesdeSupabase();
                 renderizarCarrito();
                 setTimeout(() => {
-                    if (map) {
-                        google.maps.event.trigger(map, "resize");
-                        map.setCenter({ lat: gpsClienteLat, lng: gpsClienteLng });
-                        procesarCalculoDistanciaYCostos();
-                    }
+                    if (map) google.maps.event.trigger(map, "resize");
                 }, 200);
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1029,7 +1025,7 @@
             const containerMap = document.getElementById("google-map-container");
             if(containerMap) {
                 map = new google.maps.Map(containerMap, {
-                    center: { lat: gpsClienteLat, lng: gpsClienteLng },
+                    center: { lat: LOCAL_LAT, lng: LOCAL_LNG },
                     zoom: 15,
                     disableDefaultUI: true,
                     zoomControl: true,
@@ -1038,11 +1034,9 @@
 
                 map.addListener("idle", () => {
                     const centro = map.getCenter();
-                    if(centro) {
-                        gpsClienteLat = centro.lat();
-                        gpsClienteLng = centro.lng();
-                        procesarCalculoDistanciaYCostos();
-                    }
+                    gpsClienteLat = centro.lat();
+                    gpsClienteLng = centro.lng();
+                    procesarCalculoDistanciaYCostos();
                 });
             }
         }
@@ -1060,6 +1054,16 @@
                 centrarEnMiGPS();
             } else if (tipo === 'vendaval') {
                 irAVendavalHouse();
+            }
+        }
+
+        function irAVendavalHouse() {
+            if(map) {
+                map.setCenter({ lat: LOCAL_LAT, lng: LOCAL_LNG });
+                map.setZoom(17);
+                gpsClienteLat = LOCAL_LAT;
+                gpsClienteLng = LOCAL_LNG;
+                procesarCalculoDistanciaYCostos();
             }
         }
 
@@ -1090,38 +1094,16 @@
                         procesarCalculoDistanciaYCostos();
                     },
                     () => {
-                        if (map) {
-                            const centro = map.getCenter();
-                            if(centro) {
-                                gpsClienteLat = centro.lat();
-                                gpsClienteLng = centro.lng();
-                            }
-                        }
                         procesarCalculoDistanciaYCostos();
                     },
                     { enableHighAccuracy: true, timeout: 5000 }
                 );
             } else {
-                if (map) {
-                    const centro = map.getCenter();
-                    if(centro) {
-                        gpsClienteLat = centro.lat();
-                        gpsClienteLng = centro.lng();
-                    }
-                }
                 procesarCalculoDistanciaYCostos();
             }
         }
 
         function procesarCalculoDistanciaYCostos() {
-            if(map) {
-                const centro = map.getCenter();
-                if(centro) {
-                    gpsClienteLat = centro.lat();
-                    gpsClienteLng = centro.lng();
-                }
-            }
-
             if(gpsClienteLat !== null && gpsClienteLng !== null) {
                 distanciaCalculadaKm = calcularDistanciaEnKm(LOCAL_LAT, LOCAL_LNG, gpsClienteLat, gpsClienteLng);
                 
@@ -1139,18 +1121,26 @@
             }
         }
 
-        function irAVendavalHouse() {
-            if(map) {
-                map.setCenter({ lat: LOCAL_LAT, lng: LOCAL_LNG });
-                map.setZoom(17);
-                gpsClienteLat = LOCAL_LAT;
-                gpsClienteLng = LOCAL_LNG;
-                procesarCalculoDistanciaYCostos();
-            }
-        }
-
         function centrarEnMiGPS() {
-            fijarUbicacionActualMapa();
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        gpsClienteLat = position.coords.latitude;
+                        gpsClienteLng = position.coords.longitude;
+                        if(map) {
+                            map.setCenter({ lat: gpsClienteLat, lng: gpsClienteLng });
+                            map.setZoom(17);
+                        }
+                        procesarCalculoDistanciaYCostos();
+                    },
+                    () => {
+                        alert("No se pudo obtener tu ubicación actual mediante GPS.");
+                    },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            } else {
+                alert("La geolocalización no es compatible con este navegador.");
+            }
         }
 
         function calcularDistanciaEnKm(lat1, lon1, lat2, lon2) {
@@ -1261,15 +1251,7 @@
         async function enviarPedidoWhatsApp() {
             if(carrito.length === 0) { alert("Agrega productos primero."); return; }
             
-            // Aseguramos capturar las coordenadas actuales del centro del mapa antes de enviar
-            if (map) {
-                const centro = map.getCenter();
-                if(centro) {
-                    gpsClienteLat = centro.lat();
-                    gpsClienteLng = centro.lng();
-                }
-            }
-            procesarCalculoDistanciaYCostos();
+            fijarUbicacionActualMapa();
 
             const metodo = document.getElementById('tipoMetodoPago').value;
             if(!metodo) { alert("Por favor selecciona un método de pago."); return; }
@@ -1316,12 +1298,7 @@
                 costo_delivery: costoDeliveryKm
             };
 
-            const { error } = await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]);
-            if (error) {
-                console.error("Error al guardar en ordenes_vip:", error.message);
-                alert("Hubo un error al registrar la orden en el sistema: " + error.message);
-                return;
-            }
+            await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
 
             await guardarOrdenEnCentral({
                 nombre: 'HVX5+G5H, Mérida',
