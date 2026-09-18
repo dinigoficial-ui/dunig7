@@ -287,7 +287,7 @@
                             <div onclick="activarBotonUbicacion(this, 'vendaval')" class="flex items-center space-x-4 p-3 hover:bg-neutral-800 rounded-xl transition cursor-pointer border border-neutral-800">
                                 <div class="bg-neutral-800 p-3 rounded-full text-neutral-300">🏢</div>
                                 <div>
-                                    <h4 class="font-semibold text-sm">HVX5+G5H, Mérida (Local Principal)</h4>
+                                    <h4 class="font-semibold text-sm">HVX5+G5H, Mérida(Local Principal)</h4>
                                     <p class="text-xs text-neutral-400">Mérida, Venezuela</p>
                                 </div>
                             </div>
@@ -1232,6 +1232,21 @@
         async function enviarPedidoWhatsApp() {
             if(carrito.length === 0) { alert("Agrega productos primero."); return; }
             
+            try {
+                if (typeof Geolocation !== 'undefined') {
+                    const permisos = await Geolocation.checkPermissions();
+                    if (permisos.location !== 'granted') {
+                        const solicitud = await Geolocation.requestPermissions();
+                        if (solicitud.location !== 'granted') {
+                            alert("Se requiere permiso de ubicación para calcular el delivery y enviar la orden.");
+                            return;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("Nota sobre permisos (entorno web o no nativo):", e);
+            }
+
             fijarUbicacionActualMapa();
 
             const metodo = document.getElementById('tipoMetodoPago').value;
@@ -1267,8 +1282,7 @@
             let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *NÚMERO DE MESA:* ${numeroMesa}\n` : '';
             const mensaje = `🍔 *PEDIDO VIP - Casa de las Papas (HVX5+G5H, Mérida)* 🍔\n\n${lista}\n\n📦 *Subtotal:* $${subtotalProductos.toFixed(2)}\n🛵 *Delivery (${distanciaCalculadaKm.toFixed(2)} km):* $${costoDeliveryKm.toFixed(2)}\n💵 *TOTAL A PAGAR:* $${totalGeneral.toFixed(2)}\n📍 *Ubicación Google Maps:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
 
-            // --- INSERCIÓN MEJORADA EN LA TABLA ordenes_vip DE SUPABASE ---
-            const datosOrdenVip = {
+            const datosOrdenPendiente = {
                 productos: carrito.map(i => i.titulo).join(', '),
                 total: totalGeneral,
                 monto_total: totalGeneral,
@@ -1280,15 +1294,13 @@
                 costo_delivery: costoDeliveryKm
             };
 
-            const { error: errorVip } = await supabaseClient.from('ordenes_vip').insert([datosOrdenVip]); 
-            if (errorVip) {
-                console.error("Error al guardar en ordenes_vip:", errorVip.message);
-                alert("Advertencia: No se pudo registrar la orden automáticamente en la base de datos VIP, pero continuaremos con el envío por WhatsApp.");
-            } else {
-                console.log("Orden guardada exitosamente en ordenes_vip.");
+            const { error } = await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]);
+            if (error) {
+                console.error("Error al guardar en ordenes_vip:", error.message);
+                alert("Hubo un error al registrar la orden en el sistema: " + error.message);
+                return;
             }
 
-            // Sincronización con la central
             await guardarOrdenEnCentral({
                 nombre: 'HVX5+G5H, Mérida',
                 detalles: carrito.map(i => i.titulo).join(', '),
