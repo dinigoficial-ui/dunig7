@@ -287,7 +287,7 @@
                             <div onclick="activarBotonUbicacion(this, 'vendaval')" class="flex items-center space-x-4 p-3 hover:bg-neutral-800 rounded-xl transition cursor-pointer border border-neutral-800">
                                 <div class="bg-neutral-800 p-3 rounded-full text-neutral-300">🏢</div>
                                 <div>
-                                    <h4 class="font-semibold text-sm">HVX5+G5H, Mérida(Local Principal)</h4>
+                                    <h4 class="font-semibold text-sm">HVX5+G5H, Mérida (Local Principal)</h4>
                                     <p class="text-xs text-neutral-400">Mérida, Venezuela</p>
                                 </div>
                             </div>
@@ -408,46 +408,45 @@
         let datosDePago = {};
 
         async function guardarOrdenEnCentral(nuevaOrden) {
-    const SUPABASE_CENTRAL_URL = "https://cmaishgahyzlhszwaozg.supabase.co/rest/v1/ordenes_central";
-    const SUPABASE_CENTRAL_ANON_OR_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtYWlzaGdhaHl6bGhzendhb3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MjMxMzEsImV4cCI6MjEwMDQ5OTEzMX0.8JVrpQKocnyZa3qLxsX9ZxjygYy4QY3kp_VSvrL1qNQ";
+            const SUPABASE_CENTRAL_URL = "https://cmaishgahyzlhszwaozg.supabase.co/rest/v1/ordenes_central";
+            const SUPABASE_CENTRAL_ANON_OR_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtYWlzaGdhaHl6bGhzendhb3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MjMxMzEsImV4cCI6MjEwMDQ5OTEzMX0.8JVrpQKocnyZa3qLxsX9ZxjygYy4QY3kp_VSvrL1qNQ";
 
-    // Definimos los valores por defecto del comercio (puedes ajustarlos o pasarlos en 'nuevaOrden')
-    const nombreComercio = nuevaOrden.nombre || "Casa de las Papas";
-    const direccionComercio = nuevaOrden.direccion || "HVX5+G5H, Mérida";
+            const nombreComercio = nuevaOrden.nombre || "Casa de las Papas";
+            const direccionComercio = nuevaOrden.direccion || "HVX5+G5H, Mérida";
 
-    try {
-        const response = await fetch(SUPABASE_CENTRAL_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "apikey": SUPABASE_CENTRAL_ANON_OR_SERVICE_KEY,
-                "Authorization": `Bearer ${SUPABASE_CENTRAL_ANON_OR_SERVICE_KEY}`,
-                "Prefer": "return=representation"
-            },
-            body: JSON.stringify({
-                comercio: nombreComercio,
-                comercio_nombre: nombreComercio,
-                comercio_direccion: direccionComercio,
-                productos: nuevaOrden.detalles || "Pedido desde vitrina",
-                costo_delivery: nuevaOrden.costo_delivery !== undefined ? nuevaOrden.costo_delivery : (window.costoDeliveryKm || costoDeliveryKm || 0.00),
-                coordenadas_gps: nuevaOrden.coordenadas || `${gpsClienteLat}, ${gpsClienteLng}`,
-                estado: "Pendiente"
-            })
-        });
+            try {
+                const response = await fetch(SUPABASE_CENTRAL_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "apikey": SUPABASE_CENTRAL_ANON_OR_SERVICE_KEY,
+                        "Authorization": `Bearer ${SUPABASE_CENTRAL_ANON_OR_SERVICE_KEY}`,
+                        "Prefer": "return=representation"
+                    },
+                    body: JSON.stringify({
+                        comercio: nombreComercio,
+                        comercio_nombre: nombreComercio,
+                        comercio_direccion: direccionComercio,
+                        productos: nuevaOrden.detalles || "Pedido desde vitrina",
+                        costo_delivery: nuevaOrden.costo_delivery !== undefined ? nuevaOrden.costo_delivery : (window.costoDeliveryKm || costoDeliveryKm || 0.00),
+                        coordenadas_gps: nuevaOrden.coordenadas || `${gpsClienteLat}, ${gpsClienteLng}`,
+                        estado: "Pendiente"
+                    })
+                });
 
-        if (!response.ok) {
-            const errorDetalle = await response.text();
-            throw new Error(`Error ${response.status}: ${errorDetalle}`);
+                if (!response.ok) {
+                    const errorDetalle = await response.text();
+                    throw new Error(`Error ${response.status}: ${errorDetalle}`);
+                }
+
+                const data = await response.json();
+                console.log("Orden guardada exitosamente en la central:", data);
+                return data;
+
+            } catch (error) {
+                console.error("Fallo la sincronización central:", error);
+            }
         }
-
-        const data = await response.json();
-        console.log("Orden guardada exitosamente en la central:", data);
-        return data;
-
-    } catch (error) {
-        console.error("Fallo la sincronización central:", error);
-    }
-}
 
         async function cargarCuentasPagoSupabase() {
             try {
@@ -1231,133 +1230,120 @@
         });
 
         async function enviarPedidoWhatsApp() {
-    if(carrito.length === 0) { alert("Agrega productos primero."); return; }
-    
-    // --- PASO 1: VERIFICAR Y SOLICITAR PERMISOS NATIVOS / WEB DE UBICACIÓN ---
-    try {
-        if (typeof Geolocation !== 'undefined') {
-            const permisos = await Geolocation.checkPermissions();
-            if (permisos.location !== 'granted') {
-                const solicitud = await Geolocation.requestPermissions();
-                if (solicitud.location !== 'granted') {
-                    alert("Se requiere permiso de ubicación para calcular el delivery y enviar la orden.");
+            if(carrito.length === 0) { alert("Agrega productos primero."); return; }
+            
+            fijarUbicacionActualMapa();
+
+            const metodo = document.getElementById('tipoMetodoPago').value;
+            if(!metodo) { alert("Por favor selecciona un método de pago."); return; }
+
+            let ref = "";
+            let numeroMesa = "";
+
+            if (metodo === 'efectivo') {
+                numeroMesa = document.getElementById('input-num-mesa').value.trim();
+                if(!numeroMesa) {
+                    alert("Por favor ingresa el número de mesa obligatorio para pagos en efectivo.");
+                    document.getElementById('input-num-mesa').focus();
                     return;
                 }
+                ref = `Efectivo (Mesa: ${numeroMesa})`;
+            } else {
+                ref = document.getElementById('input-ref-pago').value.trim();
+                if(!ref) { alert("Por favor ingresa el número o código de referencia."); return; }
+            }
+
+            const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || 'NINGUNO';
+            
+            let subtotalProductos = carrito.reduce((a, b) => a + b.precio, 0);
+            let totalGeneral = subtotalProductos + costoDeliveryKm;
+            let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
+            const linkGoogleMaps = `https://maps.google.com/?q=${gpsClienteLat},${gpsClienteLng}`;
+
+            let wsNum = "584120000000";
+            const { data } = await supabaseClient.from('ajustes_sistema').select('valor').eq('id', 'whatsapp_notificaciones').single();
+            if(data && data.valor) wsNum = data.valor.replace(/[^0-9]/g, "");
+
+            let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *NÚMERO DE MESA:* ${numeroMesa}\n` : '';
+            const mensaje = `🍔 *PEDIDO VIP - Casa de las Papas (HVX5+G5H, Mérida)* 🍔\n\n${lista}\n\n📦 *Subtotal:* $${subtotalProductos.toFixed(2)}\n🛵 *Delivery (${distanciaCalculadaKm.toFixed(2)} km):* $${costoDeliveryKm.toFixed(2)}\n💵 *TOTAL A PAGAR:* $${totalGeneral.toFixed(2)}\n📍 *Ubicación Google Maps:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
+
+            // --- INSERCIÓN MEJORADA EN LA TABLA ordenes_vip DE SUPABASE ---
+            const datosOrdenVip = {
+                productos: carrito.map(i => i.titulo).join(', '),
+                total: totalGeneral,
+                monto_total: totalGeneral,
+                referencia: ref,
+                referencia_bancaria: ref,
+                estado: "Pendiente",
+                codigo_referido: codigoReferidoCliente,
+                coordenadas_gps: `${gpsClienteLat},${gpsClienteLng}`,
+                costo_delivery: costoDeliveryKm
+            };
+
+            const { error: errorVip } = await supabaseClient.from('ordenes_vip').insert([datosOrdenVip]); 
+            if (errorVip) {
+                console.error("Error al guardar en ordenes_vip:", errorVip.message);
+                alert("Advertencia: No se pudo registrar la orden automáticamente en la base de datos VIP, pero continuaremos con el envío por WhatsApp.");
+            } else {
+                console.log("Orden guardada exitosamente en ordenes_vip.");
+            }
+
+            // Sincronización con la central
+            await guardarOrdenEnCentral({
+                nombre: 'HVX5+G5H, Mérida',
+                detalles: carrito.map(i => i.titulo).join(', '),
+                costo_delivery: costoDeliveryKm,
+                coordenadas: `${gpsClienteLat}, ${gpsClienteLng}`
+            });
+
+            carrito = [];
+            document.getElementById('contador-carrito-badge').innerText = "0";
+            document.getElementById('tipoMetodoPago').value = "";
+            document.getElementById('input-ref-pago').value = "";
+            document.getElementById('input-num-mesa').value = "";
+            document.getElementById('contenedorReferenciaCart').classList.add('hidden');
+            document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
+            document.getElementById('info-metodo-pago').classList.add('hidden');
+            localStorage.removeItem('dunig_ref_code');
+            cambiarPantalla('vitrina');
+            window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
+        }
+
+        async function verRutaGPS(ordenId) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('ordenes_vip')
+                    .select('coordenadas_gps')
+                    .eq('id', ordenId)
+                    .single();
+
+                if (error || !data || !data.coordenadas_gps) {
+                    alert("Por favor, asigna una dirección o coordenadas válidas a esta orden.");
+                    return;
+                }
+
+                const coords = data.coordenadas_gps.split(',');
+                if (coords.length !== 2) {
+                    alert("Las coordenadas guardadas no tienen un formato válido.");
+                    return;
+                }
+
+                const lat = coords[0].trim();
+                const lng = coords[1].trim();
+
+                if (!lat || !lng) {
+                    alert("Las coordenadas de la orden están incompletas.");
+                    return;
+                }
+
+                const urlGoogleMapsRuta = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+                window.open(urlGoogleMapsRuta, '_blank');
+
+            } catch (err) {
+                console.error("Error al abrir la ruta GPS:", err);
+                alert("Ocurrió un error al intentar calcular la ruta GPS.");
             }
         }
-    } catch (e) {
-        console.warn("Nota sobre permisos (entorno web o no nativo):", e);
-    }
-
-    // --- PASO 2: FIJAR Y CAPTURAR LA UBICACIÓN ACTUAL ---
-    fijarUbicacionActualMapa();
-
-    const metodo = document.getElementById('tipoMetodoPago').value;
-    if(!metodo) { alert("Por favor selecciona un método de pago."); return; }
-
-    let ref = "";
-    let numeroMesa = "";
-
-    if (metodo === 'efectivo') {
-        numeroMesa = document.getElementById('input-num-mesa').value.trim();
-        if(!numeroMesa) {
-            alert("Por favor ingresa el número de mesa obligatorio para pagos en efectivo.");
-            document.getElementById('input-num-mesa').focus();
-            return;
-        }
-        ref = `Efectivo (Mesa: ${numeroMesa})`;
-    } else {
-        ref = document.getElementById('input-ref-pago').value.trim();
-        if(!ref) { alert("Por favor ingresa el número o código de referencia."); return; }
-    }
-
-    const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || 'NINGUNO';
-    
-    let subtotalProductos = carrito.reduce((a, b) => a + b.precio, 0);
-    let totalGeneral = subtotalProductos + costoDeliveryKm;
-    let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
-    const linkGoogleMaps = `https://maps.google.com/?q=${gpsClienteLat},${gpsClienteLng}`;
-
-    let wsNum = "584120000000";
-    const { data } = await supabaseClient.from('ajustes_sistema').select('valor').eq('id', 'whatsapp_notificaciones').single();
-    if(data && data.valor) wsNum = data.valor.replace(/[^0-9]/g, "");
-
-    let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *NÚMERO DE MESA:* ${numeroMesa}\n` : '';
-    const mensaje = `🍔 *PEDIDO VIP - Casa de las Papas (HVX5+G5H, Mérida)* 🍔\n\n${lista}\n\n📦 *Subtotal:* $${subtotalProductos.toFixed(2)}\n🛵 *Delivery (${distanciaCalculadaKm.toFixed(2)} km):* $${costoDeliveryKm.toFixed(2)}\n💵 *TOTAL A PAGAR:* $${totalGeneral.toFixed(2)}\n📍 *Ubicación Google Maps:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
-
-    const datosOrdenPendiente = {
-        productos: carrito.map(i => i.titulo).join(', '),
-        total: totalGeneral,
-        monto_total: totalGeneral,
-        referencia: ref,
-        referencia_bancaria: ref,
-        estado: "Pendiente",
-        codigo_referido: codigoReferidoCliente,
-        coordenadas_gps: `${gpsClienteLat},${gpsClienteLng}`,
-        costo_delivery: costoDeliveryKm
-    };
-
-    await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
-
-    // ELIMINA O COMENTA ESTA LLAMADA AUTOMÁTICA EN index.html:
-    /*
-    await guardarOrdenEnCentral({
-        nombre: 'HVX5+G5H, Mérida',
-        detalles: carrito.map(i => i.titulo).join(', '),
-        costo_delivery: costoDeliveryKm,
-        coordenadas: `${gpsClienteLat}, ${gpsClienteLng}`
-    });
-    */
-
-    carrito = [];
-    document.getElementById('contador-carrito-badge').innerText = "0";
-    document.getElementById('tipoMetodoPago').value = "";
-    document.getElementById('input-ref-pago').value = "";
-    document.getElementById('input-num-mesa').value = "";
-    document.getElementById('contenedorReferenciaCart').classList.add('hidden');
-    document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
-    document.getElementById('info-metodo-pago').classList.add('hidden');
-    localStorage.removeItem('dunig_ref_code');
-    cambiarPantalla('vitrina');
-    window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
-}
-
-// --- FUNCIÓN PARA ABRIR LA RUTA GPS DESDE SUPABASE ---
-async function verRutaGPS(ordenId) {
-    try {
-        const { data, error } = await supabaseClient
-            .from('ordenes_vip')
-            .select('coordenadas_gps')
-            .eq('id', ordenId)
-            .single();
-
-        if (error || !data || !data.coordenadas_gps) {
-            alert("Por favor, asigna una dirección o coordenadas válidas a esta orden.");
-            return;
-        }
-
-        const coords = data.coordenadas_gps.split(',');
-        if (coords.length !== 2) {
-            alert("Las coordenadas guardadas no tienen un formato válido.");
-            return;
-        }
-
-        const lat = coords[0].trim();
-        const lng = coords[1].trim();
-
-        if (!lat || !lng) {
-            alert("Las coordenadas de la orden están incompletas.");
-            return;
-        }
-
-        const urlGoogleMapsRuta = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
-        window.open(urlGoogleMapsRuta, '_blank');
-
-    } catch (err) {
-        console.error("Error al abrir la ruta GPS:", err);
-        alert("Ocurrió un error al intentar calcular la ruta GPS.");
-    }
-}
     </script>
 </body> 
 </html>
