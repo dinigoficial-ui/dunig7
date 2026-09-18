@@ -594,7 +594,11 @@
                 await cargarTarifaDeliveryDesdeSupabase();
                 renderizarCarrito();
                 setTimeout(() => {
-                    if (map) google.maps.event.trigger(map, "resize");
+                    if (map) {
+                        google.maps.event.trigger(map, "resize");
+                        map.setCenter({ lat: gpsClienteLat, lng: gpsClienteLng });
+                        procesarCalculoDistanciaYCostos();
+                    }
                 }, 200);
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1025,7 +1029,7 @@
             const containerMap = document.getElementById("google-map-container");
             if(containerMap) {
                 map = new google.maps.Map(containerMap, {
-                    center: { lat: LOCAL_LAT, lng: LOCAL_LNG },
+                    center: { lat: gpsClienteLat, lng: gpsClienteLng },
                     zoom: 15,
                     disableDefaultUI: true,
                     zoomControl: true,
@@ -1034,8 +1038,11 @@
 
                 map.addListener("idle", () => {
                     const centro = map.getCenter();
-                    gpsClienteLat = centro.lat();
-                    gpsClienteLng = centro.lng();
+                    if(centro) {
+                        gpsClienteLat = centro.lat();
+                        gpsClienteLng = centro.lng();
+                        procesarCalculoDistanciaYCostos();
+                    }
                 });
             }
         }
@@ -1083,16 +1090,38 @@
                         procesarCalculoDistanciaYCostos();
                     },
                     () => {
+                        if (map) {
+                            const centro = map.getCenter();
+                            if(centro) {
+                                gpsClienteLat = centro.lat();
+                                gpsClienteLng = centro.lng();
+                            }
+                        }
                         procesarCalculoDistanciaYCostos();
                     },
                     { enableHighAccuracy: true, timeout: 5000 }
                 );
             } else {
+                if (map) {
+                    const centro = map.getCenter();
+                    if(centro) {
+                        gpsClienteLat = centro.lat();
+                        gpsClienteLng = centro.lng();
+                    }
+                }
                 procesarCalculoDistanciaYCostos();
             }
         }
 
         function procesarCalculoDistanciaYCostos() {
+            if(map) {
+                const centro = map.getCenter();
+                if(centro) {
+                    gpsClienteLat = centro.lat();
+                    gpsClienteLng = centro.lng();
+                }
+            }
+
             if(gpsClienteLat !== null && gpsClienteLng !== null) {
                 distanciaCalculadaKm = calcularDistanciaEnKm(LOCAL_LAT, LOCAL_LNG, gpsClienteLat, gpsClienteLng);
                 
@@ -1110,7 +1139,7 @@
             }
         }
 
-        function irCasadelasPapas() {
+        function irAVendavalHouse() {
             if(map) {
                 map.setCenter({ lat: LOCAL_LAT, lng: LOCAL_LNG });
                 map.setZoom(17);
@@ -1232,22 +1261,15 @@
         async function enviarPedidoWhatsApp() {
             if(carrito.length === 0) { alert("Agrega productos primero."); return; }
             
-            try {
-                if (typeof Geolocation !== 'undefined') {
-                    const permisos = await Geolocation.checkPermissions();
-                    if (permisos.location !== 'granted') {
-                        const solicitud = await Geolocation.requestPermissions();
-                        if (solicitud.location !== 'granted') {
-                            alert("Se requiere permiso de ubicación para calcular el delivery y enviar la orden.");
-                            return;
-                        }
-                    }
+            // Aseguramos capturar las coordenadas actuales del centro del mapa antes de enviar
+            if (map) {
+                const centro = map.getCenter();
+                if(centro) {
+                    gpsClienteLat = centro.lat();
+                    gpsClienteLng = centro.lng();
                 }
-            } catch (e) {
-                console.warn("Nota sobre permisos (entorno web o no nativo):", e);
             }
-
-            fijarUbicacionActualMapa();
+            procesarCalculoDistanciaYCostos();
 
             const metodo = document.getElementById('tipoMetodoPago').value;
             if(!metodo) { alert("Por favor selecciona un método de pago."); return; }
