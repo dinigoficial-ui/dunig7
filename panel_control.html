@@ -262,7 +262,6 @@
                             <th class="p-3">Productos Solicitados</th>
                             <th class="p-3">Total ($)</th>
                             <th class="p-3">Referencia Registrada</th>
-                            <th class="p-3 text-center">Enviar Delivery</th>
                             <th class="p-3 text-right">Estado</th>
                         </tr>
                     </thead>
@@ -924,12 +923,6 @@
                         <td class="p-3 text-white nombre-del-plato">${o.productos}</td>
                         <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || 0).toFixed(2)}</td>
                         <td class="p-3 font-mono text-stone-500">${o.referencia || 'N/A'}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="cambiarEstadoYEnviarDelivery(${o.id}, 'verificado', '${o.productos.replace(/'/g, "\\'")}', ${o.costo_delivery || 0}, '${o.coordenadas_gps || "8.59941369535553, -71.14089323410698"}')" 
-                                class="bg-amber-500 hover:bg-amber-400 text-black px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer">
-                                Enviar a Delivery 🛵
-                            </button>
-                        </td>
                         <td class="p-3 text-right">
                             <select 
                                 onchange="actualizarEstadoOrden(${o.id}, this.value)" 
@@ -962,71 +955,6 @@
                 alert("Error al actualizar estado: " + error.message);
             }
         }
-
-        // --- FUNCIONES DE ENVÍO A DELIVERY CENTRAL ---
-        async function enviarOrdenAlDeliveryCentral(ordenVIP) {
-            const SUPABASE_CENTRAL_URL = "https://cmaishgahyzlhszwaozg.supabase.co/rest/v1/ordenes_central";
-            const SUPABASE_CENTRAL_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtYWlzaGdhaHl6bGhzendhb3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MjMxMzEsImV4cCI6MjEwMDQ5OTEzMX0.8JVrpQKocnyZa3qLxsX9ZxjygYy4QY3kp_VSvrL1qNQ";
-
-            try {
-                const response = await fetch(SUPABASE_CENTRAL_URL, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "apikey": SUPABASE_CENTRAL_ANON_KEY,
-                        "Authorization": `Bearer ${SUPABASE_CENTRAL_ANON_KEY}`,
-                        "Prefer": "return=representation"
-                    },
-                    body: JSON.stringify({
-                        comercio: "Casa de las Papas (VIP)",
-                        comercio_nombre: "Casa de las Papas (VIP)",
-                        comercio_direccion: "HVX5+G5H, Mérida",
-                        productos: ordenVIP.productos,
-                        costo_delivery: ordenVIP.costo_delivery || 0.00,
-                        coordenadas_gps: ordenVIP.coordenadas_gps || "8.59941369535553, -71.14089323410698",
-                        estado: "Pendiente"
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Error al enviar al delivery: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                console.log("Pedido enviado exitosamente a la interfaz del delivery:", data);
-                alert("¡Pedido enviado a la interfaz del delivery con éxito!");
-
-            } catch (error) {
-                console.error("Fallo la sincronización con el delivery central:", error);
-                alert("Hubo un error al enviar el pedido al delivery.");
-            }
-        }
-
-        async function cambiarEstadoYEnviarDelivery(idOrden, nuevoEstado, productos, costoDelivery, coordenadas) {
-            // 1. Actualizar el estado en la tabla 'ordenes_vip'
-            const { error } = await supabaseClient
-                .from('ordenes_vip')
-                .update({ estado: nuevoEstado })
-                .eq('id', idOrden);
-
-            if (error) {
-                alert("Error al actualizar la orden VIP.");
-                return;
-            }
-
-            // 2. Si el estado es el designado para enviar al delivery, ejecutamos la función hacia la central
-            if (nuevoEstado === 'verificado' || nuevoEstado === 'Aprobado' || nuevoEstado === 'En camino') { 
-                await enviarOrdenAlDeliveryCentral({
-                    productos: productos,
-                    costo_delivery: costoDelivery,
-                    coordenadas_gps: coordenadas
-                });
-            }
-
-            // 3. Recargar la lista de órdenes en el panel
-            await descargarHistorialDeOrdenes();
-        }
-        // ----------------------------------------------
 
         async function descargarAjusteWhatsApp() {
             const { data, error } = await supabaseClient
@@ -1077,6 +1005,7 @@
             }
         }
 
+        // NUEVO: Funciones para la hora en vitrina
         async function descargarHoraVitrina() {
             const { data, error } = await supabaseClient
                 .from('ajustes_sistema')
