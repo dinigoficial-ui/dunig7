@@ -1299,13 +1299,15 @@
 
     await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
 
-    // Guardar la orden centralizada utilizando la estructura personalizada
+    // ELIMINA O COMENTA ESTA LLAMADA AUTOMÁTICA EN index.html:
+    /*
     await guardarOrdenEnCentral({
         nombre: 'HVX5+G5H, Mérida',
         detalles: carrito.map(i => i.titulo).join(', '),
         costo_delivery: costoDeliveryKm,
         coordenadas: `${gpsClienteLat}, ${gpsClienteLng}`
     });
+    */
 
     carrito = [];
     document.getElementById('contador-carrito-badge').innerText = "0";
