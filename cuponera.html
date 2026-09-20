@@ -104,43 +104,50 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         async function desbloquearCuponVIP() {
-    const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
-    if(!inputVal) {
-        alert("Por favor ingresa un código de cupón.");
-        return;
-    }
+            const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
+            if(!inputVal) {
+                alert("Por favor ingresa un código de cupón.");
+                return;
+            }
 
-    // Buscamos ignorando si el usuario escribió en mayúsculas o minúsculas
-    const { data, error } = await supabaseClient
-        .from('cupones')
-        .select('*')
-        .ilike('codigo', inputVal)
-        .single();
+            // Buscamos ignorando si el usuario escribió en mayúsculas o minúsculas
+            const { data, error } = await supabaseClient
+                .from('cupones')
+                .select('*')
+                .ilike('codigo', inputVal)
+                .single();
 
-    if (error || !data) {
-        alert("Código de cupón inválido o no encontrado.");
-        return;
-    }
+            if (error || !data) {
+                alert("Código de cupón inválido o no encontrado.");
+                return;
+            }
 
-    // Textos del modal (usando los campos reales de la tabla)
-    document.getElementById('cupon-titulo-modal').innerText = "¡Cupón VIP Exclusivo!";
-    document.getElementById('cupon-descripcion-modal').innerText = data.descripcion || "¡Disfruta de tu beneficio exclusivo!";
-    document.getElementById('cupon-imagen-modal').src = data.imagen_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600";
-    
-    // Configurar enlace de WhatsApp por defecto (puedes cambiar el número aquí o agregarlo a tu base de datos)
-    const numeroWp = "584120000000"; // Reemplaza con tu número de WhatsApp comercial
-    const mensajeWp = encodeURIComponent(`¡Hola! Desbloqueé el siguiente cupón VIP:\n\nCódigo: *${data.codigo}*\nDescripción: ${data.descripcion || 'Sin descripción'}`);
-    document.getElementById('btn-whatsapp-canje').href = `https://wa.me/${numeroWp}?text=${mensajeWp}`;
+            // Textos del modal
+            document.getElementById('cupon-titulo-modal').innerText = "¡Cupón VIP Exclusivo!";
+            const descripcionTexto = data.descripcion || "¡Disfruta de tu beneficio exclusivo!";
+            document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
+            document.getElementById('cupon-imagen-modal').src = data.imagen_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600";
+            
+            // CONFIGURACIÓN DE WHATSAPP CORREGIDA
+            // ⚠️ CAMBIA "584120000000" por tu número real de WhatsApp con código de país (sin el signo +)
+            const numeroWp = "584120000000"; 
+            
+            // Construimos un mensaje claro que incluye el código, el título y la descripción
+            const textoMensaje = `¡Hola! He validado mi código secreto en la cuponera VIP de Pizza Planeta.\n\n🎟️ *Código:* ${data.codigo}\n📝 *Detalle:* ${descripcionTexto}`;
+            const mensajeWpCodificado = encodeURIComponent(textoMensaje);
+            
+            // Asignamos el enlace completo al botón del modal
+            document.getElementById('btn-whatsapp-canje').href = `https://wa.me/${numeroWp}?text=${mensajeWpCodificado}`;
 
-    document.getElementById('modal-cupon-exito').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
+            document.getElementById('modal-cupon-exito').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
 
-function cerrarCuponExito() {
-    document.getElementById('modal-cupon-exito').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-    document.getElementById('input-codigo-ingresado').value = "";
-}
+        function cerrarCuponExito() {
+            document.getElementById('modal-cupon-exito').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('input-codigo-ingresado').value = "";
+        }
 
         window.addEventListener('DOMContentLoaded', () => { 
             lucide.createIcons(); 
