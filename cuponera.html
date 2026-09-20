@@ -110,7 +110,7 @@
                 return;
             }
 
-            // Buscamos ignorando si el usuario escribió en mayúsculas o minúsculas
+            // Buscamos el cupón en Supabase
             const { data, error } = await supabaseClient
                 .from('cupones')
                 .select('*')
@@ -122,21 +122,21 @@
                 return;
             }
 
-            // Textos del modal
+            // Rellenar datos en el modal
             document.getElementById('cupon-titulo-modal').innerText = "¡Cupón VIP Exclusivo!";
             const descripcionTexto = data.descripcion || "¡Disfruta de tu beneficio exclusivo!";
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
             document.getElementById('cupon-imagen-modal').src = data.imagen_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600";
             
-            // CONFIGURACIÓN DE WHATSAPP CORREGIDA
-            // ⚠️ CAMBIA "584120000000" por tu número real de WhatsApp con código de país (sin el signo +)
-            const numeroWp = "584120000000"; 
+            // OBTENER EL WHATSAPP DINÁMICAMENTE DESDE SUPABASE
+            // Si el registro no tiene teléfono configurado, usa un número de respaldo por seguridad
+            const numeroWp = data.whatsapp ? data.whatsapp.trim() : "584120000000"; 
             
-            // Construimos un mensaje claro que incluye el código, el título y la descripción
-            const textoMensaje = `¡Hola! He validado mi código secreto en la cuponera VIP de Pizza Planeta.\n\n🎟️ *Código:* ${data.codigo}\n📝 *Detalle:* ${descripcionTexto}`;
+            // Construir el mensaje formateado para WhatsApp
+            const textoMensaje = `¡Hola! He validado mi código secreto en la cuponera VIP.\n\n🎟️ *Código:* ${data.codigo}\n📝 *Detalle:* ${descripcionTexto}`;
             const mensajeWpCodificado = encodeURIComponent(textoMensaje);
             
-            // Asignamos el enlace completo al botón del modal
+            // Asignar el enlace definitivo con el número extraído de la base de datos
             document.getElementById('btn-whatsapp-canje').href = `https://wa.me/${numeroWp}?text=${mensajeWpCodificado}`;
 
             document.getElementById('modal-cupon-exito').classList.remove('hidden');
