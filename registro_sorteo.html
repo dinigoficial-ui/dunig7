@@ -54,7 +54,7 @@
         <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl space-y-6 border border-stone-800">
             <div class="text-center space-y-2">
                 <h2 class="text-lg font-black font-futurista text-white uppercase tracking-wider">Regístrate y Gana</h2>
-                <p class="text-xs text-stone-400">Completa tus datos para asignarte tu código de 3 cifras que servirá para tu sorteo y cupón VIP.</p>
+                <p class="text-xs text-stone-400">Completa tus datos para asignarte tu código de 3 cifras para el sorteo VIP.</p>
             </div>
 
             <!-- FORMULARIO DE REGISTRO -->
@@ -95,7 +95,7 @@
             </div>
 
             <p class="text-xs text-stone-300 leading-relaxed">
-                Este número es tu pase oficial. Participa en el sorteo y úsalo directamente en la <strong class="text-white">Cuponera VIP</strong> para reclamar tu beneficio.
+                Guarda este número. Úsalo en la <strong class="text-white">Cuponera VIP</strong> para ver los premios disponibles y notificar tu participación por WhatsApp.
             </p>
             
             <div class="space-y-2 pt-2">
@@ -103,7 +103,7 @@
                     <i data-lucide="message-circle" class="w-4 h-4"></i> Notificar por WhatsApp
                 </a>
                 <a id="btn-abrir-cupon" href="cuponera.html" class="w-full bg-stone-900 hover:bg-stone-800 border border-stone-800 text-amber-400 hover:text-white font-futurista font-bold py-3.5 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors">
-                    <i data-lucide="ticket" class="w-4 h-4"></i> Ir a la Cuponera
+                    <i data-lucide="ticket" class="w-4 h-4"></i> Ver Premios en Cuponera
                 </a>
             </div>
         </div>
@@ -116,7 +116,7 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Número de WhatsApp del negocio para recibir las confirmaciones de registro
+        // Número de WhatsApp del negocio para recibir las solicitudes del cliente
         const WHATSAPP_NEGOCIO = "584121234567"; // Reemplaza con tu número real de atención
 
         async function registrarParticipante(e) {
@@ -130,10 +130,10 @@
             const telefono = document.getElementById('reg-telefono').value.trim();
             const email = document.getElementById('reg-email').value.trim();
 
-            // 1. Generar número aleatorio de 3 dígitos (ej: 045, 812)
+            // 1. Generar número aleatorio exclusivo de 3 dígitos para el sorteo del cliente
             const codigoTresDigitos = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
 
-            // 2. Guardar en la tabla de participantes del sorteo
+            // 2. Guardar únicamente en la tabla de participantes del sorteo
             const { error: errorSorteo } = await supabaseClient
                 .from('participantes_sorteo')
                 .insert([
@@ -153,31 +153,14 @@
                 return;
             }
 
-            // 3. REGISTRAR AUTOMÁTICAMENTE EL MISMO CÓDIGO EN LA TABLA DE CUPONES
-            const { error: errorCupon } = await supabaseClient
-                .from('cupones')
-                .insert([
-                    {
-                        codigo: codigoTresDigitos,
-                        titulo: "¡Bono Especial de Sorteo!",
-                        descripcion: `¡Felicidades ${nombre}! Este cupón se desbloqueó automáticamente con tu número de sorteo #${codigoTresDigitos}. Canjea este beneficio en nuestro local.`,
-                        imagen_url: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=600",
-                        whatsapp: telefono
-                    }
-                ]);
-
-            if (errorCupon) {
-                console.warn("Aviso al vincular cupón:", errorCupon);
-            }
-
             // Mostrar el código generado en el modal
             document.getElementById('codigo-generado-display').innerText = codigoTresDigitos;
 
-            // Configurar el enlace para abrir directamente la cuponera pasando el código por parámetro
+            // Configurar el enlace para abrir la cuponera pasando el código generado por URL
             document.getElementById('btn-abrir-cupon').href = `cuponera.html?codigo=${codigoTresDigitos}`;
 
-            // Configurar enlace de WhatsApp para notificar al negocio
-            const mensajeWp = `¡Hola! Me he registrado para el Sorteo VIP de Pizza Planeta.\n\n👤 *Nombre:* ${nombre}\n📱 *Teléfono:* ${telefono}\n🎟️ *Mi Código VIP:* ${codigoTresDigitos}`;
+            // Configurar enlace de WhatsApp para que el cliente notifique su código y su interés general
+            const mensajeWp = `¡Hola! Me he registrado al Sorteo VIP de Pizza Planeta.\n\n👤 *Nombre:* ${nombre}\n📱 *Teléfono:* ${telefono}\n🎟️ *Mi Código de Sorteo:* ${codigoTresDigitos}\n\n¡Quiero reclamar mi beneficio y participar por los premios de la cuponera!`;
             const enlaceWp = `https://wa.me/${WHATSAPP_NEGOCIO}?text=${encodeURIComponent(mensajeWp)}`;
             document.getElementById('btn-whatsapp-notificar').href = enlaceWp;
 
