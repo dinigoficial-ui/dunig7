@@ -104,42 +104,43 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         async function desbloquearCuponVIP() {
-            const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
-            if(!inputVal) {
-                alert("Por favor ingresa un código de cupón.");
-                return;
-            }
+    const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
+    if(!inputVal) {
+        alert("Por favor ingresa un código de cupón.");
+        return;
+    }
 
-            const { data, error } = await supabaseClient
-                .from('cupones')
-                .select('*')
-                .eq('codigo', inputVal)
-                .single();
+    // Buscamos ignorando si el usuario escribió en mayúsculas o minúsculas
+    const { data, error } = await supabaseClient
+        .from('cupones')
+        .select('*')
+        .ilike('codigo', inputVal)
+        .single();
 
-            if (error || !data) {
-                alert("Código de cupón inválido o no encontrado.");
-                return;
-            }
+    if (error || !data) {
+        alert("Código de cupón inválido o no encontrado.");
+        return;
+    }
 
-            // Textos del modal
-            document.getElementById('cupon-titulo-modal').innerText = data.titulo || "Cupón Canjeado";
-            document.getElementById('cupon-descripcion-modal').innerText = data.descripcion || "¡Disfruta de tu beneficio exclusivo en Pizza Planeta!";
-            document.getElementById('cupon-imagen-modal').src = data.imagen_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600";
-            
-            // Configurar enlace de WhatsApp
-            const numeroWp = data.whatsapp ? data.whatsapp.trim() : "584120000000"; // Pon tu número por defecto si viene vacío
-            const mensajeWp = encodeURIComponent(`¡Hola! Desbloqueé el siguiente cupón VIP:\n\n*${data.titulo || 'Cupón Exclusivo'}*\n${data.descripcion || ''}\nCódigo: ${data.codigo}`);
-            document.getElementById('btn-whatsapp-canje').href = `https://wa.me/${numeroWp}?text=${mensajeWp}`;
+    // Textos del modal (usando los campos reales de la tabla)
+    document.getElementById('cupon-titulo-modal').innerText = "¡Cupón VIP Exclusivo!";
+    document.getElementById('cupon-descripcion-modal').innerText = data.descripcion || "¡Disfruta de tu beneficio exclusivo!";
+    document.getElementById('cupon-imagen-modal').src = data.imagen_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600";
+    
+    // Configurar enlace de WhatsApp por defecto (puedes cambiar el número aquí o agregarlo a tu base de datos)
+    const numeroWp = "584120000000"; // Reemplaza con tu número de WhatsApp comercial
+    const mensajeWp = encodeURIComponent(`¡Hola! Desbloqueé el siguiente cupón VIP:\n\nCódigo: *${data.codigo}*\nDescripción: ${data.descripcion || 'Sin descripción'}`);
+    document.getElementById('btn-whatsapp-canje').href = `https://wa.me/${numeroWp}?text=${mensajeWp}`;
 
-            document.getElementById('modal-cupon-exito').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
+    document.getElementById('modal-cupon-exito').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
 
-        function cerrarCuponExito() {
-            document.getElementById('modal-cupon-exito').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            document.getElementById('input-codigo-ingresado').value = "";
-        }
+function cerrarCuponExito() {
+    document.getElementById('modal-cupon-exito').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    document.getElementById('input-codigo-ingresado').value = "";
+}
 
         window.addEventListener('DOMContentLoaded', () => { 
             lucide.createIcons(); 
