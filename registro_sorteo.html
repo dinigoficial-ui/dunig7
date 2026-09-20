@@ -116,9 +116,6 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Reemplaza con tu número de WhatsApp real del negocio (ej: código de país + número)
-        const WHATSAPP_NEGOCIO = "584121234567";
-
         async function registrarParticipante(e) {
             e.preventDefault();
 
@@ -130,11 +127,11 @@
             const telefono = document.getElementById('reg-telefono').value.trim();
             const email = document.getElementById('reg-email').value.trim();
 
-            // 1. Generar número aleatorio de 3 dígitos (ej: "042", "719")
+            // 1. Generar número aleatorio de 3 dígitos
             const codigoTresDigitos = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
 
             try {
-                // 2. Guardar los datos personales del cliente en la tabla 'participantes_sorteo'
+                // 2. Guardar los datos del cliente en su tabla de registro
                 const { error: errorSorteo } = await supabaseClient
                     .from('participantes_sorteo')
                     .insert([
@@ -148,16 +145,29 @@
 
                 if (errorSorteo) throw errorSorteo;
 
-                // 3. Guardar SOLO el código generado en la tabla 'cupones' (solo el campo código)
+                // 3. Guardar el código en la casilla "sorteo" de la tabla 'cupones'
                 const { error: errorCupon } = await supabaseClient
                     .from('cupones')
                     .insert([
                         { 
-                            codigo: codigoTresDigitos 
+                            sorteo: codigoTresDigitos 
                         }
                     ]);
 
                 if (errorCupon) throw errorCupon;
+
+                // 4. Obtener el número de WhatsApp del negocio configurado en la tabla de cupones 
+                // (Busca el primer registro de la tabla 'cupones' que contenga una columna llamada 'whatsapp' o similar)
+                let whatsappNegocio = "584121234567"; // Valor por defecto por seguridad
+                const { data: datosCupones, error: errorWpQuery } = await supabaseClient
+                    .from('cupones')
+                    .select('whatsapp')
+                    .not('whatsapp', 'is', null)
+                    .limit(1);
+
+                if (!errorWpQuery && datosCupones && datosCupones.length > 0 && datosCupones[0].whatsapp) {
+                    whatsappNegocio = datosCupones[0].whatsapp;
+                }
 
                 // Mostrar el código en pantalla
                 document.getElementById('codigo-generado-display').innerText = codigoTresDigitos;
@@ -165,9 +175,9 @@
                 // Enlace de la cuponera pasando el código
                 document.getElementById('btn-abrir-cupon').href = `cuponera.html?codigo=${codigoTresDigitos}`;
 
-                // Enlace de WhatsApp para redirigir la solicitud del cliente con sus datos y su número
+                // Enlace de WhatsApp dinámico usando el número obtenido de la tabla de cupones
                 const mensajeWp = `¡Hola! Me he registrado en el Sorteo VIP de Pizza Planeta.\n\n👤 *Nombre:* ${nombre}\n📱 *Teléfono:* ${telefono}\n🎟️ *Mi Código de Sorteo:* ${codigoTresDigitos}\n\n¡Ya vi el premio en la cuponera y quiero participar/reclamar mi beneficio!`;
-                document.getElementById('btn-whatsapp-notificar').href = `https://wa.me/${WHATSAPP_NEGOCIO}?text=${encodeURIComponent(mensajeWp)}`;
+                document.getElementById('btn-whatsapp-notificar').href = `https://wa.me/${whatsappNegocio}?text=${encodeURIComponent(mensajeWp)}`;
 
                 // Mostrar modal de éxito
                 document.getElementById('modal-exito-sorteo').classList.remove('hidden');
