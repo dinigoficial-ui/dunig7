@@ -81,29 +81,29 @@
         </div>
     </main>
 
-    <!-- MODAL DE ÉXITO -->
+    <!-- MODAL DE ÉXITO (Sin WhatsApp, con autoguardado y copiado) -->
     <div id="modal-exito-sorteo" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
         <div class="relative max-w-sm w-full bg-stone-950 border border-amber-500/40 rounded-3xl p-6 text-center space-y-5 shadow-2xl">
             <div class="space-y-1">
                 <span class="text-[9px] uppercase tracking-widest font-futurista text-amber-400 font-bold">¡Registro Exitoso!</span>
-                <h3 class="text-lg font-bold font-futurista text-white">Tu Código Asignado</h3>
+                <h3 class="text-lg font-bold font-futurista text-white">Tu Código de la Suerte</h3>
             </div>
             
             <div class="bg-black/80 border border-amber-500/30 rounded-2xl p-6 glow-gold">
-                <p class="text-[10px] text-stone-400 uppercase tracking-widest font-futurista mb-1">Número de 3 cifras:</p>
+                <p class="text-[10px] text-stone-400 uppercase tracking-widest font-futurista mb-1">Tu número de 3 cifras:</p>
                 <div id="codigo-generado-display" class="text-4xl font-black font-mono text-amber-400 tracking-widest">---</div>
             </div>
 
             <p class="text-xs text-stone-300 leading-relaxed">
-                Tu código se ha guardado correctamente. Ve a la cuponera, visualiza el premio por el que participas y comunícate con nosotros por WhatsApp.
+                Este número se ha guardado en tu dispositivo. Úsalo en la <span class="text-amber-400 font-bold">Cuponera VIP</span> para ingresar automáticamente.
             </p>
             
             <div class="space-y-2 pt-2">
-                <a id="btn-whatsapp-notificar" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-futurista font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors shadow-lg cursor-pointer">
-                    <i data-lucide="message-circle" class="w-4 h-4"></i> Notificar por WhatsApp
-                </a>
-                <a id="btn-abrir-cupon" href="cuponera.html" class="w-full bg-stone-900 hover:bg-stone-800 border border-stone-800 text-amber-400 hover:text-white font-futurista font-bold py-3.5 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors">
-                    <i data-lucide="ticket" class="w-4 h-4"></i> Ir a la Cuponera
+                <button onclick="copiarCodigoSorteo()" class="w-full bg-stone-900 hover:bg-stone-800 border border-amber-500/30 text-amber-400 font-futurista font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors cursor-pointer">
+                    <i data-lucide="copy" class="w-4 h-4"></i> Copiar Código
+                </button>
+                <a id="btn-abrir-cupon" href="cuponera.html" class="w-full btn-oro text-stone-950 font-futurista font-black py-3.5 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors shadow-lg">
+                    <i data-lucide="ticket" class="w-4 h-4"></i> Ir a la Cuponera VIP
                 </a>
             </div>
         </div>
@@ -115,6 +115,8 @@
         const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let codigoActualSorteo = "";
 
         async function registrarParticipante(e) {
             e.preventDefault();
@@ -128,10 +130,10 @@
             const email = document.getElementById('reg-email').value.trim();
 
             // 1. Generar número aleatorio de 3 dígitos
-            const codigoTresDigitos = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+            codigoActualSorteo = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
 
             try {
-                // 2. Guardar los datos del cliente en su tabla de registro
+                // 2. Guardar únicamente en la tabla segura de participantes (evita errores con tablas ajenas)
                 const { error: errorSorteo } = await supabaseClient
                     .from('participantes_sorteo')
                     .insert([
@@ -139,49 +141,26 @@
                             nombre: nombre, 
                             telefono: telefono, 
                             email: email, 
-                            codigo_sorteo: codigoTresDigitos 
+                            codigo_sorteo: codigoActualSorteo 
                         }
                     ]);
 
                 if (errorSorteo) throw errorSorteo;
 
-                // 3. Guardar el código en la casilla "sorteo" de la tabla 'cupones'
-                const { error: errorCupon } = await supabaseClient
-                    .from('cupones')
-                    .insert([
-                        { 
-                            sorteo: codigoTresDigitos 
-                        }
-                    ]);
+                // 3. Guardar automáticamente el código en el almacenamiento local del teléfono
+                localStorage.setItem('unig_codigo_suerte', codigoActualSorteo);
 
-                if (errorCupon) throw errorCupon;
+                // 4. Mostrar el código en pantalla
+                document.getElementById('codigo-generado-display').innerText = codigoActualSorteo;
 
-                // 4. Obtener el número de WhatsApp del negocio configurado en la tabla de cupones 
-                // (Busca el primer registro de la tabla 'cupones' que contenga una columna llamada 'whatsapp' o similar)
-                let whatsappNegocio = "584121234567"; // Valor por defecto por seguridad
-                const { data: datosCupones, error: errorWpQuery } = await supabaseClient
-                    .from('cupones')
-                    .select('whatsapp')
-                    .not('whatsapp', 'is', null)
-                    .limit(1);
+                // Enlace de la cuponera pasando el código por URL si es necesario
+                document.getElementById('btn-abrir-cupon').href = `cuponera.html?codigo=${codigoActualSorteo}`;
 
-                if (!errorWpQuery && datosCupones && datosCupones.length > 0 && datosCupones[0].whatsapp) {
-                    whatsappNegocio = datosCupones[0].whatsapp;
-                }
-
-                // Mostrar el código en pantalla
-                document.getElementById('codigo-generado-display').innerText = codigoTresDigitos;
-
-                // Enlace de la cuponera pasando el código
-                document.getElementById('btn-abrir-cupon').href = `cuponera.html?codigo=${codigoTresDigitos}`;
-
-                // Enlace de WhatsApp dinámico usando el número obtenido de la tabla de cupones
-                const mensajeWp = `¡Hola! Me he registrado en el Sorteo VIP de Pizza Planeta.\n\n👤 *Nombre:* ${nombre}\n📱 *Teléfono:* ${telefono}\n🎟️ *Mi Código de Sorteo:* ${codigoTresDigitos}\n\n¡Ya vi el premio en la cuponera y quiero participar/reclamar mi beneficio!`;
-                document.getElementById('btn-whatsapp-notificar').href = `https://wa.me/${whatsappNegocio}?text=${encodeURIComponent(mensajeWp)}`;
-
-                // Mostrar modal de éxito
+                // Mostrar modal de éxito limpio (sin WhatsApp)
                 document.getElementById('modal-exito-sorteo').classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
+
+                if (window.lucide) lucide.createIcons();
 
             } catch (err) {
                 console.error("Error en el proceso:", err);
@@ -191,8 +170,16 @@
             }
         }
 
+        function copiarCodigoSorteo() {
+            navigator.clipboard.writeText(codigoActualSorteo).then(() => {
+                alert("¡Código " + codigoActualSorteo + " copiado al portapapeles con éxito!");
+            }).catch(err => {
+                console.error("Error al copiar: ", err);
+            });
+        }
+
         window.addEventListener('DOMContentLoaded', () => { 
-            lucide.createIcons(); 
+            if (window.lucide) lucide.createIcons(); 
         });
     </script>
 </body>
