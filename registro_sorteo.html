@@ -133,7 +133,7 @@
             codigoActualSorteo = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
 
             try {
-                // 2. Intentar guardar en la tabla con campos flexibles
+                // 2. Guardar en la tabla 'participantes_sorteo'
                 const { error: errorSorteo } = await supabaseClient
                     .from('participantes_sorteo')
                     .insert([
@@ -147,7 +147,7 @@
 
                 if (errorSorteo) throw errorSorteo;
 
-                // 3. Guardar el código en localStorage
+                // 3. Guardar el código en localStorage para autocompletar
                 localStorage.setItem('unig_codigo_suerte', codigoActualSorteo);
 
                 // 4. Mostrar modal de éxito
@@ -160,7 +160,6 @@
 
             } catch (err) {
                 console.error("Error detallado Supabase:", err);
-                // Muestra el error real en pantalla para saber qué pasa exactamente
                 alert("Error técnico: " + (err.message || JSON.stringify(err)));
                 btnSubmit.disabled = false;
                 btnSubmit.innerText = "GENERAR MI CÓDIGO VIP";
@@ -173,6 +172,46 @@
             }).catch(err => {
                 console.error("Error al copiar: ", err);
             });
+        }
+
+        // --- FUNCIÓN DE VALIDACIÓN INTEGRADA PARA LA CUPONERA ---
+        async function validarCodigoEnCuponera(codigoIngresado) {
+            const codigoLimpio = codigoIngresado.trim().toUpperCase();
+
+            // 1. Intentar buscar en la tabla 'cupones' (los oficiales del admin)
+            let { data, error } = await supabaseClient
+                .from('cupones')
+                .select('*')
+                .eq('codigo', codigoLimpio)
+                .single();
+
+            // 2. Si no está en cupones, buscar en la tabla 'participantes_sorteo'
+            if (!data) {
+                const { data: dataSorteo, error: errorSorteo } = await supabaseClient
+                    .from('participantes_sorteo')
+                    .select('*')
+                    .or(`codigo.eq.${codigoLimpio},codigo_sorteo.eq.${codigoLinspecto || codigoLimpio}`)
+                    .single();
+
+                if (dataSorteo) {
+                    // Si lo encuentra en los registros del sorteo, le asignamos la imagen del premio/moto
+                    data = {
+                        codigo: codigoLimpio,
+                        imagen_url: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800", // Cambia esto por el link definitivo de la imagen
+                        descripcion: "¡Participante oficial en el sorteo de la Moto VIP!"
+                    };
+                }
+            }
+
+            if (!data) {
+                alert("❌ Código de cupón inválido o no encontrado.");
+                return;
+            }
+
+            // ¡Si llega aquí, el código es válido! Mostramos la pantalla de éxito con el premio
+            if (typeof mostrarPremioEnPantalla === 'function') {
+                mostrarPremioEnPantalla(data);
+            }
         }
 
         window.addEventListener('DOMContentLoaded', () => { 
