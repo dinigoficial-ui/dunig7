@@ -122,18 +122,21 @@
                 return;
             }
 
-            // Rellenar datos en el modal
-            document.getElementById('cupon-titulo-modal').innerText = "¡Cupón VIP Exclusivo!";
+            // Validar de forma obligatoria que exista el número de WhatsApp en Supabase
+            const numeroWp = data.whatsapp ? data.whatsapp.trim() : "";
+            if (!numeroWp) {
+                alert("⚠️ Este cupón existe pero no tiene configurado un número de WhatsApp en la base de datos.");
+                return;
+            }
+
+            // Rellenar datos en el modal usando los campos de Supabase
+            document.getElementById('cupon-titulo-modal').innerText = data.titulo || "¡Cupón VIP Exclusivo!";
             const descripcionTexto = data.descripcion || "¡Disfruta de tu beneficio exclusivo!";
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
             document.getElementById('cupon-imagen-modal').src = data.imagen_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600";
             
-            // OBTENER EL WHATSAPP DINÁMICAMENTE DESDE SUPABASE
-            // Si el registro no tiene teléfono configurado, usa un número de respaldo por seguridad
-            const numeroWp = data.whatsapp ? data.whatsapp.trim() : "584120000000"; 
-            
-            // Construir el mensaje formateado para WhatsApp
-            const textoMensaje = `¡Hola! He validado mi código secreto en la cuponera VIP.\n\n🎟️ *Código:* ${data.codigo}\n📝 *Detalle:* ${descripcionTexto}`;
+            // Construir el mensaje formateado para WhatsApp usando estrictamente el número de Supabase
+            const textoMensaje = `¡Hola! He validado mi código secreto en la cuponera VIP.\n\n🎟️ *Cupón:* ${data.titulo || 'VIP'}\n🔑 *Código:* ${data.codigo}\n📝 *Detalle:* ${descripcionTexto}`;
             const mensajeWpCodificado = encodeURIComponent(textoMensaje);
             
             // Asignar el enlace definitivo con el número extraído de la base de datos
