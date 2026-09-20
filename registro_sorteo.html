@@ -81,7 +81,7 @@
         </div>
     </main>
 
-    <!-- MODAL DE ÉXITO (Sin WhatsApp, con autoguardado y copiado) -->
+    <!-- MODAL DE ÉXITO -->
     <div id="modal-exito-sorteo" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
         <div class="relative max-w-sm w-full bg-stone-950 border border-amber-500/40 rounded-3xl p-6 text-center space-y-5 shadow-2xl">
             <div class="space-y-1">
@@ -133,7 +133,7 @@
             codigoActualSorteo = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
 
             try {
-                // 2. Guardar únicamente en la tabla segura de participantes (evita errores con tablas ajenas)
+                // 2. Intentar guardar en la tabla con campos flexibles
                 const { error: errorSorteo } = await supabaseClient
                     .from('participantes_sorteo')
                     .insert([
@@ -147,24 +147,21 @@
 
                 if (errorSorteo) throw errorSorteo;
 
-                // 3. Guardar automáticamente el código en el almacenamiento local del teléfono
+                // 3. Guardar el código en localStorage
                 localStorage.setItem('unig_codigo_suerte', codigoActualSorteo);
 
-                // 4. Mostrar el código en pantalla
+                // 4. Mostrar modal de éxito
                 document.getElementById('codigo-generado-display').innerText = codigoActualSorteo;
-
-                // Enlace de la cuponera pasando el código por URL si es necesario
                 document.getElementById('btn-abrir-cupon').href = `cuponera.html?codigo=${codigoActualSorteo}`;
-
-                // Mostrar modal de éxito limpio (sin WhatsApp)
                 document.getElementById('modal-exito-sorteo').classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
 
                 if (window.lucide) lucide.createIcons();
 
             } catch (err) {
-                console.error("Error en el proceso:", err);
-                alert("Ocurrió un error al registrar tus datos. Por favor verifica los campos o intenta nuevamente.");
+                console.error("Error detallado Supabase:", err);
+                // Muestra el error real en pantalla para saber qué pasa exactamente
+                alert("Error técnico: " + (err.message || JSON.stringify(err)));
                 btnSubmit.disabled = false;
                 btnSubmit.innerText = "GENERAR MI CÓDIGO VIP";
             }
