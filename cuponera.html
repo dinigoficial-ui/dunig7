@@ -118,9 +118,6 @@
             const codigoLimpio = codigoIngresado.trim().toUpperCase();
             let data = null;
 
-            // TU NÚMERO DE WHATSAPP OFICIAL FIJO (Cámbialo aquí si lo necesitas)
-            const MI_WHATSAPP_REAL = "58412XXXXXXXX"; // <--- PON TU NÚMERO CORRECTO AQUÍ
-
             // 1. Primero intentamos buscar en la tabla de cupones
             const { data: dataCupon, error: errorCupon } = await supabaseClient
                 .from('cupones')
@@ -130,8 +127,6 @@
 
             if (dataCupon) {
                 data = dataCupon;
-                // Si la tabla cupones no tiene WhatsApp guardado, le inyectamos el tuyo real
-                if (!data.whatsapp) data.whatsapp = MI_WHATSAPP_REAL;
             } else {
                 // 2. Si no está en cupones, lo buscamos en participantes_sorteo
                 const { data: dataSorteo, error: errorSorteo } = await supabaseClient
@@ -146,15 +141,18 @@
                         imagen_url: dataSorteo.imagen_premio_url || "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800",
                         titulo: "¡Sorteo VIP Activo!",
                         descripcion: `¡Participante oficial verificado! Titular: ${dataSorteo.nombre || 'Cliente'}. Su número de la suerte está participando por la moto.`,
-                        whatsapp: dataSorteo.whatsapp_negocio // Lee estrictamente de Supabase, sin respaldos raros
+                        // Lee directamente de la columna de Supabase. Si está vacía, usará un texto vacío para que no rompa el botón
+                        whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
                     };
                 }
+            }
 
             if (!data) {
                 alert("❌ Código de cupón inválido o no encontrado.");
                 return;
             }
 
+            // Si encuentra el registro, mostramos el modal con éxito
             mostrarPremioEnPantalla(data);
         }
 
