@@ -145,6 +145,7 @@
                         whatsapp: dataSorteo.whatsapp_negocio || "584121234567"
                     };
                 }
+            } // <--- ¡Aquí faltaba cerrar esta llave crucial del if/else principal!
 
             if (!data) {
                 alert("❌ Código de cupón inválido o no encontrado.");
