@@ -136,16 +136,15 @@
                     .maybeSingle();
 
                 if (dataSorteo) {
-                    // Si el usuario se registró y sacó su número de la suerte, le mostramos el premio de la moto
+                    // Si el usuario se registró, tomamos sus datos de Supabase (incluyendo su WhatsApp configurado e imagen)
                     data = {
                         codigo: codigoLimpio,
-                        imagen_url: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800", // Imagen de respaldo o flyer de la moto
+                        imagen_url: dataSorteo.imagen_premio_url || "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800",
                         titulo: "¡Sorteo VIP Activo!",
                         descripcion: `¡Participante oficial verificado! Titular: ${dataSorteo.nombre || 'Cliente'}. Su número de la suerte está participando por la moto.`,
-                        whatsapp: "584120000000" // Cambia este número por el WhatsApp del negocio al que llegará el reporte del premio
+                        whatsapp: dataSorteo.whatsapp_negocio || "584121234567" // Toma el WhatsApp de la base de datos
                     };
                 }
-            }
 
             if (!data) {
                 alert("❌ Código de cupón inválido o no encontrado.");
