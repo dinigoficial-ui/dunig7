@@ -94,12 +94,10 @@
                 <h3 id="cupon-titulo-modal" class="text-xl font-black font-futurista text-white tracking-wide">Participante Oficial Verificado</h3>
             </div>
 
-            <!-- Contenedor dinámico de video -->
-            <div id="contenedor-video-modal" class="hidden rounded-2xl overflow-hidden bg-black border border-amber-500/20 aspect-video flex items-center justify-center shadow-inner"></div>
-
-            <!-- Contenedor de imagen -->
-            <div id="contenedor-imagen-modal" class="rounded-2xl overflow-hidden bg-black/50 border border-amber-500/20 aspect-video flex items-center justify-center shadow-inner">
-                <img id="cupon-imagen-modal" src="" alt="Cupón Exclusivo" class="w-full h-full object-cover">
+            <!-- Contenedor del Video Oficial del Sorteo (Para todos los participantes) -->
+            <div id="contenedor-video-modal" class="rounded-2xl overflow-hidden bg-black border border-amber-500/20 aspect-video flex items-center justify-center shadow-inner">
+                <!-- Cambia el enlace de abajo por tu video de YouTube o MP4 institucional del premio -->
+                <iframe id="iframe-video-premio" class="w-full h-full" src="https://www.youtube.com/embed/TU_VIDEO_ID" title="Premio Sorteo Moto" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
 
             <p id="cupon-descripcion-modal" class="text-xs sm:text-sm text-stone-300 leading-relaxed font-medium bg-stone-950/50 p-4 rounded-2xl border border-stone-800/80"></p>
@@ -125,6 +123,9 @@
         const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 🔗 ENLACE DEL VIDEO OFICIAL DEL PREMIO (Reemplaza esto con tu enlace de YouTube Embed o video directo)
+        const VIDEO_OFICIAL_PREMIO = "https://www.youtube.com/embed/TU_ID_DE_YOUTUBE";
 
         async function desbloquearCuponVIP() {
             const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
@@ -157,14 +158,12 @@
                     .maybeSingle();
 
                 if (dataSorteo) {
-                    const nombreTitular = dataSorteo.nombre || 'David Narváez s.';
+                    const nombreTitular = dataSorteo.nombre || 'Participante';
                     data = {
                         codigo: codigoLimpio,
-                        imagen_url: dataSorteo.imagen_premio_url || "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800",
-                        video_url: dataSorteo.video_url || null,
                         titulo: "Participante Oficial Verificado",
-                        descripcion: `¡Participante oficial verificado! Titular: ${nombreTitular}. Su número de la suerte está participando por la moto. ¡Mucho éxito! 😎🇻🇪`,
-                        whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
+                        descripcion: `¡Participante oficial verificado! Titular: ${nombreTitular}. Su número de la suerte está participando por la gran moto de Pizza Planeta. ¡Mucho éxito! 😎🇻🇪`,
+                        whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorto.whatsapp_negocio).trim() : ""
                     };
                 }
             }
@@ -184,32 +183,14 @@
             document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
 
-            const videoUrl = data.video_url;
-            const contenedorVideo = document.getElementById('contenedor-video-modal');
-            const contenedorImagen = document.getElementById('contenedor-imagen-modal');
-
-            if (videoUrl && videoUrl.includes('youtu')) {
-                contenedorVideo.innerHTML = `
-                    <a href="${videoUrl}" target="_blank" class="w-full h-full bg-stone-900 border border-amber-500/30 flex flex-col items-center justify-center p-6 text-center relative group hover:border-amber-400 transition-all cursor-pointer">
-                        <div class="absolute inset-0 bg-black/40"></div>
-                        <div class="relative z-10 space-y-2 flex flex-col items-center">
-                            <div class="w-14 h-14 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
-                                <i data-lucide="play" class="w-7 h-7 fill-current ml-1"></i>
-                            </div>
-                            <span class="text-xs font-bold font-futurista text-amber-400 uppercase tracking-widest">Ver Video en YouTube</span>
-                        </div>
-                    </a>
-                `;
-                contenedorVideo.classList.remove('hidden');
-                contenedorImagen.classList.add('hidden');
-            } else if (videoUrl && videoUrl.trim() !== "") {
-                contenedorVideo.innerHTML = `<video id="cupon-video-elemento" controls playsinline class="w-full h-full object-contain" src="${videoUrl}"></video>`;
-                contenedorVideo.classList.remove('hidden');
-                contenedorImagen.classList.add('hidden');
+            // Configurar el video oficial para todos por igual
+            const iframeVideo = document.getElementById('iframe-video-premio');
+            if (VIDEO_OFICIAL_PREMIO && !VIDEO_OFICIAL_PREMIO.includes("TU_ID_DE_YOUTUBE")) {
+                iframeVideo.src = VIDEO_OFICIAL_PREMIO;
+                document.getElementById('contenedor-video-modal').classList.remove('hidden');
             } else {
-                contenedorVideo.classList.add('hidden');
-                contenedorImagen.classList.remove('hidden');
-                document.getElementById('cupon-imagen-modal').src = data.imagen_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600";
+                // Si aún no colocas el enlace, ocultamos el contenedor de video para que no falle
+                document.getElementById('contenedor-video-modal').classList.add('hidden');
             }
             
             const numeroWp = data.whatsapp ? data.whatsapp.trim() : "";
@@ -228,10 +209,11 @@
             document.body.style.overflow = 'auto';
             document.getElementById('input-codigo-ingresado').value = "";
             
-            const videoElemento = document.getElementById('cupon-video-elemento');
-            if (videoElemento) {
-                videoElemento.pause();
-            }
+            // Pausar el video al cerrar recargando o limpiando el src temporalmente
+            const iframeVideo = document.getElementById('iframe-video-premio');
+            const currentSrc = iframeVideo.src;
+            iframeVideo.src = "";
+            iframeVideo.src = currentSrc;
         }
 
         window.addEventListener('DOMContentLoaded', () => { 
