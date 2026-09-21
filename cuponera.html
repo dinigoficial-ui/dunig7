@@ -70,7 +70,7 @@
         </div>
     </main>
 
-    <!-- MODAL LIGHTBOX PARA REPRODUCIR EL VIDEO CONFIGURADO EN SUPABASE -->
+    <!-- MODAL MULTIMEDIA (SOPORTA YOUTUBE, TIKTOK Y MP4) -->
     <div id="modal-cupon-exito" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4" onclick="cerrarCuponExito()">
         <div class="relative max-w-lg w-full bg-stone-950 border border-amber-500/30 rounded-3xl p-6 text-center space-y-4 shadow-2xl" onclick="event.stopPropagation()">
             <button onclick="cerrarCuponExito()" class="absolute top-4 right-4 text-stone-400 hover:text-white transition-colors cursor-pointer">
@@ -81,9 +81,15 @@
                 <h3 id="cupon-titulo-modal" class="text-xl font-bold font-futurista text-white">Beneficio Exclusivo</h3>
             </div>
             
-            <!-- Contenedor Inteligente para YouTube o Video Directo -->
-            <div class="rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-video flex items-center justify-center relative">
-                <iframe id="cupon-video-iframe" src="" class="w-full h-full hidden" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <!-- Contenedor Inteligente -->
+            <div class="rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-[9/16] sm:aspect-video flex items-center justify-center relative">
+                <!-- Iframe para YouTube -->
+                <iframe id="cupon-youtube-iframe" src="" class="w-full h-full hidden" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                
+                <!-- Iframe para TikTok -->
+                <iframe id="cupon-tiktok-iframe" src="" class="w-full h-full hidden" frameborder="0" allowfullscreen></iframe>
+
+                <!-- Video Directo MP4 -->
                 <video id="cupon-video-modal" src="" controls autoplay muted loop playsinline class="w-full h-full object-cover hidden"></video>
             </div>
 
@@ -120,7 +126,6 @@
             const codigoLimpio = codigoIngresado.trim().toUpperCase();
             let data = null;
 
-            // 1. Buscar en la tabla de cupones
             const { data: dataCupon } = await supabaseClient
                 .from('cupones')
                 .select('*')
@@ -130,7 +135,6 @@
             if (dataCupon) {
                 data = dataCupon;
             } else {
-                // 2. Buscar en participantes_sorteo
                 const { data: dataSorteo } = await supabaseClient
                     .from('participantes_sorteo')
                     .select('*')
@@ -163,47 +167,57 @@
             document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
             
-            const iframeElement = document.getElementById('cupon-video-iframe');
+            const youtubeIframe = document.getElementById('cupon-youtube-iframe');
+            const tiktokIframe = document.getElementById('cupon-tiktok-iframe');
             const videoElement = document.getElementById('cupon-video-modal');
 
-            // Obtener la URL del video desde Supabase
             const urlVideoSupabase = data.video_url || data.video_premio_url;
+
+            // Ocultar todo primero
+            youtubeIframe.classList.add('hidden');
+            tiktokIframe.classList.add('hidden');
+            videoElement.classList.add('hidden');
+            youtubeIframe.src = "";
+            tiktokIframe.src = "";
+            videoElement.src = "";
 
             if (urlVideoSupabase && urlVideoSupabase.trim() !== "") {
                 const url = urlVideoSupabase.trim();
                 
-                // Comprobar si es un enlace de YouTube
-                if (url.includes('youtu.be') || url.includes('youtube.com')) {
+                // 1. Detección para TIKTOK
+                if (url.includes('tiktok.com')) {
+                    let tiktokId = "";
+                    if (url.includes('/video/')) {
+                        tiktokId = url.split('/video/')[1].split('?')[0];
+                    }
+                    if (tiktokId) {
+                        tiktokIframe.src = `https://www.tiktok.com/embed/v2/${tiktokId}`;
+                        tiktokIframe.classList.remove('hidden');
+                    }
+                } 
+                // 2. Detección para YOUTUBE
+                else if (url.includes('youtu.be') || url.includes('youtube.com')) {
                     let videoId = "";
                     if (url.includes('youtu.be/')) {
                         videoId = url.split('youtu.be/')[1].split('?')[0];
                     } else if (url.includes('watch?v=')) {
-                        videoId = url.split('watch?v=')[1].split('&')[0];
+                        videoId = url.split('watch?v=').pop().split('&')[0];
                     } else if (url.includes('embed/')) {
                         videoId = url.split('embed/')[1].split('?')[0];
                     }
 
                     if (videoId) {
-                        iframeElement.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-                        iframeElement.classList.remove('hidden');
-                        videoElement.classList.add('hidden');
-                        videoElement.src = "";
+                        youtubeIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+                        youtubeIframe.classList.remove('hidden');
                     }
-                } else {
-                    // Si es un archivo de video directo (MP4, etc.)
+                } 
+                // 3. Video directo (MP4)
+                else {
                     videoElement.src = url;
                     videoElement.classList.remove('hidden');
-                    iframeElement.classList.add('hidden');
-                    iframeElement.src = "";
                     videoElement.load();
-                    videoElement.play().catch(e => console.log("Autoplay prevenido por el navegador:", e));
+                    videoElement.play().catch(e => console.log("Autoplay prevenido:", e));
                 }
-            } else {
-                iframeElement.src = "";
-                iframeElement.classList.add('hidden');
-                videoElement.src = "";
-                videoElement.classList.add('hidden');
-                console.log("No hay URL de video configurada en Supabase para este código.");
             }
             
             const numeroWp = data.whatsapp ? data.whatsapp.trim() : "584120000000";
@@ -222,16 +236,18 @@
             document.body.style.overflow = 'auto';
             document.getElementById('input-codigo-ingresado').value = "";
             
-            // Limpiar y pausar video directo
             const videoElement = document.getElementById('cupon-video-modal');
             videoElement.pause();
             videoElement.src = "";
             videoElement.classList.add('hidden');
 
-            // Limpiar iframe de YouTube
-            const iframeElement = document.getElementById('cupon-video-iframe');
-            iframeElement.src = "";
-            iframeElement.classList.add('hidden');
+            const youtubeIframe = document.getElementById('cupon-youtube-iframe');
+            youtubeIframe.src = "";
+            youtubeIframe.classList.add('hidden');
+
+            const tiktokIframe = document.getElementById('cupon-tiktok-iframe');
+            tiktokIframe.src = "";
+            tiktokIframe.classList.add('hidden');
         }
 
         window.addEventListener('DOMContentLoaded', () => { 
