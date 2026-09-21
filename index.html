@@ -254,6 +254,18 @@
                 <span class="text-white font-black font-mono ml-1" id="carrito-subtotal-monto-abajo">$0.00</span>
             </div>
 
+            <!-- Datos del Cliente para el Sorteo -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-stone-900">
+                <div class="space-y-1.5">
+                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Nombre y Apellido</label>
+                    <input type="text" id="input-nombre-cliente" placeholder="Tu nombre" class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3.5 rounded-xl font-mono">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Teléfono (WhatsApp)</label>
+                    <input type="text" id="input-telefono-cliente" placeholder="Ej. 584120000000" class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3.5 rounded-xl font-mono">
+                </div>
+            </div>
+
             <div class="space-y-3 pt-6 border-t border-stone-900">
                 <div class="flex justify-between items-center">
                     <label class="text-[10px] uppercase text-amber-400 font-bold tracking-widest block font-futurista flex items-center gap-2">
@@ -318,7 +330,7 @@
             <div class="flex items-start gap-2.5 text-xs text-stone-300 bg-amber-500/5 border border-amber-500/10 p-3 rounded-xl">
                 <span class="bg-emerald-600 text-black font-black rounded-full w-4 h-4 flex items-center justify-center shrink-0 text-[10px] mt-0.5">✓</span>
                 <div>
-                    <span class="text-emerald-400 font-bold">Tu suite califica para Envío Global VIP.</span>
+                    <span class="text-emerald-400 font-bold">Tu suite califica para Envío Global VIP y Sorteo de la Moto.</span>
                 </div>
             </div>
             <div class="text-base font-normal font-futurista text-stone-300">
@@ -1253,6 +1265,14 @@
             
             fijarUbicacionActualMapa();
 
+            const nombreCliente = document.getElementById('input-nombre-cliente').value.trim();
+            const telefonoCliente = document.getElementById('input-telefono-cliente').value.trim();
+
+            if (!nombreCliente || !telefonoCliente) {
+                alert("Por favor ingresa tu nombre y teléfono para participar en el sorteo de la moto.");
+                return;
+            }
+
             const metodo = document.getElementById('tipoMetodoPago').value;
             if(!metodo) { alert("Por favor selecciona un método de pago."); return; }
 
@@ -1272,6 +1292,9 @@
                 if(!ref) { alert("Por favor ingresa el número o código de referencia."); return; }
             }
 
+            // Generar código único para el sorteo de la moto
+            const codigoUnicoSorteo = "PP-" + Math.floor(10000 + Math.random() * 90000);
+
             const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || 'NINGUNO';
             
             let subtotalProductos = carrito.reduce((a, b) => a + b.precio, 0);
@@ -1284,18 +1307,24 @@
             if(data && data.valor) wsNum = data.valor.replace(/[^0-9]/g, "");
 
             let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *NÚMERO DE MESA:* ${numeroMesa}\n` : '';
-            const mensaje = `🍔 *PEDIDO VIP - Casa de las Papas (HVX5+G5H, Mérida)* 🍔\n\n${lista}\n\n📦 *Subtotal:* $${subtotalProductos.toFixed(2)}\n🛵 *Delivery (${distanciaCalculadaKm.toFixed(2)} km):* $${costoDeliveryKm.toFixed(2)}\n💵 *TOTAL A PAGAR:* $${totalGeneral.toFixed(2)}\n📍 *Ubicación Google Maps:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
+            const mensaje = `🍔 *PEDIDO VIP - Casa de las Papas (HVX5+G5H, Mérida)* 🍔\n\n👤 *Cliente:* ${nombreCliente}\n📱 *Teléfono:* ${telefonoCliente}\n\n${lista}\n\n📦 *Subtotal:* $${subtotalProductos.toFixed(2)}\n🛵 *Delivery (${distanciaCalculadaKm.toFixed(2)} km):* $${costoDeliveryKm.toFixed(2)}\n💵 *TOTAL A PAGAR:* $${totalGeneral.toFixed(2)}\n📍 *Ubicación Google Maps:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}\n🎟️ *CÓDIGO SORTEO MOTO:* ${codigoUnicoSorteo}`;
 
             const datosOrdenPendiente = {
+                nombre_cliente: nombreCliente,
+                telefono: telefonoCliente,
+                pedido: carrito.map(i => i.titulo).join(', '),
                 productos: carrito.map(i => i.titulo).join(', '),
                 total: totalGeneral,
                 monto_total: totalGeneral,
                 referencia: ref,
                 referencia_bancaria: ref,
+                estatus_pago: 'pendiente',
                 estado: "Pendiente",
+                codigo_sorteo_asignado: codigoUnicoSorteo,
                 codigo_referido: codigoReferidoCliente,
                 coordenadas_gps: `${gpsClienteLat},${gpsClienteLng}`,
-                costo_delivery: costoDeliveryKm
+                costo_delivery: costoDeliveryKm,
+                created_at: new Date()
             };
 
             await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
@@ -1312,12 +1341,33 @@
             document.getElementById('tipoMetodoPago').value = "";
             document.getElementById('input-ref-pago').value = "";
             document.getElementById('input-num-mesa').value = "";
+            document.getElementById('input-nombre-cliente').value = "";
+            document.getElementById('input-telefono-cliente').value = "";
             document.getElementById('contenedorReferenciaCart').classList.add('hidden');
             document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
             document.getElementById('info-metodo-pago').classList.add('hidden');
             localStorage.removeItem('dunig_ref_code');
             cambiarPantalla('vitrina');
             window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
+        }
+
+        function aprobarOrden(idOrden, telefonoCliente, nombreCliente, codigoSorteo) {
+            // 1. Actualizar en Supabase
+            supabaseClient
+                .from('ordenes_central')
+                .update({ estatus_pago: 'aprobado' })
+                .eq('id', idOrden)
+                .then(() => {
+                    alert("¡Orden aprobada! Redirigiendo a WhatsApp para notificar al cliente...");
+                    
+                    // 2. Abrir WhatsApp con el mensaje listo para enviar al cliente
+                    const mensaje = `¡Hola ${nombreCliente}! 👋 En Pizza Planeta hemos verificado tu pago y tu referencia. ¡Ya estás participando oficialmente por la moto 🏍️💨! Tu número de la suerte es el *${codigoSorteo}*. ¡Mucho éxito!`;
+                    const urlWa = `https://wa.me/${telefonoCliente}?text=${encodeURIComponent(mensaje)}`;
+                    window.open(urlWa, '_blank');
+                    
+                    // Recargar la lista de pendientes
+                    location.reload();
+                });
         }
 
         async function verRutaGPS(ordenId) {
