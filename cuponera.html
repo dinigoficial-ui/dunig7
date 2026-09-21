@@ -70,7 +70,7 @@
         </div>
     </main>
 
-    <!-- MODAL LIGHTBOX PARA MOSTRAR LA IMAGEN DEL CUPÓN -->
+    <!-- MODAL LIGHTBOX PARA MOSTRAR LA IMAGEN O VIDEO DEL CUPÓN -->
     <div id="modal-cupon-exito" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4" onclick="cerrarCuponExito()">
         <div class="relative max-w-lg w-full bg-stone-950 border border-amber-500/30 rounded-3xl p-6 text-center space-y-4 shadow-2xl" onclick="event.stopPropagation()">
             <button onclick="cerrarCuponExito()" class="absolute top-4 right-4 text-stone-400 hover:text-white transition-colors cursor-pointer">
@@ -80,9 +80,13 @@
                 <span class="text-[9px] uppercase tracking-widest font-futurista text-amber-400 font-bold">¡Cupón Validado con Éxito!</span>
                 <h3 id="cupon-titulo-modal" class="text-xl font-bold font-futurista text-white">Beneficio Exclusivo</h3>
             </div>
-            <div class="rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-video flex items-center justify-center">
-                <img id="cupon-imagen-modal" src="" alt="Cupón Exclusivo" class="w-full h-full object-contain">
+            
+            <!-- Contenedor Multimedia Dinámico (Imagen o Video) -->
+            <div class="rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-video flex items-center justify-center relative">
+                <img id="cupon-imagen-modal" src="" alt="Cupón Exclusivo" class="w-full h-full object-contain hidden">
+                <video id="cupon-video-modal" src="" controls autoplay muted loop class="w-full h-full object-cover hidden"></video>
             </div>
+
             <p id="cupon-descripcion-modal" class="text-xs text-stone-300 leading-relaxed"></p>
             
             <div class="space-y-2 pt-2">
@@ -141,7 +145,6 @@
                         imagen_url: dataSorteo.imagen_premio_url || "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800",
                         titulo: "¡Sorteo VIP Activo!",
                         descripcion: `¡Participante oficial verificado! Titular: ${dataSorteo.nombre || 'Cliente'}. Su número de la suerte está participando por la moto.`,
-                        // Lee directamente de la columna de Supabase. Si está vacía, usará un texto vacío para que no rompa el botón
                         whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
                     };
                 }
@@ -156,14 +159,34 @@
             mostrarPremioEnPantalla(data);
         }
 
-        // Función visual para pintar los datos en el modal
+        // Función visual para pintar los datos y alternar entre imagen y video en el modal
         function mostrarPremioEnPantalla(data) {
             const tituloFinal = data.titulo || "¡Cupón VIP Exclusivo!";
             const descripcionTexto = data.descripcion || "¡Disfruta de tu beneficio exclusivo!";
             
             document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
-            document.getElementById('cupon-imagen-modal').src = data.imagen_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600";
+            
+            const mediaUrl = data.imagen_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600";
+            const imgElement = document.getElementById('cupon-imagen-modal');
+            const videoElement = document.getElementById('cupon-video-modal');
+
+            // Detectar si el archivo multimedia es un video basándose en la extensión
+            const esVideo = /\.(mp4|webm|ogg|mov)$/i.test(mediaUrl);
+
+            if (esVideo) {
+                imgElement.classList.add('hidden');
+                imgElement.src = "";
+                videoElement.src = mediaUrl;
+                videoElement.classList.remove('hidden');
+                videoElement.play().catch(e => console.log("Autoplay prevenido por el navegador:", e));
+            } else {
+                videoElement.pause();
+                videoElement.classList.add('hidden');
+                videoElement.src = "";
+                imgElement.src = mediaUrl;
+                imgElement.classList.remove('hidden');
+            }
             
             // Configurar WhatsApp
             const numeroWp = data.whatsapp ? data.whatsapp.trim() : "584120000000";
@@ -181,6 +204,11 @@
             document.getElementById('modal-cupon-exito').classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('input-codigo-ingresado').value = "";
+            
+            // Pausar video al cerrar
+            const videoElement = document.getElementById('cupon-video-modal');
+            videoElement.pause();
+            videoElement.src = "";
         }
 
         // Autocompletar si viene por parámetro GET en la URL o desde el localStorage
