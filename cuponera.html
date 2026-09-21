@@ -94,10 +94,9 @@
                 <h3 id="cupon-titulo-modal" class="text-xl font-black font-futurista text-white tracking-wide">Participante Oficial Verificado</h3>
             </div>
 
-            <!-- Contenedor del Video Oficial del Sorteo (Para todos los participantes) -->
-            <div id="contenedor-video-modal" class="rounded-2xl overflow-hidden bg-black border border-amber-500/20 aspect-video flex items-center justify-center shadow-inner">
-                <!-- Cambia el enlace de abajo por tu video de YouTube o MP4 institucional del premio -->
-                <iframe id="iframe-video-premio" class="w-full h-full" src="https://www.youtube.com/embed/TU_VIDEO_ID" title="Premio Sorteo Moto" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <!-- Contenedor del Video Oficial del Sorteo (Para todos los participantes por igual) -->
+            <div id="contenedor-video-modal" class="rounded-2xl overflow-hidden bg-black border border-amber-500/20 aspect-video flex items-center justify-center shadow-inner relative">
+                <iframe id="iframe-video-premio" class="w-full h-full absolute inset-0" src="" title="Premio Sorteo Moto" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
 
             <p id="cupon-descripcion-modal" class="text-xs sm:text-sm text-stone-300 leading-relaxed font-medium bg-stone-950/50 p-4 rounded-2xl border border-stone-800/80"></p>
@@ -124,7 +123,7 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // 🔗 ENLACE DEL VIDEO OFICIAL DEL PREMIO (Reemplaza esto con tu enlace de YouTube Embed o video directo)
+        // 🔗 CAMBIA ESTE ENLACE POR EL DE TU VIDEO DE YOUTUBE DEL SORPRESA/MOTO (Ej: https://www.youtube.com/embed/TuCodigoDeVideo)
         const VIDEO_OFICIAL_PREMIO = "https://www.youtube.com/embed/TU_ID_DE_YOUTUBE";
 
         async function desbloquearCuponVIP() {
@@ -163,7 +162,7 @@
                         codigo: codigoLimpio,
                         titulo: "Participante Oficial Verificado",
                         descripcion: `¡Participante oficial verificado! Titular: ${nombreTitular}. Su número de la suerte está participando por la gran moto de Pizza Planeta. ¡Mucho éxito! 😎🇻🇪`,
-                        whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorto.whatsapp_negocio).trim() : ""
+                        whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
                     };
                 }
             }
@@ -183,14 +182,15 @@
             document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
 
-            // Configurar el video oficial para todos por igual
+            // Asignar el video oficial para todos por igual
             const iframeVideo = document.getElementById('iframe-video-premio');
+            const contenedorVideo = document.getElementById('contenedor-video-modal');
+
             if (VIDEO_OFICIAL_PREMIO && !VIDEO_OFICIAL_PREMIO.includes("TU_ID_DE_YOUTUBE")) {
                 iframeVideo.src = VIDEO_OFICIAL_PREMIO;
-                document.getElementById('contenedor-video-modal').classList.remove('hidden');
+                contenedorVideo.classList.remove('hidden');
             } else {
-                // Si aún no colocas el enlace, ocultamos el contenedor de video para que no falle
-                document.getElementById('contenedor-video-modal').classList.add('hidden');
+                contenedorVideo.classList.add('hidden');
             }
             
             const numeroWp = data.whatsapp ? data.whatsapp.trim() : "";
@@ -209,11 +209,9 @@
             document.body.style.overflow = 'auto';
             document.getElementById('input-codigo-ingresado').value = "";
             
-            // Pausar el video al cerrar recargando o limpiando el src temporalmente
+            // Detener la reproducción del video limpiando el src al cerrar la ventana
             const iframeVideo = document.getElementById('iframe-video-premio');
-            const currentSrc = iframeVideo.src;
             iframeVideo.src = "";
-            iframeVideo.src = currentSrc;
         }
 
         window.addEventListener('DOMContentLoaded', () => { 
