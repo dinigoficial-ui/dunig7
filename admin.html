@@ -60,7 +60,7 @@
                     <i data-lucide="upload-cloud" class="w-8 h-8"></i>
                 </div>
                 <h2 class="text-base sm:text-lg font-black font-futurista text-white uppercase tracking-wider">Cargar Video del Premio</h2>
-                <p class="text-xs text-stone-400 leading-relaxed">Selecciona el video en formato MP4 desde la galería de tu teléfono. Se subirá directo a Supabase Storage.</p>
+                <p class="text-xs text-stone-400 leading-relaxed">Selecciona el video en formato MP4 desde la galería de tu teléfono. Se configurará automáticamente.</p>
             </div>
 
             <!-- Selector de archivo y botón de subida -->
@@ -77,7 +77,7 @@
 
             <!-- Estado y Progreso -->
             <div id="estado-subida" class="hidden text-center text-xs font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl">
-                Subiendo archivo... Por favor espera. ⏳
+                Procesando archivo... Por favor espera. ⏳
             </div>
 
             <!-- Vista Previa del Video Actual -->
@@ -107,17 +107,38 @@
 
     <!-- Scripts de Supabase y Lógica de Subida -->
     <script>
-        const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co";  
+        const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Nombre del bucket que creaste en Supabase Storage
         const BUCKET_NAME = "premios"; 
 
         window.addEventListener('DOMContentLoaded', () => {
             if (window.lucide) lucide.createIcons();
             cargarVideoGuardadoLocal();
         });
+
+        async function asegurarBucketCreado() {
+            try {
+                // Verificar si el bucket ya existe listando los buckets
+                const { data: buckets, error } = await supabaseClient.storage.listBuckets();
+                if (error) throw error;
+
+                const existe = buckets.some(b => b.name === BUCKET_NAME);
+                if (!existe) {
+                    // Si no existe, lo creamos automáticamente como público
+                    const { error: createError } = await supabaseClient.storage.createBucket(BUCKET_NAME, {
+                        public: true,
+                        fileSizeLimit: 52428800 // Límite de 50MB
+                    });
+                    if (createError) {
+                        console.log("Nota al intentar crear bucket:", createError.message);
+                    }
+                }
+            } catch (e) {
+                console.log("Validación de bucket omitida o manejada:", e);
+            }
+        }
 
         async function subirVideoPremio() {
             const inputArchivo = document.getElementById('input-archivo-video');
@@ -133,10 +154,13 @@
             const nombreArchivoUnico = `moto-premio-${Date.now()}.mp4`;
 
             estadoDiv.classList.remove('hidden');
-            estadoDiv.innerText = "Subiendo video a Supabase Storage... Por favor no cierres la página. 🚀";
+            estadoDiv.innerText = "Preparando almacenamiento y subiendo video... 🚀";
             btnSubir.disabled = true;
 
             try {
+                // Asegurar que el bucket exista antes de subir
+                await asegurarBucketCreado();
+
                 // Subir archivo al bucket de Supabase
                 const { data, error } = await supabaseClient.storage
                     .from(BUCKET_NAME)
@@ -156,7 +180,7 @@
 
                 const urlPublica = urlData.publicUrl;
 
-                // Guardar la URL en LocalStorage para que se sincronice con tu aplicación de cupones
+                // Guardar la URL en LocalStorage para sincronizar con la cuponera
                 localStorage.setItem('url_video_premio_supabase', urlPublica);
 
                 // Actualizar interfaz visual
@@ -168,11 +192,11 @@
                 videoEl.load();
                 document.getElementById('sin-video-msg').classList.add('hidden');
 
-                alert("🎉 ¡El video del premio se ha cargado correctamente y está listo para mostrarse en la cuponera!");
+                alert("🎉 ¡El video del premio se ha cargado correctamente y está listo!");
 
             } catch (err) {
                 console.error("Error al subir:", err);
-                alert("❌ Error al subir el archivo: " + (err.message || err));
+                alert("❌ Error al subir: " + (err.message || JSON.stringify(err)));
                 estadoDiv.innerText = "Error en la subida. Inténtalo de nuevo.";
             } finally {
                 btnSubir.disabled = false;
