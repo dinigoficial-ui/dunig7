@@ -957,31 +957,37 @@
             }
         }
 
-        // Función que procesa la confirmación, actualiza la base de datos y abre WhatsApp
-        async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
-            if (!telefonoCliente || telefonoCliente.trim() === "") {
-                const telefonoInput = prompt("No se encontró un número de teléfono registrado para esta orden. Por favor, ingresa el número del cliente (con código de país, ej: 584121234567):");
-                if (!telefonoInput) return;
-                telefonoCliente = telefonoInput.trim();
-            }
+        function aprobarOrdenAdmin(idOrden, telefonoCliente, nombreCliente, codigoSorteo) {
+    let telefonoFinal = telefonoCliente ? String(telefonoCliente).trim() : "";
 
-            // 1. Actualizar estado en Supabase a 'verificado'
-            const { error } = await supabaseClient
-                .from('ordenes_vip')
-                .update({ estado: 'verificado' })
-                .eq('id', idOrden);
+    // Si la orden no tiene teléfono guardado, le pedimos al dueño que lo ponga solo si es estrictamente necesario, o lo autocompletamos
+    if (!telefonoFinal || telefonoFinal === "null" || telefonoFinal === "undefined") {
+        telefonoFinal = prompt("No se encontró un número de teléfono registrado. Por favor, ingresa el número del cliente (con código de país, ej: 584121234567):");
+        if (!telefonoFinal) return; // Si cancela, se detiene
+    }
 
+    // 1. Actualizar el estatus en Supabase
+    supabaseClient
+        .from('ordenes_central')
+        .update({ estatus_pago: 'aprobado' })
+        .eq('id', idOrden)
+        .then(({ error }) => {
             if (error) {
-                alert("Error al actualizar la orden: " + error.message);
+                alert("Error al actualizar la orden en la base de datos.");
                 return;
             }
 
-            // 2. Disparar el envío por WhatsApp con el código de premio
-            enviarWhatsAppPremio(telefonoCliente, codigoPremio, idOrden);
+            alert("¡Orden aprobada con éxito! Redirigiendo a WhatsApp...");
 
-            // 3. Recargar la tabla
-            await descargarHistorialDeOrdenes();
-        }
+            // 2. Abrir WhatsApp automáticamente con el mensaje listo
+            const mensaje = `¡Hola ${nombreCliente}! 👋 En Pizza Planeta hemos verificado tu pago y tu referencia. ¡Ya estás participando oficialmente por la moto 🏍️💨! Tu número de la suerte es el *${codigoSorteo}*. ¡Mucho éxito!`;
+            const urlWa = `https://wa.me/${telefonoFinal}?text=${encodeURIComponent(mensaje)}`;
+            window.open(urlWa, '_blank');
+
+            // Recargar la lista de pendientes
+            location.reload();
+        });
+}
 
         function enviarWhatsAppPremio(telefono, codigo, idOrden) {
             if (!telefono) {
