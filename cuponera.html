@@ -94,7 +94,7 @@
                 <h3 id="cupon-titulo-modal" class="text-xl font-black font-futurista text-white tracking-wide">Participante Oficial Verificado</h3>
             </div>
 
-            <!-- Contenedor de Video Nativo (Cargado desde Supabase Storage) -->
+            <!-- Contenedor de Video Nativo sincronizado con Supabase Storage -->
             <div id="contenedor-video-modal" class="rounded-2xl overflow-hidden bg-black border border-amber-500/20 aspect-video flex items-center justify-center shadow-inner relative">
                 <video id="video-premio-oficial" class="w-full h-full object-cover" autoplay muted playsinline controls loop></video>
             </div>
@@ -122,9 +122,6 @@
         const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // 🔗 PEGA AQUÍ TU ENLACE PÚBLICO DIRECTO DE SUPABASE STORAGE (Ej: https://...supabase.co/storage/v1/object/public/carpeta/video.mp4)
-        const URL_VIDEO_MP4_OFICIAL = "AQUÍ_PEGA_TU_ENLACE_PUBLICO_DE_SUPABASE";
 
         async function desbloquearCuponVIP() {
             const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
@@ -162,7 +159,7 @@
                         codigo: codigoLimpio,
                         titulo: "Participante Oficial Verificado",
                         descripcion: `¡Participante oficial verificado! Titular: ${nombreTitular}. Su número de la suerte está participando por la gran moto de Pizza Planeta. ¡Mucho éxito! 😎🇻🇪`,
-                        whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
+                        whatsapp: dataSorteo.whatsapp_negocio ? String(dataSored.whatsapp_negocio).trim() : ""
                     };
                 }
             }
@@ -182,15 +179,16 @@
             document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
 
-            // Asignar video y forzar reproducción inmediata
+            // Cargar automáticamente el video sincronizado desde localStorage (subido desde el panel)
             const videoElemento = document.getElementById('video-premio-oficial');
             const contenedorVideo = document.getElementById('contenedor-video-modal');
+            const urlVideoGuardada = localStorage.getItem('url_video_premio_supabase');
 
-            if (URL_VIDEO_MP4_OFICIAL && !URL_VIDEO_MP4_OFICIAL.includes("AQUÍ_PEGA")) {
-                videoElemento.src = URL_VIDEO_MP4_OFICIAL;
+            if (urlVideoGuardada) {
+                videoElemento.src = urlVideoGuardada;
                 contenedorVideo.classList.remove('hidden');
                 videoElemento.load();
-                videoElemento.play().catch(e => console.log("Autoplay bloqueado, el usuario puede usar los controles manuales:", e));
+                videoElemento.play().catch(e => console.log("Autoplay con interacción requerida:", e));
             } else {
                 contenedorVideo.classList.add('hidden');
             }
@@ -211,7 +209,6 @@
             document.body.style.overflow = 'auto';
             document.getElementById('input-codigo-ingresado').value = "";
             
-            // Pausar y reiniciar el video al cerrar
             const videoElemento = document.getElementById('video-premio-oficial');
             videoElemento.pause();
             videoElemento.currentTime = 0;
