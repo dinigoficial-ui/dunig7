@@ -63,7 +63,7 @@
                     <input type="text" id="input-codigo-ingresado" placeholder="Ej: 37373" class="w-full bg-stone-900 border border-stone-800 text-sm text-center text-white font-mono p-4 rounded-xl focus:outline-none focus:border-amber-400 tracking-widest uppercase">
                 </div>
 
-                <button onclick="desbloquearCuponVIP()" class="w-full btn-oro text-stone-950 font-futurista font-black py-4 px-6 rounded-xl text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-2 cursor-pointer shadow-lg">
+                <button id="btn-desbloquear" onclick="desbloquearCuponVIP()" class="w-full btn-oro text-stone-950 font-futurista font-black py-4 px-6 rounded-xl text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-2 cursor-pointer shadow-lg">
                     <i data-lucide="key" class="w-4 h-4 stroke-[2.5]"></i> DESBLOQUEAR CUPÓN
                 </button>
             </div>
@@ -119,7 +119,23 @@
                 alert("Por favor ingresa un código de cupón.");
                 return;
             }
-            await validarCodigoEnCuponera(inputVal);
+
+            const btn = document.getElementById('btn-desbloquear');
+            btn.disabled = true;
+            btn.style.opacity = "0.7";
+            btn.innerHTML = `Buscando...`;
+
+            try {
+                await validarCodigoEnCuponera(inputVal);
+            } catch (error) {
+                console.error("Error en validación:", error);
+                alert("Ocurrió un error al verificar el código. Inténtalo de nuevo.");
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.innerHTML = `<i data-lucide="key" class="w-4 h-4 stroke-[2.5]"></i> DESBLOQUEAR CUPÓN`;
+                if (window.lucide) lucide.createIcons();
+            }
         }
 
         async function validarCodigoEnCuponera(codigoIngresado) {
@@ -147,7 +163,7 @@
                         titulo: dataSorteo.titulo || "¡Sorteo VIP Activo!",
                         descripcion: dataSorteo.descripcion || `¡Participante oficial verificado! Titular: ${dataSorteo.nombre || 'Cliente'}. Su número de la suerte está participando por la moto.`,
                         video_url: dataSorteo.video_url || dataSorteo.video_premio_url || "",
-                        whatsapp: dataSorto.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
+                        whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
                     };
                 }
             }
@@ -183,19 +199,16 @@
             if (urlVideoSupabase && urlVideoSupabase.trim() !== "") {
                 const url = urlVideoSupabase.trim();
                 
-                // 1. TIKTOK LIMPIO EMBEDDED
                 if (url.includes('tiktok.com')) {
                     let tiktokId = "";
                     if (url.includes('/video/')) {
                         tiktokId = url.split('/video/')[1].split('?')[0];
                     }
                     if (tiktokId) {
-                        // Parametros para ocultar elementos de marca de agua molestos o redirecciones externas
                         tiktokIframe.src = `https://www.tiktok.com/embed/v2/${tiktokId}?autoplay=1&muted=0&loop=1`;
                         tiktokIframe.classList.remove('hidden');
                     }
                 } 
-                // 2. YOUTUBE
                 else if (url.includes('youtu.be') || url.includes('youtube.com')) {
                     let videoId = "";
                     if (url.includes('youtu.be/')) {
@@ -211,7 +224,6 @@
                         youtubeIframe.classList.remove('hidden');
                     }
                 } 
-                // 3. MP4 DIRECTO
                 else {
                     videoElement.src = url;
                     videoElement.classList.remove('hidden');
