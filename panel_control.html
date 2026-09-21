@@ -18,14 +18,13 @@
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #e5c158; border-radius: 10px; }
 
-        /* SOLUCIÓN: Permite que el texto de las órdenes se vea completo y baje de línea */
         .nombre-del-plato {
-            white-space: normal;    /* Permite saltos de línea automáticos */
-            overflow: visible;      /* Muestra todo el contenido */
-            text-overflow: clip;    /* Quita los puntos suspensivos */
-            display: block;         /* Asegura que ocupe el ancho disponible */
-            line-height: 1.2;       /* Ajusta un poco el interlineado para estética */
-            padding: 5px 0;         /* Agrega un pequeño espacio vertical entre ítems largos */
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+            display: block;
+            line-height: 1.2;
+            padding: 5px 0;
         }
     </style>
 </head>
@@ -56,12 +55,9 @@
             </div>
             
             <div class="flex flex-col gap-1.5 items-end">
-                <!-- Botón Ver Vitrina -->
                 <a href="https://dinigoficial-ui.github.io/dunig7/" target="_blank" class="px-2.5 py-1.5 rounded-lg border border-stone-800 text-stone-400 hover:text-white transition-all text-[10px] font-bold uppercase tracking-wider font-futurista bg-stone-900/30 flex items-center gap-1.5 cursor-pointer">
                     <i data-lucide="eye" class="w-3.5 h-3.5 text-amber-500"></i> Ver Vitrina
                 </a>
-
-                <!-- Botón Salir -->
                 <button onclick="ejecutarLogout()" class="px-2.5 py-1.5 rounded-lg border border-red-900/30 text-red-400 hover:text-red-300 transition-all text-[10px] font-bold uppercase tracking-wider font-futurista bg-stone-900/30 flex items-center gap-1.5 cursor-pointer">
                     <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Salir
                 </button>
@@ -247,6 +243,7 @@
         </div>
     </main>
 
+    <!-- Sección de Órdenes con el nuevo botón de confirmación -->
     <main id="panel-seccion-ordenes" class="hidden max-w-7xl w-full mx-auto px-4 py-8 flex-grow relative z-10">
         <div class="glass-panel p-6 rounded-3xl border border-stone-900 shadow-2xl">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-4 mb-4">
@@ -261,8 +258,8 @@
                             <th class="p-3">Fecha</th>
                             <th class="p-3">Productos Solicitados</th>
                             <th class="p-3">Total ($)</th>
-                            <th class="p-3">Referencia Registrada</th>
-                            <th class="p-3 text-right">Estado</th>
+                            <th class="p-3">Referencia / Cliente</th>
+                            <th class="p-3 text-right">Acción / Estado</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-ordenes-body"></tbody>
@@ -311,7 +308,7 @@
             </button>
         </div>
 
-        <!-- NUEVO: Configurar Hora en Vitrina -->
+        <!-- Configurar Hora en Vitrina -->
         <div class="max-w-md mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
                 <i data-lucide="clock" class="w-4 h-4"></i>
@@ -610,7 +607,6 @@
             }
         }
 
-        // GESTIÓN DE INGREDIENTES 3D
         async function guardarIngrediente3D() {
             const nombre = document.getElementById('ing3d-nombre').value.trim();
             const precio = parseFloat(document.getElementById('ing3d-precio').value);
@@ -916,44 +912,93 @@
                 tbody.innerHTML = "";
                 data.forEach(o => {
                     const fechaFormateada = new Date(o.created_at).toLocaleDateString();
+                    // Asumimos que guardas el número de teléfono del cliente en alguna columna como 'telefono' o 'whatsapp_cliente'
+                    // Si tu columna tiene otro nombre (ej. 'telefono_cliente'), asegúrate de cambiar o adaptar esta variable:
+                    const telefonoCliente = o.telefono || o.whatsapp_cliente || o.telefono_cliente || "";
+                    const codigoPremio = o.codigo_premio || o.codigo || `VIP-${o.id}`;
+
+                    let estadoHtml = "";
+
+                    if (o.estado === 'verificado') {
+                        estadoHtml = `
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="text-green-400 font-bold uppercase text-[10px]">Verificado</span>
+                                <button onclick="enviarWhatsAppPremio('${telefonoCliente}', '${codigoPremio}', ${o.id})" class="bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
+                                    <i data-lucide="send" class="w-3 h-3"></i> Reenviar WhatsApp
+                                </button>
+                            </div>`;
+                    } else if (o.estado === 'cancelado') {
+                        estadoHtml = `<span class="text-red-500 font-bold uppercase text-[10px]">Cancelado</span>`;
+                    } else {
+                        // Estado pendiente u otro: Mostramos el Botón de Confirmación
+                        estadoHtml = `
+                            <button onclick="confirmarYEnviarPedido(${o.id}, '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
+                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar Pedido
+                            </button>`;
+                    }
                     
                     tbody.innerHTML += `<tr class="border-b border-stone-900/40 hover:bg-stone-900/10 transition-colors">
                         <td class="p-3 font-mono text-amber-400 font-bold">#${o.id}</td>
                         <td class="p-3 text-stone-400">${fechaFormateada}</td>
                         <td class="p-3 text-white nombre-del-plato">${o.productos}</td>
                         <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || 0).toFixed(2)}</td>
-                        <td class="p-3 font-mono text-stone-500">${o.referencia || 'N/A'}</td>
+                        <td class="p-3 font-mono text-stone-400">
+                            <div>Ref: ${o.referencia || 'N/A'}</div>
+                            <div class="text-[10px] text-amber-500/80">Tlf: ${telefonoCliente || 'No registrado'}</div>
+                        </td>
                         <td class="p-3 text-right">
-                            <select 
-                                onchange="actualizarEstadoOrden(${o.id}, this.value)" 
-                                class="bg-stone-950 border border-stone-700 text-[10px] px-2 py-1 rounded-md font-bold uppercase cursor-pointer outline-none transition-colors 
-                                ${o.estado === 'verificado' ? 'text-green-500 border-green-900/50' : 
-                                  o.estado === 'cancelado' ? 'text-red-500 border-red-900/50' : 
-                                  'text-amber-400 border-stone-700'}"
-                            >
-                                <option value="pendiente" ${o.estado === 'pendiente' ? 'selected' : ''}>Pendiente</option>
-                                <option value="verificado" ${o.estado === 'verificado' ? 'selected' : ''}>Verificado</option>
-                                <option value="cancelado" ${o.estado === 'cancelado' ? 'selected' : ''}>Cancelado</option>
-                            </select>
+                            ${estadoHtml}
                         </td>
                     </tr>`;
                 });
+                lucide.createIcons();
             } else if (error) {
                 console.error("Error al descargar órdenes:", error.message);
             }
         }
 
-        async function actualizarEstadoOrden(idOrden, nuevoEstado) {
+        // Función que procesa la confirmación, actualiza la base de datos y abre WhatsApp
+        async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
+            if (!telefonoCliente || telefonoCliente.trim() === "") {
+                const telefonoInput = prompt("No se encontró un número de teléfono registrado para esta orden. Por favor, ingresa el número del cliente (con código de país, ej: 584121234567):");
+                if (!telefonoInput) return;
+                telefonoCliente = telefonoInput.trim();
+            }
+
+            // 1. Actualizar estado en Supabase a 'verificado'
             const { error } = await supabaseClient
                 .from('ordenes_vip')
-                .update({ estado: nuevoEstado })
+                .update({ estado: 'verificado' })
                 .eq('id', idOrden);
 
-            if (!error) {
-                await descargarHistorialDeOrdenes();
-            } else {
-                alert("Error al actualizar estado: " + error.message);
+            if (error) {
+                alert("Error al actualizar la orden: " + error.message);
+                return;
             }
+
+            // 2. Disparar el envío por WhatsApp con el código de premio
+            enviarWhatsAppPremio(telefonoCliente, codigoPremio, idOrden);
+
+            // 3. Recargar la tabla
+            await descargarHistorialDeOrdenes();
+        }
+
+        function enviarWhatsAppPremio(telefono, codigo, idOrden) {
+            if (!telefono) {
+                alert("Error: Número de teléfono no válido.");
+                return;
+            }
+
+            // Limpiar formato del número (solo dígitos)
+            const numeroLimpio = telefono.replace(/[^0-9]/g, "");
+
+            // Mensaje prediseñado para el cliente
+            const mensaje = `¡Hola! Tu orden #${idOrden} ha sido *verificada y confirmada* con éxito por MAC DONALS. 🎉\n\nTu código de acceso exclusivo para ingresar a la cuponera y ver tu premio es:\n📌 *${codigo}*\n\n¡Ingresa a nuestra plataforma con este código para descubrir tu sorpresa!`;
+
+            const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
+            
+            // Abrir WhatsApp en una nueva pestaña
+            window.open(urlWhatsApp, '_blank');
         }
 
         async function descargarAjusteWhatsApp() {
@@ -1005,7 +1050,6 @@
             }
         }
 
-        // NUEVO: Funciones para la hora en vitrina
         async function descargarHoraVitrina() {
             const { data, error } = await supabaseClient
                 .from('ajustes_sistema')
