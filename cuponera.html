@@ -94,9 +94,9 @@
                 <h3 id="cupon-titulo-modal" class="text-xl font-black font-futurista text-white tracking-wide">Participante Oficial Verificado</h3>
             </div>
 
-            <!-- Contenedor del Video Oficial del Sorteo (Para todos los participantes por igual) -->
+            <!-- Contenedor de Video Nativo (Reproducción Automática Garantizada al Abrir) -->
             <div id="contenedor-video-modal" class="rounded-2xl overflow-hidden bg-black border border-amber-500/20 aspect-video flex items-center justify-center shadow-inner relative">
-                <iframe id="iframe-video-premio" class="w-full h-full absolute inset-0" src="" title="Premio Sorteo Moto" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <video id="video-premio-oficial" class="w-full h-full object-cover" autoplay muted playsinline controls loop src=""></video>
             </div>
 
             <p id="cupon-descripcion-modal" class="text-xs sm:text-sm text-stone-300 leading-relaxed font-medium bg-stone-950/50 p-4 rounded-2xl border border-stone-800/80"></p>
@@ -123,8 +123,8 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // 🔗 CAMBIA ESTE ENLACE POR EL DE TU VIDEO DE YOUTUBE DEL SORPRESA/MOTO (Ej: https://www.youtube.com/embed/TuCodigoDeVideo)
-        const VIDEO_OFICIAL_PREMIO = "https://www.youtube.com/embed/TU_ID_DE_YOUTUBE";
+        // 🔗 ENLACE DIRECTO DE TU VIDEO MP4 (Ej: enlace de Supabase Storage o archivo .mp4 subido a tu hosting)
+        const URL_VIDEO_MP4_OFICIAL = "https://TU-SERVIDOR-O-SUPABASE/video-premio.mp4";
 
         async function desbloquearCuponVIP() {
             const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
@@ -182,13 +182,15 @@
             document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
 
-            // Asignar el video oficial para todos por igual
-            const iframeVideo = document.getElementById('iframe-video-premio');
+            // Asignar video nativo y forzar reproducción inmediata
+            const videoElemento = document.getElementById('video-premio-oficial');
             const contenedorVideo = document.getElementById('contenedor-video-modal');
 
-            if (VIDEO_OFICIAL_PREMIO && !VIDEO_OFICIAL_PREMIO.includes("TU_ID_DE_YOUTUBE")) {
-                iframeVideo.src = VIDEO_OFICIAL_PREMIO;
+            if (URL_VIDEO_MP4_OFICIAL && !URL_VIDEO_MP4_OFICIAL.includes("TU-SERVIDOR")) {
+                videoElemento.src = URL_VIDEO_MP4_OFICIAL;
                 contenedorVideo.classList.remove('hidden');
+                videoElemento.load();
+                videoElemento.play().catch(e => console.log("Autoplay prevenido por el navegador, se requieren controles manuales:", e));
             } else {
                 contenedorVideo.classList.add('hidden');
             }
@@ -209,9 +211,10 @@
             document.body.style.overflow = 'auto';
             document.getElementById('input-codigo-ingresado').value = "";
             
-            // Detener la reproducción del video limpiando el src al cerrar la ventana
-            const iframeVideo = document.getElementById('iframe-video-premio');
-            iframeVideo.src = "";
+            // Pausar y reiniciar el video al cerrar
+            const videoElemento = document.getElementById('video-premio-oficial');
+            videoElemento.pause();
+            videoElemento.currentTime = 0;
         }
 
         window.addEventListener('DOMContentLoaded', () => { 
