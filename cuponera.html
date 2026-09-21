@@ -68,6 +68,26 @@
                 </button>
             </div>
         </div>
+
+        <!-- Panel de Administración Opcional para Carga de Video -->
+        <div class="glass-panel p-6 rounded-3xl border border-stone-800 space-y-4">
+            <h3 class="text-xs font-bold font-futurista text-amber-400 uppercase tracking-widest flex items-center gap-2">
+                <i data-lucide="upload-cloud" class="w-4 h-4"></i> Panel Rápido: Subir Video Sorteo
+            </h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[8px] uppercase text-stone-400 font-bold block mb-1">ID del Participante en Supabase</label>
+                    <input type="text" id="admin-id-participante" placeholder="Ej: UUID o ID numérico" class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-2.5 rounded-xl focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                    <label class="text-[8px] uppercase text-stone-400 font-bold block mb-1">Seleccionar Archivo de Video (MP4)</label>
+                    <input type="file" id="admin-archivo-video" accept="video/mp4" class="w-full text-xs text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-stone-900 file:text-amber-400 hover:file:bg-stone-800 cursor-pointer">
+                </div>
+                <button onclick="manejarSubidaVideoAdmin()" class="w-full bg-stone-900 hover:bg-stone-800 border border-amber-500/30 text-amber-400 font-futurista font-bold py-3 rounded-xl text-xs uppercase tracking-widest transition-colors cursor-pointer flex items-center justify-center gap-2">
+                    Subir y Enlazar Video
+                </button>
+            </div>
+        </div>
     </main>
 
     <!-- MODAL LIGHTBOX PARA MOSTRAR LA IMAGEN O VIDEO DEL CUPÓN -->
@@ -218,6 +238,53 @@
             if (videoElemento) {
                 videoElemento.pause();
             }
+        }
+
+        async function subirVideoYActualizarParticipante(idParticipante, archivoVideo) {
+            const nombreRuta = `videos/sorteo_${Date.now()}_${archivoVideo.name}`;
+            
+            const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                .from('sorteos')
+                .upload(nombreRuta, archivoVideo);
+
+            if (uploadError) {
+                alert("Error al subir el video: " + uploadError.message);
+                return;
+            }
+
+            const { data: publicUrlData } = supabaseClient.storage
+                .from('sorteos')
+                .getPublicUrl(nombreRuta);
+
+            const urlPublicaFinal = publicUrlData.publicUrl;
+
+            const { error: updateError } = await supabaseClient
+                .from('participantes_sorteo')
+                .update({ video_url: urlPublicaFinal })
+                .eq('id', idParticipante);
+
+            if (updateError) {
+                alert("Error al actualizar la base de datos: " + updateError.message);
+            } else {
+                alert("¡Video cargado y enlazado automáticamente con éxito!");
+            }
+        }
+
+        async function manejarSubidaVideoAdmin() {
+            const idPart = document.getElementById('admin-id-participante').value.trim();
+            const inputArchivo = document.getElementById('admin-archivo-video');
+            
+            if (!idPart) {
+                alert("Por favor ingresa el ID del participante.");
+                return;
+            }
+            if (!inputArchivo.files || inputArchivo.files.length === 0) {
+                alert("Por favor selecciona un archivo de video.");
+                return;
+            }
+
+            const archivo = inputArchivo.files[0];
+            await subirVideoYActualizarParticipante(idPart, archivo);
         }
 
         window.addEventListener('DOMContentLoaded', () => { 
