@@ -964,18 +964,17 @@
     const referencia = document.getElementById('input-referencia').value.trim();
 
     if (!nombre || !whatsapp || !pedido || !referencia) {
-        alert("Por favor completa todos los campos antes de confirmar.");
+        alert("Por favor completa todos los campos.");
         return;
     }
 
-    // Generar código único para el sorteo de la moto
     const codigoSorteoGenerado = "PP-" + Math.floor(10000 + Math.random() * 90000);
 
-    // Objeto ajustado exactamente a las columnas de tu tabla 'ordenes_vip'
+    // Creamos el objeto asegurando que NINGUNA columna NOT NULL vaya vacía o undefined
     const datosOrden = {
-        productos: pedido,             // Columna NOT NULL en tu tabla
-        total: 0.00,                   // Ajusta si manejas un monto numérico obligatorio
-        referencia: referencia,        // Columna NOT NULL en tu tabla
+        productos: pedido,             // Obligatorio NOT NULL
+        total: 1.00,                   // Obligatorio NOT NULL (le ponemos un valor numérico seguro por ahora)
+        referencia: referencia,        // Obligatorio NOT NULL
         referencia_bancaria: referencia,
         nombre_cliente: nombre,
         telefono: whatsapp,
@@ -984,45 +983,31 @@
         estado: 'activo'
     };
 
-    // Bloquear el botón visualmente para evitar doble clic
-    const botonConfirmar = document.getElementById('btn-confirmar-pedido');
-    if (botonConfirmar) {
-        botonConfirmar.disabled = true;
-        botonConfirmar.innerText = "Procesando...";
-    }
+    console.log("Enviando a Supabase:", datosOrden);
 
     try {
         const { data, error } = await supabaseClient
             .from('ordenes_vip')
-            .insert([datosOrden]);
+            .insert([datosOrden])
+            .select(); // Forzamos a que devuelva la fila insertada
 
         if (error) {
-            console.error("Error de Supabase:", error);
-            alert("Hubo un error al registrar la orden en la base de datos: " + error.message);
-            if (botonConfirmar) {
-                botonConfirmar.disabled = false;
-                botonConfirmar.innerText = "Confirmar Pedido";
-            }
+            // AQUÍ VEREMOS EL ERROR REAL DE SUPABASE
+            console.error("Error detallado de Supabase:", error);
+            alert("❌ ERROR DE SUPABASE:\n" + error.message + "\n(Detalle: " + (error.details || 'Ninguno') + ")");
             return;
         }
 
-        // Guardar código localmente
-        localStorage.setItem('unig_codigo_suerte', codigoSorteoGenerado);
-
-        // Mensaje para WhatsApp del negocio
-        const textoWs = `¡Hola Pizza Planeta! 🍕 Nuevo pedido VIP y Sorteo:\n\n👤 *Cliente:* ${nombre}\n📱 *Teléfono:* ${whatsapp}\n🛒 *Pedido:* ${pedido}\n💳 *Referencia:* ${referencia}\n🔑 *Código Sorteo:* ${codigoSorteoGenerado}`;
-        const numeroNegocio = "584120000000"; // Cambia por tu número real
-
-        alert(`¡Pedido registrado con éxito! Tu código temporal es: ${codigoSorteoGenerado}`);
-        window.location.href = `https://wa.me/${numeroNegocio}?text=${encodeURIComponent(textoWs)}`;
+        console.log("¡Orden insertada con éxito!", data);
+        alert(`¡Orden guardada con éxito! Tu código es: ${codigoSorteoGenerado}`);
+        
+        // Redirigir a WhatsApp
+        const textoWs = `¡Hola Pizza Planeta! 🍕 Mi pedido: ${pedido} | Ref: ${referencia} | Código: ${codigoSorteoGenerado}`;
+        window.location.href = `https://wa.me/584120000000?text=${encodeURIComponent(textoWs)}`;
 
     } catch (err) {
-        console.error("Error inesperado:", err);
-        alert("Ocurrió un error inesperado.");
-        if (botonConfirmar) {
-            botonConfirmar.disabled = false;
-            botonConfirmar.innerText = "Confirmar Pedido";
-        }
+        console.error("Error de red o ejecución:", err);
+        alert("Ocurrió un error inesperado al conectar con la base de datos.");
     }
 }
 
