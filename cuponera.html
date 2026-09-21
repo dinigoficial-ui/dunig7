@@ -70,36 +70,36 @@
         </div>
     </main>
 
-    <!-- MODAL MULTIMEDIA (SOPORTA YOUTUBE, TIKTOK Y MP4) -->
+    <!-- MODAL MULTIMEDIA LIMPIO -->
     <div id="modal-cupon-exito" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4" onclick="cerrarCuponExito()">
-        <div class="relative max-w-lg w-full bg-stone-950 border border-amber-500/30 rounded-3xl p-6 text-center space-y-4 shadow-2xl" onclick="event.stopPropagation()">
-            <button onclick="cerrarCuponExito()" class="absolute top-4 right-4 text-stone-400 hover:text-white transition-colors cursor-pointer">
+        <div class="relative max-w-sm w-full bg-stone-950 border border-amber-500/30 rounded-3xl p-5 text-center space-y-3 shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="cerrarCuponExito()" class="absolute top-3 right-3 text-stone-400 hover:text-white transition-colors cursor-pointer z-20">
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
             <div class="space-y-1">
                 <span class="text-[9px] uppercase tracking-widest font-futurista text-amber-400 font-bold">¡Cupón Validado con Éxito!</span>
-                <h3 id="cupon-titulo-modal" class="text-xl font-bold font-futurista text-white">Beneficio Exclusivo</h3>
+                <h3 id="cupon-titulo-modal" class="text-lg font-bold font-futurista text-white">Beneficio Exclusivo</h3>
             </div>
             
-            <!-- Contenedor Inteligente -->
-            <div class="rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-[9/16] sm:aspect-video flex items-center justify-center relative">
+            <!-- Contenedor optimizado vertical para TikTok / Formato Reel -->
+            <div class="rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-[9/16] max-h-[380px] flex items-center justify-center relative mx-auto">
                 <!-- Iframe para YouTube -->
                 <iframe id="cupon-youtube-iframe" src="" class="w-full h-full hidden" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 
-                <!-- Iframe para TikTok -->
-                <iframe id="cupon-tiktok-iframe" src="" class="w-full h-full hidden" frameborder="0" allowfullscreen></iframe>
+                <!-- Iframe para TikTok Limpio -->
+                <iframe id="cupon-tiktok-iframe" src="" class="w-full h-full hidden scale-105 pointer-events-auto" frameborder="0" allow="encrypted-media;" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
 
                 <!-- Video Directo MP4 -->
                 <video id="cupon-video-modal" src="" controls autoplay muted loop playsinline class="w-full h-full object-cover hidden"></video>
             </div>
 
-            <p id="cupon-descripcion-modal" class="text-xs text-stone-300 leading-relaxed"></p>
+            <p id="cupon-descripcion-modal" class="text-[11px] text-stone-300 leading-relaxed"></p>
             
-            <div class="space-y-2 pt-2">
-                <a id="btn-whatsapp-canje" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-futurista font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors shadow-lg cursor-pointer">
+            <div class="space-y-2 pt-1">
+                <a id="btn-whatsapp-canje" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-futurista font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors shadow-lg cursor-pointer">
                     <i data-lucide="message-circle" class="w-4 h-4"></i> Reclamar por WhatsApp
                 </a>
-                <button onclick="cerrarCuponExito()" class="w-full bg-stone-900 hover:bg-stone-800 border border-stone-800 text-stone-400 hover:text-white font-futurista font-bold py-2.5 rounded-xl text-[10px] uppercase tracking-widest transition-colors cursor-pointer">
+                <button onclick="cerrarCuponExito()" class="w-full bg-stone-900 hover:bg-stone-800 border border-stone-800 text-stone-400 hover:text-white font-futurista font-bold py-2 rounded-xl text-[10px] uppercase tracking-widest transition-colors cursor-pointer">
                     Cerrar Ventana
                 </button>
             </div>
@@ -147,7 +147,7 @@
                         titulo: dataSorteo.titulo || "¡Sorteo VIP Activo!",
                         descripcion: dataSorteo.descripcion || `¡Participante oficial verificado! Titular: ${dataSorteo.nombre || 'Cliente'}. Su número de la suerte está participando por la moto.`,
                         video_url: dataSorteo.video_url || dataSorteo.video_premio_url || "",
-                        whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
+                        whatsapp: dataSorto.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
                     };
                 }
             }
@@ -173,7 +173,6 @@
 
             const urlVideoSupabase = data.video_url || data.video_premio_url;
 
-            // Ocultar todo primero
             youtubeIframe.classList.add('hidden');
             tiktokIframe.classList.add('hidden');
             videoElement.classList.add('hidden');
@@ -184,18 +183,19 @@
             if (urlVideoSupabase && urlVideoSupabase.trim() !== "") {
                 const url = urlVideoSupabase.trim();
                 
-                // 1. Detección para TIKTOK
+                // 1. TIKTOK LIMPIO EMBEDDED
                 if (url.includes('tiktok.com')) {
                     let tiktokId = "";
                     if (url.includes('/video/')) {
                         tiktokId = url.split('/video/')[1].split('?')[0];
                     }
                     if (tiktokId) {
-                        tiktokIframe.src = `https://www.tiktok.com/embed/v2/${tiktokId}`;
+                        // Parametros para ocultar elementos de marca de agua molestos o redirecciones externas
+                        tiktokIframe.src = `https://www.tiktok.com/embed/v2/${tiktokId}?autoplay=1&muted=0&loop=1`;
                         tiktokIframe.classList.remove('hidden');
                     }
                 } 
-                // 2. Detección para YOUTUBE
+                // 2. YOUTUBE
                 else if (url.includes('youtu.be') || url.includes('youtube.com')) {
                     let videoId = "";
                     if (url.includes('youtu.be/')) {
@@ -211,7 +211,7 @@
                         youtubeIframe.classList.remove('hidden');
                     }
                 } 
-                // 3. Video directo (MP4)
+                // 3. MP4 DIRECTO
                 else {
                     videoElement.src = url;
                     videoElement.classList.remove('hidden');
