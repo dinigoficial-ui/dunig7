@@ -70,7 +70,7 @@
         </div>
     </main>
 
-    <!-- MODAL PARA MOSTRAR EL VIDEO CENTRADO Y BLOQUEADO EN BUCLE -->
+    <!-- MODAL LIGHTBOX PARA MOSTRAR LA IMAGEN O VIDEO DEL CUPÓN -->
     <div id="modal-cupon-exito" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4" onclick="cerrarCuponExito()">
         <div class="relative max-w-lg w-full bg-stone-950 border border-amber-500/30 rounded-3xl p-6 text-center space-y-4 shadow-2xl" onclick="event.stopPropagation()">
             <button onclick="cerrarCuponExito()" class="absolute top-4 right-4 text-stone-400 hover:text-white transition-colors cursor-pointer">
@@ -78,15 +78,19 @@
             </button>
             <div class="space-y-1">
                 <span class="text-[9px] uppercase tracking-widest font-futurista text-amber-400 font-bold">¡Cupón Validado con Éxito!</span>
-                <h3 id="cupon-titulo-modal" class="text-xl font-bold font-futurista text-white">Sorteo VIP Activo</h3>
+                <h3 id="cupon-titulo-modal" class="text-xl font-bold font-futurista text-white">Beneficio Exclusivo</h3>
             </div>
 
-            <!-- CONTENEDOR DE VIDEO CENTRADO, FIJO Y EN BUCLE AUTOMÁTICO -->
-            <div class="rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-video flex items-center justify-center relative shadow-inner">
-                <video id="video-reproductor-modal" autoplay muted loop playsinline class="w-full h-full object-cover pointer-events-none select-none">
-                    <source id="video-source-modal" src="" type="video/mp4">
-                    Tu navegador no soporta videos HTML5.
+            <!-- Contenedor para Reproductor de Video Nativo (Supabase) -->
+            <div id="contenedor-video-modal" class="hidden rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-video flex items-center justify-center">
+                <video id="cupon-video-elemento" controls playsinline class="w-full h-full object-contain">
+                    Tu navegador no soporta la reproducción de video.
                 </video>
+            </div>
+
+            <!-- Contenedor de imagen (para cupones normales) -->
+            <div id="contenedor-imagen-modal" class="rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-video flex items-center justify-center">
+                <img id="cupon-imagen-modal" src="" alt="Cupón Exclusivo" class="w-full h-full object-contain">
             </div>
 
             <p id="cupon-descripcion-modal" class="text-xs text-stone-300 leading-relaxed"></p>
@@ -109,6 +113,7 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // Función principal de desbloqueo enlazada al botón
         async function desbloquearCuponVIP() {
             const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
             if(!inputVal) {
@@ -118,11 +123,13 @@
             await validarCodigoEnCuponera(inputVal);
         }
 
+        // Función unificada que busca en ambas tablas (cupones y participantes_sorteo)
         async function validarCodigoEnCuponera(codigoIngresado) {
             const codigoLimpio = codigoIngresado.trim().toUpperCase();
             let data = null;
 
-            const { data: dataCupon } = await supabaseClient
+            // 1. Primero intentamos buscar en la tabla de cupones
+            const { data: dataCupon, error: errorCupon } = await supabaseClient
                 .from('cupones')
                 .select('*')
                 .eq('codigo', codigoLimpio)
@@ -131,7 +138,8 @@
             if (dataCupon) {
                 data = dataCupon;
             } else {
-                const { data: dataSorteo } = await supabaseClient
+                // 2. Si no está en cupones, lo buscamos en participantes_sorteo
+                const { data: dataSorteo, error: errorSorteo } = await supabaseClient
                     .from('participantes_sorteo')
                     .select('*')
                     .or(`codigo.eq.${codigoLimpio},codigo_sorteo.eq.${codigoLimpio}`)
@@ -140,11 +148,11 @@
                 if (dataSorteo) {
                     data = {
                         codigo: codigoLimpio,
-                        // Aquí puedes poner un enlace directo a un archivo .mp4 alojado en tu Supabase Storage, GitHub o servidor
-                        video_url: dataSorteo.video_url || "https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-41727-large.mp4",
+                        imagen_url: dataSorteo.imagen_premio_url || "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800",
+                        video_url: dataSorteo.video_url || null,
                         titulo: "¡Sorteo VIP Activo!",
                         descripcion: `¡Participante oficial verificado! Titular: ${dataSorteo.nombre || 'Cliente'}. Su número de la suerte está participando por la moto.`,
-                        whatsapp: dataSnotesWp = dataSorteo.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
+                        whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
                     };
                 }
             }
@@ -154,9 +162,11 @@
                 return;
             }
 
+            // Si encuentra el registro, mostramos el modal con éxito
             mostrarPremioEnPantalla(data);
         }
 
+        // Función visual para pintar los datos en el modal con reproductor nativo
         function mostrarPremioEnPantalla(data) {
             const tituloFinal = data.titulo || "¡Cupón VIP Exclusivo!";
             const descripcionTexto = data.descripcion || "¡Disfruta de tu beneficio exclusivo!";
@@ -164,17 +174,26 @@
             document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
 
-            // Cargar video centrado y forzar reproducción automática en bucle
-            const videoElement = document.getElementById('video-reproductor-modal');
-            const videoSource = document.getElementById('video-source-modal');
+            // Gestionar video o imagen
+            const videoUrl = data.video_url;
+            const contenedorVideo = document.getElementById('contenedor-video-modal');
+            const contenedorImagen = document.getElementById('contenedor-imagen-modal');
+            const videoElemento = document.getElementById('cupon-video-elemento');
+
+            if (videoUrl && videoUrl.trim() !== "") {
+                videoElemento.src = videoUrl;
+                contenedorVideo.classList.remove('hidden');
+                contenedorImagen.classList.add('hidden');
+                videoElemento.load();
+            } else {
+                contenedorVideo.classList.add('hidden');
+                contenedorImagen.classList.remove('hidden');
+                videoElemento.pause();
+                videoElemento.src = "";
+                document.getElementById('cupon-imagen-modal').src = data.imagen_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600";
+            }
             
-            // Usa el video del registro o uno predeterminado en formato directo mp4
-            const urlVideoFinal = data.video_url || "https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-41727-large.mp4";
-            
-            videoSource.src = urlVideoFinal;
-            videoElement.load();
-            videoElement.play().catch(e => console.log("Autoplay prevenido por el navegador:", e));
-            
+            // Configurar WhatsApp corporativo directo de Supabase
             const numeroWp = data.whatsapp ? data.whatsapp.trim() : "";
             const textoMensaje = `¡Hola! He validado mi código secreto en la cuponera VIP.\n\n🎟️ *Cupón/Sorteo:* ${tituloFinal}\n🔑 *Código:* ${data.codigo}\n📝 *Detalle:* ${descripcionTexto}`;
             const mensajeWpCodificado = encodeURIComponent(textoMensaje);
@@ -187,16 +206,22 @@
         }
 
         function cerrarCuponExito() {
-            const videoElement = document.getElementById('video-reproductor-modal');
-            videoElement.pause(); // Pausar video al cerrar
             document.getElementById('modal-cupon-exito').classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('input-codigo-ingresado').value = "";
+            
+            // Pausar el video al cerrar la ventana
+            const videoElemento = document.getElementById('cupon-video-elemento');
+            if (videoElemento) {
+                videoElemento.pause();
+            }
         }
 
+        // Autocompletar si viene por parámetro GET en la URL o desde el localStorage
         window.addEventListener('DOMContentLoaded', () => { 
             if (window.lucide) lucide.createIcons(); 
 
+            // Revisar si trae código en la URL (ej. cuponera.html?codigo=093)
             const urlParams = new URLSearchParams(window.location.search);
             const codigoUrl = urlParams.get('codigo');
             if (codigoUrl) {
@@ -205,6 +230,7 @@
                 return;
             }
 
+            // Si no viene en la URL, revisar el localStorage del dispositivo
             const codigoGuardado = localStorage.getItem('unig_codigo_suerte');
             if (codigoGuardado) {
                 const inputCupon = document.getElementById('input-codigo-ingresado');
