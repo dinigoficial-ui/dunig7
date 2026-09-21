@@ -81,7 +81,7 @@
                 <h3 id="cupon-titulo-modal" class="text-xl font-bold font-futurista text-white">Beneficio Exclusivo</h3>
             </div>
 
-            <!-- Contenedor dinámico de video (Soporta YouTube o MP4) -->
+            <!-- Contenedor dinámico de video (Soporta YouTube o MP4 de Supabase) -->
             <div id="contenedor-video-modal" class="hidden rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-video flex items-center justify-center"></div>
 
             <!-- Contenedor de imagen (para cupones normales) -->
@@ -168,23 +168,28 @@
             const contenedorVideo = document.getElementById('contenedor-video-modal');
             const contenedorImagen = document.getElementById('contenedor-imagen-modal');
 
-            // Gestión inteligente: Si es YouTube muestra botón interactivo, si es archivo directo usa reproductor nativo
-            if (videoUrl && videoUrl.includes('youtu')) {
-                contenedorVideo.innerHTML = `
-                    <a href="${videoUrl}" target="_blank" class="w-full h-full bg-stone-900 border border-amber-500/30 flex flex-col items-center justify-center p-6 text-center relative group hover:border-amber-400 transition-all cursor-pointer">
-                        <div class="absolute inset-0 bg-black/40"></div>
-                        <div class="relative z-10 space-y-2 flex flex-col items-center">
-                            <div class="w-14 h-14 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
-                                <i data-lucide="play" class="w-7 h-7 fill-current ml-1"></i>
+            // Gestión inteligente de video
+            if (videoUrl && videoUrl.trim() !== "") {
+                if (videoUrl.includes('youtu')) {
+                    contenedorVideo.innerHTML = `
+                        <a href="${videoUrl}" target="_blank" class="w-full h-full bg-stone-900 border border-amber-500/30 flex flex-col items-center justify-center p-6 text-center relative group hover:border-amber-400 transition-all cursor-pointer">
+                            <div class="absolute inset-0 bg-black/40"></div>
+                            <div class="relative z-10 space-y-2 flex flex-col items-center">
+                                <div class="w-14 h-14 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                                    <i data-lucide="play" class="w-7 h-7 fill-current ml-1"></i>
+                                </div>
+                                <span class="text-xs font-bold font-futurista text-amber-400 uppercase tracking-widest">Ver Video del Sorteo</span>
                             </div>
-                            <span class="text-xs font-bold font-futurista text-amber-400 uppercase tracking-widest">Ver Video en YouTube</span>
-                        </div>
-                    </a>
-                `;
-                contenedorVideo.classList.remove('hidden');
-                contenedorImagen.classList.add('hidden');
-            } else if (videoUrl && videoUrl.trim() !== "") {
-                contenedorVideo.innerHTML = `<video id="cupon-video-elemento" controls playsinline class="w-full h-full object-contain" src="${videoUrl}"></video>`;
+                        </a>
+                    `;
+                } else {
+                    contenedorVideo.innerHTML = `
+                        <video id="cupon-video-elemento" controls playsinline class="w-full h-full object-contain">
+                            <source src="${videoUrl}" type="video/mp4">
+                            Tu navegador no soporta la reproducción de video.
+                        </video>
+                    `;
+                }
                 contenedorVideo.classList.remove('hidden');
                 contenedorImagen.classList.add('hidden');
             } else {
