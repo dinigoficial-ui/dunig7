@@ -81,12 +81,8 @@
                 <h3 id="cupon-titulo-modal" class="text-xl font-bold font-futurista text-white">Beneficio Exclusivo</h3>
             </div>
 
-            <!-- Contenedor para Reproductor de Video Nativo (Supabase) -->
-            <div id="contenedor-video-modal" class="hidden rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-video flex items-center justify-center">
-                <video id="cupon-video-elemento" controls playsinline class="w-full h-full object-contain">
-                    Tu navegador no soporta la reproducción de video.
-                </video>
-            </div>
+            <!-- Contenedor dinámico de video (Soporta YouTube o MP4) -->
+            <div id="contenedor-video-modal" class="hidden rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-video flex items-center justify-center"></div>
 
             <!-- Contenedor de imagen (para cupones normales) -->
             <div id="contenedor-imagen-modal" class="rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-video flex items-center justify-center">
@@ -113,7 +109,6 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Función principal de desbloqueo enlazada al botón
         async function desbloquearCuponVIP() {
             const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
             if(!inputVal) {
@@ -123,12 +118,10 @@
             await validarCodigoEnCuponera(inputVal);
         }
 
-        // Función unificada que busca en ambas tablas (cupones y participantes_sorteo)
         async function validarCodigoEnCuponera(codigoIngresado) {
             const codigoLimpio = codigoIngresado.trim().toUpperCase();
             let data = null;
 
-            // 1. Primero intentamos buscar en la tabla de cupones
             const { data: dataCupon, error: errorCupon } = await supabaseClient
                 .from('cupones')
                 .select('*')
@@ -138,7 +131,6 @@
             if (dataCupon) {
                 data = dataCupon;
             } else {
-                // 2. Si no está en cupones, lo buscamos en participantes_sorteo
                 const { data: dataSorteo, error: errorSorteo } = await supabaseClient
                     .from('participantes_sorteo')
                     .select('*')
@@ -162,11 +154,9 @@
                 return;
             }
 
-            // Si encuentra el registro, mostramos el modal con éxito
             mostrarPremioEnPantalla(data);
         }
 
-        // Función visual para pintar los datos en el modal con reproductor nativo
         function mostrarPremioEnPantalla(data) {
             const tituloFinal = data.titulo || "¡Cupón VIP Exclusivo!";
             const descripcionTexto = data.descripcion || "¡Disfruta de tu beneficio exclusivo!";
@@ -174,26 +164,35 @@
             document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
 
-            // Gestionar video o imagen
             const videoUrl = data.video_url;
             const contenedorVideo = document.getElementById('contenedor-video-modal');
             const contenedorImagen = document.getElementById('contenedor-imagen-modal');
-            const videoElemento = document.getElementById('cupon-video-elemento');
 
-            if (videoUrl && videoUrl.trim() !== "") {
-                videoElemento.src = videoUrl;
+            // Gestión inteligente: Si es YouTube muestra botón interactivo, si es archivo directo usa reproductor nativo
+            if (videoUrl && videoUrl.includes('youtu')) {
+                contenedorVideo.innerHTML = `
+                    <a href="${videoUrl}" target="_blank" class="w-full h-full bg-stone-900 border border-amber-500/30 flex flex-col items-center justify-center p-6 text-center relative group hover:border-amber-400 transition-all cursor-pointer">
+                        <div class="absolute inset-0 bg-black/40"></div>
+                        <div class="relative z-10 space-y-2 flex flex-col items-center">
+                            <div class="w-14 h-14 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                                <i data-lucide="play" class="w-7 h-7 fill-current ml-1"></i>
+                            </div>
+                            <span class="text-xs font-bold font-futurista text-amber-400 uppercase tracking-widest">Ver Video en YouTube</span>
+                        </div>
+                    </a>
+                `;
                 contenedorVideo.classList.remove('hidden');
                 contenedorImagen.classList.add('hidden');
-                videoElemento.load();
+            } else if (videoUrl && videoUrl.trim() !== "") {
+                contenedorVideo.innerHTML = `<video id="cupon-video-elemento" controls playsinline class="w-full h-full object-contain" src="${videoUrl}"></video>`;
+                contenedorVideo.classList.remove('hidden');
+                contenedorImagen.classList.add('hidden');
             } else {
                 contenedorVideo.classList.add('hidden');
                 contenedorImagen.classList.remove('hidden');
-                videoElemento.pause();
-                videoElemento.src = "";
                 document.getElementById('cupon-imagen-modal').src = data.imagen_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600";
             }
             
-            // Configurar WhatsApp corporativo directo de Supabase
             const numeroWp = data.whatsapp ? data.whatsapp.trim() : "";
             const textoMensaje = `¡Hola! He validado mi código secreto en la cuponera VIP.\n\n🎟️ *Cupón/Sorteo:* ${tituloFinal}\n🔑 *Código:* ${data.codigo}\n📝 *Detalle:* ${descripcionTexto}`;
             const mensajeWpCodificado = encodeURIComponent(textoMensaje);
@@ -210,18 +209,15 @@
             document.body.style.overflow = 'auto';
             document.getElementById('input-codigo-ingresado').value = "";
             
-            // Pausar el video al cerrar la ventana
             const videoElemento = document.getElementById('cupon-video-elemento');
             if (videoElemento) {
                 videoElemento.pause();
             }
         }
 
-        // Autocompletar si viene por parámetro GET en la URL o desde el localStorage
         window.addEventListener('DOMContentLoaded', () => { 
             if (window.lucide) lucide.createIcons(); 
 
-            // Revisar si trae código en la URL (ej. cuponera.html?codigo=093)
             const urlParams = new URLSearchParams(window.location.search);
             const codigoUrl = urlParams.get('codigo');
             if (codigoUrl) {
@@ -230,7 +226,6 @@
                 return;
             }
 
-            // Si no viene en la URL, revisar el localStorage del dispositivo
             const codigoGuardado = localStorage.getItem('unig_codigo_suerte');
             if (codigoGuardado) {
                 const inputCupon = document.getElementById('input-codigo-ingresado');
