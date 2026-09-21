@@ -1,239 +1,258 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PIZZA PLANETA - Cuponera VIP</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Plus+Jakarta+Sans:wght@200;300;400;500;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at 50% 0%, #1c1917 0%, #0c0a09 100%); background-color: #030202; }
-        .font-futurista { font-family: 'Orbitron', sans-serif; }
-        .glow-gold { box-shadow: 0 0 25px rgba(229, 193, 88, 0.15); }
-        .glass-panel { background: linear-gradient(135deg, rgba(28, 25, 23, 0.45) 0%, rgba(12, 10, 9, 0.6) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.02); }
-        .grid-bg { background-image: linear-gradient(rgba(229, 193, 88, 0.01) 1px, transparent 1px), linear-gradient(90deg, rgba(229, 193, 88, 0.01) 1px, transparent 1px); background-size: 32px 32px; }
-        .btn-oro {
-            background: linear-gradient(135deg, #f5d77f 0%, #dfb347 50%, #c79524 100%);
-            box-shadow: 0 4px 20px rgba(223, 179, 71, 0.4), inset 0 2px 3px rgba(255, 255, 255, 0.6);
-            transition: all 0.3s ease;
-        }
-        .btn-oro:hover {
-            transform: scale(1.02);
-            box-shadow: 0 6px 25px rgba(223, 179, 71, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.8);
-        }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #e5c158; border-radius: 10px; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIZZA PLANETA - Cuponera VIP</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Plus+Jakarta+Sans:wght@200;300;400;500;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at 50% 0%, #1c1917 0%, #0c0a09 100%); background-color: #030202; }
+        .font-futurista { font-family: 'Orbitron', sans-serif; }
+        .glow-gold { box-shadow: 0 0 30px rgba(229, 193, 88, 0.2); }
+        .glass-panel { background: linear-gradient(135deg, rgba(28, 25, 23, 0.6) 0%, rgba(12, 10, 9, 0.75) 100%); backdrop-filter: blur(25px); border: 1px solid rgba(229, 193, 88, 0.1); }
+        .grid-bg { background-image: linear-gradient(rgba(229, 193, 88, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(229, 193, 88, 0.02) 1px, transparent 1px); background-size: 32px 32px; }
+        .btn-oro {
+            background: linear-gradient(135deg, #f5d77f 0%, #dfb347 50%, #c79524 100%);
+            box-shadow: 0 4px 25px rgba(223, 179, 71, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.7);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-oro:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(223, 179, 71, 0.6), inset 0 2px 5px rgba(255, 255, 255, 0.9);
+        }
+        .modal-anim { animation: modalScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes modalScale {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #dfb347; border-radius: 10px; }
+    </style>
 </head>
-<body class="text-stone-200 antialiased min-h-screen flex flex-col justify-between grid-bg relative">
+<body class="text-stone-200 antialiased min-h-screen flex flex-col justify-between grid-bg relative selection:bg-amber-500 selection:text-stone-950">
 
-    <header class="bg-black/40 backdrop-blur-xl border-b border-stone-900/80 sticky top-0 z-40 px-4">
-        <div class="max-w-7xl mx-auto h-20 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="border border-amber-500/30 p-2 rounded-xl bg-stone-950/80 glow-gold">
-                    <i data-lucide="ticket" class="w-6 h-6 text-amber-400"></i>
-                </div>
-                <div>
-                    <h1 class="text-base sm:text-xl font-black tracking-[0.15em] text-white font-futurista">
-                        CUPONERA <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-500">VIP</span>
-                    </h1>
-                    <p class="text-[8px] text-amber-500/70 uppercase tracking-[0.2em] font-bold font-futurista">
-                        VALIDACIÓN POR CÓDIGO INDIVIDUAL
-                    </p>
-                </div>
-            </div>
-            <a href="index.html" class="bg-stone-900 border border-amber-500/20 hover:border-amber-500/50 text-amber-400 px-4 py-2 rounded-xl text-xs font-futurista font-bold uppercase tracking-widest flex items-center gap-2 transition-all">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver al Menú
-            </a>
-        </div>
-    </header>
+    <!-- Header Elegante -->
+    <header class="bg-stone-950/70 backdrop-blur-2xl border-b border-amber-500/10 sticky top-0 z-40 px-4">
+        <div class="max-w-7xl mx-auto h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="border border-amber-500/40 p-2.5 rounded-2xl bg-stone-900/90 glow-gold flex items-center justify-center">
+                    <i data-lucide="ticket" class="w-6 h-6 text-amber-400"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-xl font-black tracking-[0.2em] text-white font-futurista">
+                        PIZZA <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500">PLANETA</span>
+                    </h1>
+                    <p class="text-[9px] text-amber-400/80 uppercase tracking-[0.25em] font-bold font-futurista">
+                        CUPONERA &amp; SORTEO VIP
+                    </p>
+                </div>
+            </div>
+            <a href="index.html" class="bg-stone-900/90 border border-amber-500/30 hover:border-amber-400 text-amber-400 px-4 py-2.5 rounded-xl text-xs font-futurista font-bold uppercase tracking-wider flex items-center gap-2 transition-all hover:bg-stone-800 shadow-lg">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Menú
+            </a>
+        </div>
+    </header>
 
-    <main class="max-w-md w-full mx-auto px-4 py-12 flex-grow flex flex-col justify-center relative z-10 space-y-6">
-        <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl space-y-6 border border-stone-800">
-            <div class="text-center space-y-2">
-                <h2 class="text-lg font-black font-futurista text-white uppercase tracking-wider">Canjear Cupón Exclusivo</h2>
-                <p class="text-xs text-stone-400">Introduce tu código secreto de acceso para revelar el beneficio.</p>
-            </div>
+    <!-- Contenido Principal -->
+    <main class="max-w-md w-full mx-auto px-4 py-12 flex-grow flex flex-col justify-center relative z-10 space-y-6">
+        <div class="glass-panel p-8 rounded-3xl shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <div class="inline-flex p-3 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-1">
+                    <i data-lucide="shield-check" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-lg font-black font-futurista text-white uppercase tracking-wider">Validación de Código</h2>
+                <p class="text-xs text-stone-400 leading-relaxed">Ingresa tu código único de seguridad o número de la suerte para verificar tu estatus.</p>
+            </div>
 
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[9px] uppercase text-amber-400/80 font-bold tracking-widest block font-futurista mb-2">Código Secreto *</label>
-                    <input type="text" id="input-codigo-ingresado" placeholder="Ej: 37373" class="w-full bg-stone-900 border border-stone-800 text-sm text-center text-white font-mono p-4 rounded-xl focus:outline-none focus:border-amber-400 tracking-widest uppercase">
-                </div>
+            <div class="space-y-4">
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase text-amber-400 font-bold tracking-[0.2em] block font-futurista text-center">Código de Acceso / Sorteo</label>
+                    <input type="text" id="input-codigo-ingresado" placeholder="EJ: 37373" class="w-full bg-stone-950/80 border border-stone-800 text-base text-center text-amber-300 font-mono font-bold p-4 rounded-2xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 tracking-[0.25em] uppercase transition-all">
+                </div>
 
-                <button onclick="desbloquearCuponVIP()" class="w-full btn-oro text-stone-950 font-futurista font-black py-4 px-6 rounded-xl text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-2 cursor-pointer shadow-lg">
-                    <i data-lucide="key" class="w-4 h-4 stroke-[2.5]"></i> DESBLOQUEAR CUPÓN
-                </button>
-            </div>
-        </div>
-    </main>
+                <button onclick="desbloquearCuponVIP()" class="w-full btn-oro text-stone-950 font-futurista font-black py-4 px-6 rounded-2xl text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 cursor-pointer shadow-xl">
+                    <i data-lucide="sparkles" class="w-4 h-4 stroke-[2.5]"></i> VERIFICAR PARTICIPACIÓN
+                </button>
+            </div>
+        </div>
+    </main>
 
-    <!-- MODAL LIGHTBOX PARA MOSTRAR LA IMAGEN O VIDEO DEL CUPÓN -->
-    <div id="modal-cupon-exito" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4" onclick="cerrarCuponExito()">
-        <div class="relative max-w-lg w-full bg-stone-950 border border-amber-500/30 rounded-3xl p-6 text-center space-y-4 shadow-2xl" onclick="event.stopPropagation()">
-            <button onclick="cerrarCuponExito()" class="absolute top-4 right-4 text-stone-400 hover:text-white transition-colors cursor-pointer">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-            <div class="space-y-1">
-                <span class="text-[9px] uppercase tracking-widest font-futurista text-amber-400 font-bold">¡Cupón Validado con Éxito!</span>
-                <h3 id="cupon-titulo-modal" class="text-xl font-bold font-futurista text-white">Beneficio Exclusivo</h3>
-            </div>
+    <!-- Modal de Resultado (Éxito / Verificado) -->
+    <div id="modal-cupon-exito" class="hidden fixed inset-0 bg-stone-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 transition-all" onclick="cerrarCuponExito()">
+        <div class="relative max-w-lg w-full bg-stone-900 border border-amber-500/40 rounded-3xl p-6 sm:p-8 text-center space-y-5 shadow-2xl modal-anim glass-panel" onclick="event.stopPropagation()">
+            <button onclick="cerrarCuponExito()" class="absolute top-4 right-4 text-stone-400 hover:text-white bg-stone-950/60 p-2 rounded-full border border-stone-800 transition-colors cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <div class="space-y-1.5">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-futurista font-bold uppercase tracking-widest">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> ¡Verificado con Éxito!
+                </div>
+                <h3 id="cupon-titulo-modal" class="text-xl font-black font-futurista text-white tracking-wide">Participante Oficial Verificado</h3>
+            </div>
 
-            <!-- Contenedor dinámico de video (Soporta YouTube o MP4) -->
-            <div id="contenedor-video-modal" class="hidden rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-video flex items-center justify-center"></div>
+            <!-- Contenedor dinámico de video -->
+            <div id="contenedor-video-modal" class="hidden rounded-2xl overflow-hidden bg-black border border-amber-500/20 aspect-video flex items-center justify-center shadow-inner"></div>
 
-            <!-- Contenedor de imagen (para cupones normales) -->
-            <div id="contenedor-imagen-modal" class="rounded-2xl overflow-hidden bg-black border border-stone-900 aspect-video flex items-center justify-center">
-                <img id="cupon-imagen-modal" src="" alt="Cupón Exclusivo" class="w-full h-full object-contain">
-            </div>
+            <!-- Contenedor de imagen -->
+            <div id="contenedor-imagen-modal" class="rounded-2xl overflow-hidden bg-black/50 border border-amber-500/20 aspect-video flex items-center justify-center shadow-inner">
+                <img id="cupon-imagen-modal" src="" alt="Cupón Exclusivo" class="w-full h-full object-cover">
+            </div>
 
-            <p id="cupon-descripcion-modal" class="text-xs text-stone-300 leading-relaxed"></p>
-            
-            <div class="space-y-2 pt-2">
-                <a id="btn-whatsapp-canje" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-futurista font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors shadow-lg cursor-pointer">
-                    <i data-lucide="message-circle" class="w-4 h-4"></i> Reclamar por WhatsApp
-                </a>
-                <button onclick="cerrarCuponExito()" class="w-full bg-stone-900 hover:bg-stone-800 border border-stone-800 text-stone-400 hover:text-white font-futurista font-bold py-2.5 rounded-xl text-[10px] uppercase tracking-widest transition-colors cursor-pointer">
-                    Cerrar Ventana
-                </button>
-            </div>
-        </div>
-    </div>
+            <p id="cupon-descripcion-modal" class="text-xs sm:text-sm text-stone-300 leading-relaxed font-medium bg-stone-950/50 p-4 rounded-2xl border border-stone-800/80"></p>
+            
+            <div class="space-y-2.5 pt-2">
+                <a id="btn-whatsapp-canje" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-futurista font-bold py-4 px-4 rounded-2xl text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-2.5 transition-all shadow-lg hover:shadow-emerald-600/30 cursor-pointer">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i> Contactar por WhatsApp
+                </a>
+                <button onclick="cerrarCuponExito()" class="w-full bg-stone-950 hover:bg-stone-800 border border-stone-800 text-stone-400 hover:text-white font-futurista font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest transition-colors cursor-pointer">
+                    Cerrar Ventana
+                </button>
+            </div>
+        </div>
+    </div>
 
-    <footer class="border-t border-stone-950 bg-black/60 p-4 text-center text-[10px] text-stone-600 font-mono tracking-widest mt-12">© 2026 D'UNIG LUXURY ECOSISTEMA. TODOS LOS DERECHOS RESERVADOS.</footer>
+    <!-- Footer -->
+    <footer class="border-t border-stone-900/80 bg-stone-950/80 p-6 text-center text-[10px] text-stone-500 font-mono tracking-[0.2em] mt-12">
+        PIZZA PLANETA • ECOSISTEMA D'UNIG LUXURY © 2026
+    </footer>
 
-    <script>
-        const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co"; 
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <!-- Scripts de Lógica y Supabase -->
+    <script>
+        const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function desbloquearCuponVIP() {
-            const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
-            if(!inputVal) {
-                alert("Por favor ingresa un código de cupón.");
-                return;
-            }
-            await validarCodigoEnCuponera(inputVal);
-        }
+        async function desbloquearCuponVIP() {
+            const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
+            if(!inputVal) {
+                alert("Por favor ingresa un código válido.");
+                return;
+            }
+            await validarCodigoEnCuponera(inputVal);
+        }
 
-        async function validarCodigoEnCuponera(codigoIngresado) {
-            const codigoLimpio = codigoIngresado.trim().toUpperCase();
-            let data = null;
+        async function validarCodigoEnCuponera(codigoIngresado) {
+            const codigoLimpio = codigoIngresado.trim().toUpperCase();
+            let data = null;
 
-            const { data: dataCupon, error: errorCupon } = await supabaseClient
-                .from('cupones')
-                .select('*')
-                .eq('codigo', codigoLimpio)
-                .maybeSingle();
+            // 1. Buscar en la tabla cupones
+            const { data: dataCupon } = await supabaseClient
+                .from('cupones')
+                .select('*')
+                .eq('codigo', codigoLimpio)
+                .maybeSingle();
 
-            if (dataCupon) {
-                data = dataCupon;
-            } else {
-                const { data: dataSorteo, error: errorSorteo } = await supabaseClient
-                    .from('participantes_sorteo')
-                    .select('*')
-                    .or(`codigo.eq.${codigoLimpio},codigo_sorteo.eq.${codigoLimpio}`)
-                    .maybeSingle();
+            if (dataCupon) {
+                data = dataCupon;
+            } else {
+                // 2. Buscar en la tabla participantes_sorteo
+                const { data: dataSorteo } = await supabaseClient
+                    .from('participantes_sorteo')
+                    .select('*')
+                    .or(`codigo.eq.${codigoLimpio},codigo_sorteo.eq.${codigoLimpio}`)
+                    .maybeSingle();
 
-                if (dataSorteo) {
-                    data = {
-                        codigo: codigoLimpio,
-                        imagen_url: dataSorteo.imagen_premio_url || "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800",
-                        video_url: dataSorteo.video_url || null,
-                        titulo: "¡Sorteo VIP Activo!",
-                        descripcion: `¡Participante oficial verificado! Titular: ${dataSorteo.nombre || 'Cliente'}. felicidades ya está participando por la moto 😎🇻🇪.`,
-                        whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
-                    };
-                }
-            }
+                if (dataSorteo) {
+                    const nombreTitular = dataSorteo.nombre || 'David Narváez s.';
+                    data = {
+                        codigo: codigoLimpio,
+                        imagen_url: dataSorteo.imagen_premio_url || "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800",
+                        video_url: dataSorteo.video_url || null,
+                        titulo: "Participante Oficial Verificado",
+                        descripcion: `¡Participante oficial verificado! Titular: ${nombreTitular}. Su número de la suerte está participando por la moto. ¡Mucho éxito! 😎🇻🇪`,
+                        whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
+                    };
+                }
+            }
 
-            if (!data) {
-                alert("❌ Código de cupón inválido o no encontrado.");
-                return;
-            }
+            if (!data) {
+                alert("❌ Código no encontrado o inválido en el sistema.");
+                return;
+            }
 
-            mostrarPremioEnPantalla(data);
-        }
+            mostrarPremioEnPantalla(data);
+        }
 
-        function mostrarPremioEnPantalla(data) {
-            const tituloFinal = data.titulo || "¡Cupón VIP Exclusivo!";
-            const descripcionTexto = data.descripcion || "¡Disfruta de tu beneficio exclusivo!";
-            
-            document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
-            document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
+        function mostrarPremioEnPantalla(data) {
+            const tituloFinal = data.titulo || "Participante Oficial Verificado";
+            const descripcionTexto = data.descripcion || "Su número de la suerte está participando por la moto.";
+            
+            document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
+            document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
 
-            const videoUrl = data.video_url;
-            const contenedorVideo = document.getElementById('contenedor-video-modal');
-            const contenedorImagen = document.getElementById('contenedor-imagen-modal');
+            const videoUrl = data.video_url;
+            const contenedorVideo = document.getElementById('contenedor-video-modal');
+            const contenedorImagen = document.getElementById('contenedor-imagen-modal');
 
-            // Gestión inteligente: Si es YouTube muestra botón interactivo, si es archivo directo usa reproductor nativo
-            if (videoUrl && videoUrl.includes('youtu')) {
-                contenedorVideo.innerHTML = `
-                    <a href="${videoUrl}" target="_blank" class="w-full h-full bg-stone-900 border border-amber-500/30 flex flex-col items-center justify-center p-6 text-center relative group hover:border-amber-400 transition-all cursor-pointer">
-                        <div class="absolute inset-0 bg-black/40"></div>
-                        <div class="relative z-10 space-y-2 flex flex-col items-center">
-                            <div class="w-14 h-14 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
-                                <i data-lucide="play" class="w-7 h-7 fill-current ml-1"></i>
-                            </div>
-                            <span class="text-xs font-bold font-futurista text-amber-400 uppercase tracking-widest">Ver Video en YouTube</span>
-                        </div>
-                    </a>
-                `;
-                contenedorVideo.classList.remove('hidden');
-                contenedorImagen.classList.add('hidden');
-            } else if (videoUrl && videoUrl.trim() !== "") {
-                contenedorVideo.innerHTML = `<video id="cupon-video-elemento" controls playsinline class="w-full h-full object-contain" src="${videoUrl}"></video>`;
-                contenedorVideo.classList.remove('hidden');
-                contenedorImagen.classList.add('hidden');
-            } else {
-                contenedorVideo.classList.add('hidden');
-                contenedorImagen.classList.remove('hidden');
-                document.getElementById('cupon-imagen-modal').src = data.imagen_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600";
-            }
-            
-            const numeroWp = data.whatsapp ? data.whatsapp.trim() : "";
-            const textoMensaje = `¡Hola! He validado mi código secreto en la cuponera VIP.\n\n🎟️ *Cupón/Sorteo:* ${tituloFinal}\n🔑 *Código:* ${data.codigo}\n📝 *Detalle:* ${descripcionTexto}`;
-            const mensajeWpCodificado = encodeURIComponent(textoMensaje);
-            
-            document.getElementById('btn-whatsapp-canje').href = `https://wa.me/${numeroWp}?text=${mensajeWpCodificado}`;
+            if (videoUrl && videoUrl.includes('youtu')) {
+                contenedorVideo.innerHTML = `
+                    <a href="${videoUrl}" target="_blank" class="w-full h-full bg-stone-900 border border-amber-500/30 flex flex-col items-center justify-center p-6 text-center relative group hover:border-amber-400 transition-all cursor-pointer">
+                        <div class="absolute inset-0 bg-black/40"></div>
+                        <div class="relative z-10 space-y-2 flex flex-col items-center">
+                            <div class="w-14 h-14 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                                <i data-lucide="play" class="w-7 h-7 fill-current ml-1"></i>
+                            </div>
+                            <span class="text-xs font-bold font-futurista text-amber-400 uppercase tracking-widest">Ver Video en YouTube</span>
+                        </div>
+                    </a>
+                `;
+                contenedorVideo.classList.remove('hidden');
+                contenedorImagen.classList.add('hidden');
+            } else if (videoUrl && videoUrl.trim() !== "") {
+                contenedorVideo.innerHTML = `<video id="cupon-video-elemento" controls playsinline class="w-full h-full object-contain" src="${videoUrl}"></video>`;
+                contenedorVideo.classList.remove('hidden');
+                contenedorImagen.classList.add('hidden');
+            } else {
+                contenedorVideo.classList.add('hidden');
+                contenedorImagen.classList.remove('hidden');
+                document.getElementById('cupon-imagen-modal').src = data.imagen_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600";
+            }
+            
+            const numeroWp = data.whatsapp ? data.whatsapp.trim() : "";
+            const textoMensaje = `¡Hola! He validado mi código secreto en la cuponera VIP de Pizza Planeta.\n\n🎟️ *Estatus:* ${tituloFinal}\n🔑 *Código:* ${data.codigo}\n📝 *Detalle:* ${descripcionTexto}`;
+            const mensajeWpCodificado = encodeURIComponent(textoMensaje);
+            
+            document.getElementById('btn-whatsapp-canje').href = `https://wa.me/${numeroWp}?text=${mensajeWpCodificado}`;
 
-            document.getElementById('modal-cupon-exito').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            if (window.lucide) lucide.createIcons();
-        }
+            document.getElementById('modal-cupon-exito').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            if (window.lucide) lucide.createIcons();
+        }
 
-        function cerrarCuponExito() {
-            document.getElementById('modal-cupon-exito').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            document.getElementById('input-codigo-ingresado').value = "";
-            
-            const videoElemento = document.getElementById('cupon-video-elemento');
-            if (videoElemento) {
-                videoElemento.pause();
-            }
-        }
+        function cerrarCuponExito() {
+            document.getElementById('modal-cupon-exito').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('input-codigo-ingresado').value = "";
+            
+            const videoElemento = document.getElementById('cupon-video-elemento');
+            if (videoElemento) {
+                videoElemento.pause();
+            }
+        }
 
-        window.addEventListener('DOMContentLoaded', () => { 
-            if (window.lucide) lucide.createIcons(); 
+        window.addEventListener('DOMContentLoaded', () => { 
+            if (window.lucide) lucide.createIcons(); 
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const codigoUrl = urlParams.get('codigo');
-            if (codigoUrl) {
-                document.getElementById('input-codigo-ingresado').value = codigoUrl;
-                validarCodigoEnCuponera(codigoUrl);
-                return;
-            }
+            const urlParams = new URLSearchParams(window.location.search);
+            const codigoUrl = urlParams.get('codigo');
+            if (codigoUrl) {
+                document.getElementById('input-codigo-ingresado').value = codigoUrl;
+                validarCodigoEnCuponera(codigoUrl);
+                return;
+            }
 
-            const codigoGuardado = localStorage.getItem('unig_codigo_suerte');
-            if (codigoGuardado) {
-                const inputCupon = document.getElementById('input-codigo-ingresado');
-                if (inputCupon) {
-                    inputCupon.value = codigoGuardado;
-                }
-            }
-        });
-    </script>
+            const codigoGuardado = localStorage.getItem('unig_codigo_suerte');
+            if (codigoGuardado) {
+                const inputCupon = document.getElementById('input-codigo-ingresado');
+                if (inputCupon) {
+                    inputCupon.value = codigoGuardado;
+                }
+            }
+        });
+    </script>
 </body>
 </html>
