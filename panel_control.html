@@ -243,7 +243,7 @@
         </div>
     </main>
 
-    <!-- Sección de Órdenes con el nuevo botón de confirmación -->
+    <!-- Sección de Órdenes -->
     <main id="panel-seccion-ordenes" class="hidden max-w-7xl w-full mx-auto px-4 py-8 flex-grow relative z-10">
         <div class="glass-panel p-6 rounded-3xl border border-stone-900 shadow-2xl">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-4 mb-4">
@@ -912,10 +912,8 @@
                 tbody.innerHTML = "";
                 data.forEach(o => {
                     const fechaFormateada = new Date(o.created_at).toLocaleDateString();
-                    // Asumimos que guardas el número de teléfono del cliente en alguna columna como 'telefono' o 'whatsapp_cliente'
-                    // Si tu columna tiene otro nombre (ej. 'telefono_cliente'), asegúrate de cambiar o adaptar esta variable:
                     const telefonoCliente = o.telefono || o.whatsapp_cliente || o.telefono_cliente || "";
-                    const codigoPremio = o.codigo_premio || o.codigo || `VIP-${o.id}`;
+                    const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
 
                     let estadoHtml = "";
 
@@ -930,7 +928,6 @@
                     } else if (o.estado === 'cancelado') {
                         estadoHtml = `<span class="text-red-500 font-bold uppercase text-[10px]">Cancelado</span>`;
                     } else {
-                        // Estado pendiente u otro: Mostramos el Botón de Confirmación
                         estadoHtml = `
                             <button onclick="confirmarYEnviarPedido(${o.id}, '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
                                 <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar Pedido
@@ -957,59 +954,45 @@
             }
         }
 
-        async function enviarPedidoVIPYParticipar() {
-    const nombre = document.getElementById('input-nombre').value.trim();
-    const whatsapp = document.getElementById('input-whatsapp').value.trim();
-    const pedido = document.getElementById('input-pedido').value.trim();
-    const referencia = document.getElementById('input-referencia').value.trim();
+        // Función integrada para confirmar la orden en Supabase y abrir WhatsApp con el código de sorteo
+        async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
+            if (!idOrden) return;
 
-    if (!nombre || !whatsapp || !pedido || !referencia) {
-        alert("Por favor completa todos los campos.");
-        return;
-    }
+            // 1. Actualizar el estado de la orden en Supabase a 'verificado'
+            const { error } = await supabaseClient
+                .from('ordenes_vip')
+                .update({ estado: 'verificado' })
+                .eq('id', idOrden);
 
-    const codigoSorteoGenerado = "PP-" + Math.floor(10000 + Math.random() * 90000);
+            if (error) {
+                alert("Error al actualizar la orden en la base de datos: " + error.message);
+                return;
+            }
 
-    // Creamos el objeto asegurando que NINGUNA columna NOT NULL vaya vacía o undefined
-    const datosOrden = {
-        productos: pedido,             // Obligatorio NOT NULL
-        total: 1.00,                   // Obligatorio NOT NULL (le ponemos un valor numérico seguro por ahora)
-        referencia: referencia,        // Obligatorio NOT NULL
-        referencia_bancaria: referencia,
-        nombre_cliente: nombre,
-        telefono: whatsapp,
-        estatus_pago: 'pendiente',
-        codigo_sorteo_asignado: codigoSorteoGenerado,
-        estado: 'activo'
-    };
+            // 2. Si no hay teléfono registrado, advertir pero permitir continuar ingresándolo
+            if (!telefonoCliente || telefonoCliente.trim() === "" || telefonoCliente === "No registrado") {
+                telefonoCliente = prompt("Esta orden no tiene un número de WhatsApp registrado. Por favor, ingresa el número del cliente (con código de país):");
+                if (!telefonoCliente) {
+                    alert("Orden verificada, pero no se pudo enviar el WhatsApp por falta de número.");
+                    descargarHistorialDeOrdenes();
+                    return;
+                }
+            }
 
-    console.log("Enviando a Supabase:", datosOrden);
+            // 3. Limpiar el formato del número (solo dígitos)
+            const numeroLimpio = telefonoCliente.replace(/[^0-9]/g, "");
 
-    try {
-        const { data, error } = await supabaseClient
-            .from('ordenes_vip')
-            .insert([datosOrden])
-            .select(); // Forzamos a que devuelva la fila insertada
+            // 4. Construir el mensaje con el código del sorteo
+            const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código exclusivo para el sorteo es:\n📌 *${codigoPremio}*\n\n¡Guarda muy bien este código para participar! Gracias por tu compra.`;
 
-        if (error) {
-            // AQUÍ VEREMOS EL ERROR REAL DE SUPABASE
-            console.error("Error detallado de Supabase:", error);
-            alert("❌ ERROR DE SUPABASE:\n" + error.message + "\n(Detalle: " + (error.details || 'Ninguno') + ")");
-            return;
+            const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
+            
+            // 5. Abrir WhatsApp en una nueva pestaña
+            window.open(urlWhatsApp, '_blank');
+
+            // 6. Recargar el historial de órdenes para reflejar el cambio de estado visualmente
+            descargarHistorialDeOrdenes();
         }
-
-        console.log("¡Orden insertada con éxito!", data);
-        alert(`¡Orden guardada con éxito! Tu código es: ${codigoSorteoGenerado}`);
-        
-        // Redirigir a WhatsApp
-        const textoWs = `¡Hola Pizza Planeta! 🍕 Mi pedido: ${pedido} | Ref: ${referencia} | Código: ${codigoSorteoGenerado}`;
-        window.location.href = `https://wa.me/584120000000?text=${encodeURIComponent(textoWs)}`;
-
-    } catch (err) {
-        console.error("Error de red o ejecución:", err);
-        alert("Ocurrió un error inesperado al conectar con la base de datos.");
-    }
-}
 
         function enviarWhatsAppPremio(telefono, codigo, idOrden) {
             if (!telefono) {
@@ -1017,15 +1000,10 @@
                 return;
             }
 
-            // Limpiar formato del número (solo dígitos)
             const numeroLimpio = telefono.replace(/[^0-9]/g, "");
-
-            // Mensaje prediseñado para el cliente
             const mensaje = `¡Hola! Tu orden #${idOrden} ha sido *verificada y confirmada* con éxito por MAC DONALS. 🎉\n\nTu código de acceso exclusivo para ingresar a la cuponera y ver tu premio es:\n📌 *${codigo}*\n\n¡Ingresa a nuestra plataforma con este código para descubrir tu sorpresa!`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
-            
-            // Abrir WhatsApp en una nueva pestaña
             window.open(urlWhatsApp, '_blank');
         }
 
