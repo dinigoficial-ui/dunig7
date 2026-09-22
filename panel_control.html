@@ -962,14 +962,28 @@
             }
         }
 
-        // Función integrada para confirmar la orden en Supabase y abrir WhatsApp con el enlace de la cuponera
-async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
+        // Función auxiliar para generar un código de solo números aleatorios (ej: 48291)
+function generarCodigoNumericoAleatorio() {
+    let numeroAleatorio = '';
+    for (let i = 0; i < 5; i++) {
+        numeroAleatorio += Math.floor(Math.random() * 10);
+    }
+    return numeroAleatorio;
+}
+
+async function confirmarYEnviarPedido(idOrden, telefonoCliente) {
     if (!idOrden) return;
 
-    // 1. Actualizar el estado de la orden en Supabase a 'verificado'
+    // Generamos el código numérico aleatorio único
+    const codigoPremio = generarCodigoNumericoAleatorio();
+
+    // 1. Actualizar el estado en Supabase
     const { error } = await supabaseClient
         .from('ordenes_vip')
-        .update({ estado: 'verificado' })
+        .update({ 
+            estado: 'verificado',
+            codigo_sorteo_asignado: codigoPremio 
+        })
         .eq('id', idOrden);
 
     if (error) {
@@ -977,7 +991,7 @@ async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
         return;
     }
 
-    // 2. Si no hay teléfono registrado, advertir pero permitir continuar ingresándolo
+    // 2. Validar teléfono
     if (!telefonoCliente || telefonoCliente.trim() === "" || telefonoCliente === "No registrado") {
         telefonoCliente = prompt("Esta orden no tiene un número de WhatsApp registrado. Por favor, ingresa el número del cliente (con código de país):");
         if (!telefonoCliente) {
@@ -987,42 +1001,16 @@ async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
         }
     }
 
-    // 3. Limpiar el formato del número (solo dígitos)
     const numeroLimpio = telefonoCliente.replace(/[^0-9]/g, "");
+    const linkCuponera = "https://dinigoficial-ui.github.io/dunig3/cuponera.html";
 
-    // 4. Generar enlace limpio a la cuponera sin parámetros extra en la URL
-    const urlCuponera = "https://dinigoficial-ui.github.io/dunig7/cuponera.html";
-
-    // 5. Construir el mensaje con el código del sorteo y el enlace limpio de la cuponera
-    const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código exclusivo para el sorteo es:\n📌 *${codigoPremio}*\n\n👉 *Haz clic aquí para ingresar a la cuponera y reclamar tu premio:* ${urlCuponera}\n\n¡Guarda muy bien este código para participar! Gracias por tu compra.`;
-
-    const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
+    const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo es:\n📌 *${codigoPremio}*\n\n👉 Ingresa a la cuponera aquí: ${linkCuponera}\n\n¡Guarda muy bien este código para participar! Gracias por tu compra.`;
     
-    // 6. Abrir WhatsApp en una nueva pestaña
+    const urlWhatsApp = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
+  
     window.open(urlWhatsApp, '_blank');
-
-    // 7. Recargar el historial de órdenes para reflejar el cambio de estado visualmente
     descargarHistorialDeOrdenes();
 }
-
-// Función integrada para reenviar el WhatsApp incluyendo el acceso directo limpio a la cuponera
-function enviarWhatsAppPremio(telefono, codigo, idOrden) {
-    if (!telefono) {
-        alert("Error: Número de teléfono no válido.");
-        return;
-    }
-
-    const numeroLimpio = telefono.replace(/[^0-9]/g, "");
-    
-    // Enlace limpio corregido a la cuponera
-    const urlCuponera = "https://dinigoficial-ui.github.io/dunig3/cuponera.html";
-
-    const mensaje = `¡Hola! Tu orden #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código de acceso exclusivo para ingresar a la cuponera y ver tu premio es:\n📌 *${codigo}*\n\n👉 *Haz clic aquí para reclamar tu premio en la cuponera:* ${urlCuponera}`;
-
-    const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
-    window.open(urlWhatsApp, '_blank');
-}
-
         async function descargarAjusteWhatsApp() {
             const { data, error } = await supabaseClient
                 .from('ajustes_sistema')
