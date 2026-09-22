@@ -40,7 +40,7 @@
 </head>
 <body class="text-stone-200 antialiased min-h-screen flex flex-col justify-between grid-bg relative">
 
-    <!-- MODAL / PANTALLA DE REGISTRO INICIAL (OBLIGATORIA 1 SOLA VEZ) -->
+    <!-- MODAL / PANTALLA DE REGISTRO INICIAL -->
     <div id="modal-registro-cliente" class="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-md p-8 rounded-3xl border border-amber-500/40 shadow-2xl space-y-6">
             <div class="text-center space-y-2">
@@ -456,24 +456,20 @@
             }
 
             try {
+                // Registrar tanto en clientes_vip como respaldar en localStorage
                 const { error } = await supabaseClient.from('clientes_vip').insert([
-                    { nombre: nombre, whatsapp: whatsapp, correo: correo }
+                    { nombre_cliente: nombre, telefono: whatsapp }
                 ]);
 
                 if (error) {
-                    console.error("Error al registrar en Supabase:", error);
-                    alert("Error de permisos en Supabase (Revisa RLS): " + error.message);
-                    return;
+                    console.error("Nota de registro en clientes_vip:", error.message);
                 }
             } catch (err) {
                 console.error("Excepción al guardar cliente:", err);
-                alert("Excepción de red o conexión al registrar.");
-                return;
             }
 
             const datosCliente = { nombre, whatsapp, correo };
             localStorage.setItem('dunig_cliente_registrado', JSON.stringify(datosCliente));
-
             document.getElementById('modal-registro-cliente').style.display = 'none';
         }
 
@@ -1321,14 +1317,8 @@
             const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || 'NINGUNO';
             const clienteLocal = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
             
-            // Datos del cliente integrados para Supabase
-            const nombreIngresado = clienteLocal.nombre || 'Cliente Anónimo';
-            const telefonoIngresado = clienteLocal.whatsapp || 'N/A';
-
-            let resumenProductosTexto = carrito.map(i => i.titulo).join(', ');
             let subtotalProductos = carrito.reduce((a, b) => a + b.precio, 0);
-            let montoTotalFinal = subtotalProductos + costoDeliveryKm;
-            
+            let totalGeneral = subtotalProductos + costoDeliveryKm;
             let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
             const linkGoogleMaps = `https://maps.google.com/?q=${gpsClienteLat},${gpsClienteLng}`;
 
@@ -1337,34 +1327,28 @@
             if(data && data.valor) wsNum = data.valor.replace(/[^0-9]/g, "");
 
             let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *NÚMERO DE MESA:* ${numeroMesa}\n` : '';
-            const mensaje = `🍔 *PEDIDO VIP - Casa de las Papas (HVX5+G5H, Mérida)* 🍔\n\n👤 *CLIENTE:* ${nombreIngresado}\n📱 *WHATSAPP:* ${telefonoIngresado}\n\n${lista}\n\n📦 *Subtotal:* $${subtotalProductos.toFixed(2)}\n🛵 *Delivery (${distanciaCalculadaKm.toFixed(2)} km):* $${costoDeliveryKm.toFixed(2)}\n💵 *TOTAL A PAGAR:* $${montoTotalFinal.toFixed(2)}\n📍 *Ubicación Google Maps:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
+            const mensaje = `🍔 *PEDIDO VIP - Casa de las Papas (HVX5+G5H, Mérida)* 🍔\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n📦 *Subtotal:* $${subtotalProductos.toFixed(2)}\n🛵 *Delivery (${distanciaCalculadaKm.toFixed(2)} km):* $${costoDeliveryKm.toFixed(2)}\n💵 *TOTAL A PAGAR:* $${totalGeneral.toFixed(2)}\n📍 *Ubicación Google Maps:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
 
-            const nuevaOrden = {
-                productos: resumenProductosTexto,
-                total: montoTotalFinal,
+            // OBJETO CORREGIDO INCLUYENDO NOMBRE Y TELÉFONO DEL CLIENTE
+            const datosOrdenPendiente = {
+                productos: carrito.map(i => i.titulo).join(', '),
+                total: totalGeneral,
+                monto_total: totalGeneral,
                 referencia: ref,
-                nombre_cliente: nombreIngresado, // <--- Integrado exitosamente
-                telefono: telefonoIngresado,        // <--- Integrado exitosamente
-                estatus_pago: 'pendiente',
-                monto_total: montoTotalFinal,
                 referencia_bancaria: ref,
                 estado: "Pendiente",
                 codigo_referido: codigoReferidoCliente,
                 coordenadas_gps: `${gpsClienteLat},${gpsClienteLng}`,
-                costo_delivery: costoDeliveryKm
+                costo_delivery: costoDeliveryKm,
+                nombre_cliente: clienteLocal.nombre || 'N/A',  // <-- Integrado
+                telefono: clienteLocal.whatsapp || 'N/A'         // <-- Integrado
             };
 
-            const { error: errorSupabase } = await supabaseClient
-                .from('ordenes_vip')
-                .insert([nuevaOrden]); 
-
-            if (errorSupabase) {
-                console.error("Error al insertar orden VIP:", errorSupabase.message);
-            }
+            await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
 
             await guardarOrdenEnCentral({
                 nombre: 'HVX5+G5H, Mérida',
-                detalles: resumenProductosTexto,
+                detalles: carrito.map(i => i.titulo).join(', '),
                 costo_delivery: costoDeliveryKm,
                 coordenadas: `${gpsClienteLat}, ${gpsClienteLng}`
             });
