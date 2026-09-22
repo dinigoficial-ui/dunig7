@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAC DONALS - Cuponera VIP</title>
+    <title>MAC DONALS - Cuponera & Sorteo VIP</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -64,17 +64,17 @@
                     <i data-lucide="shield-check" class="w-8 h-8"></i>
                 </div>
                 <h2 class="text-lg font-black font-futurista text-white uppercase tracking-wider">Validación de Código</h2>
-                <p class="text-xs text-stone-400 leading-relaxed">Ingresa tu código único de seguridad o número VIP para verificar tu estatus y canjear tu premio.</p>
+                <p class="text-xs text-stone-400 leading-relaxed">Ingresa tu código único de seguridad o número de la suerte para verificar tu estatus en el sorteo.</p>
             </div>
 
             <div class="space-y-4">
                 <div class="space-y-2">
-                    <label class="text-[10px] uppercase text-amber-400 font-bold tracking-[0.2em] block font-futurista text-center">Código de Acceso / Orden</label>
+                    <label class="text-[10px] uppercase text-amber-400 font-bold tracking-[0.2em] block font-futurista text-center">Código de Acceso / Sorteo</label>
                     <input type="text" id="input-codigo-ingresado" placeholder="EJ: VIP-15" class="w-full bg-stone-950/80 border border-stone-800 text-base text-center text-amber-300 font-mono font-bold p-4 rounded-2xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 tracking-[0.25em] uppercase transition-all">
                 </div>
 
                 <button onclick="desbloquearCuponVIP()" class="w-full btn-oro text-stone-950 font-futurista font-black py-4 px-6 rounded-2xl text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 cursor-pointer shadow-xl">
-                    <i data-lucide="sparkles" class="w-4 h-4 stroke-[2.5]"></i> VERIFICAR PREMIO
+                    <i data-lucide="sparkles" class="w-4 h-4 stroke-[2.5]"></i> VERIFICAR PARTICIPACIÓN
                 </button>
             </div>
         </div>
@@ -88,22 +88,46 @@
             </button>
             
             <div class="space-y-1.5">
-                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-futurista font-bold uppercase tracking-widest">
-                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> ¡Código Válido y Verificado!
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-futurista font-bold uppercase tracking-widest">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> ¡Verificado con Éxito!
                 </div>
-                <h3 id="cupon-titulo-modal" class="text-xl font-black font-futurista text-white tracking-wide">¡Has ganado un premio VIP!</h3>
+                <h3 id="cupon-titulo-modal" class="text-xl font-black font-futurista text-white tracking-wide">Participante Oficial Verificado</h3>
             </div>
 
-            <div class="bg-stone-950/60 p-4 rounded-2xl border border-stone-800/80 space-y-2">
-                <p id="cupon-descripcion-modal" class="text-xs sm:text-sm text-stone-300 leading-relaxed font-medium">Orden verificada correctamente. Muestra esta pantalla al cajero para retirar tu beneficio.</p>
-                <p id="cupon-orden-asociada" class="text-[11px] text-amber-400/80 font-mono font-bold"></p>
+            <!-- Contenedor de Video Dinámico -->
+            <div id="contenedor-video-modal" class="rounded-2xl overflow-hidden bg-black border border-amber-500/20 aspect-video flex items-center justify-center shadow-inner relative">
+                <video id="video-premio-oficial" class="w-full h-full object-cover" autoplay muted playsinline controls loop></video>
             </div>
+
+            <p id="cupon-descripcion-modal" class="text-xs sm:text-sm text-stone-300 leading-relaxed font-medium bg-stone-950/50 p-4 rounded-2xl border border-stone-800/80"></p>
             
-            <div class="space-y-2.5 pt-2">
-                <button onclick="alert('¡Premio canjeado con éxito! Muéstrale esta pantalla al cajero.')" class="w-full btn-oro text-stone-950 font-futurista font-black py-4 px-4 rounded-2xl text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-2.5 transition-all shadow-lg cursor-pointer">
-                    <i data-lucide="gift" class="w-5 h-5"></i> CANJEAR PREMIO AHORA
-                </button>
-                <button onclick="cerrarCuponExito()" class="w-full bg-stone-950 hover:bg-stone-800 border border-stone-800 text-stone-400 hover:text-white font-futurista font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest transition-colors cursor-pointer">
+            <!-- Botones para Compartir en Redes Sociales -->
+            <div class="space-y-3 pt-2">
+                <p class="text-[10px] font-futurista uppercase tracking-widest text-amber-400 font-bold">¡Comparte tu participación en tus redes!</p>
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <!-- WhatsApp -->
+                    <a id="btn-share-whatsapp" href="#" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-futurista font-bold py-3 px-3 rounded-xl text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer">
+                        <i data-lucide="message-circle" class="w-4 h-4"><span>WhatsApp</span></i>
+                    </a>
+                    
+                    <!-- Facebook -->
+                    <a id="btn-share-facebook" href="#" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white font-futurista font-bold py-3 px-3 rounded-xl text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer">
+                        <i data-lucide="facebook" class="w-4 h-4"><span>Facebook</span></i>
+                    </a>
+
+                    <!-- Instagram -->
+                    <button onclick="copiarEnlaceRedes('Instagram')" class="bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:opacity-90 text-white font-futurista font-bold py-3 px-3 rounded-xl text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer">
+                        <i data-lucide="instagram" class="w-4 h-4"><span>Instagram</span></i>
+                    </button>
+
+                    <!-- TikTok -->
+                    <button onclick="copiarEnlaceRedes('TikTok')" class="bg-stone-950 hover:bg-stone-800 border border-stone-700 text-white font-futurista font-bold py-3 px-3 rounded-xl text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer">
+                        <i data-lucide="video" class="w-4 h-4 text-amber-400"><span>TikTok</span></i>
+                    </button>
+                </div>
+
+                <button onclick="cerrarCuponExito()" class="w-full bg-stone-950 hover:bg-stone-800 border border-stone-800 text-stone-400 hover:text-white font-futurista font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest transition-colors cursor-pointer mt-2">
                     Cerrar Ventana
                 </button>
             </div>
@@ -132,10 +156,10 @@
 
         async function validarCodigoEnCuponera(codigoIngresado) {
             const codigoLimpio = codigoIngresado.trim();
-            // Limpiamos opcionalmente el prefijo VIP- para buscar el ID numérico si aplica
             const idNumerico = codigoLimpio.replace(/[^0-9]/g, "");
+            let data = null;
 
-            // Buscar en la tabla ordenes_vip de Supabase (por id numérico o por referencia exacta)
+            // 1. Buscar en la tabla ordenes_vip (prioritaria de pedidos con el sorteo de la moto)
             let query = supabaseClient.from('ordenes_vip').select('*');
             if (idNumerico) {
                 query = query.or(`id.eq.${idNumerico},referencia.eq.${codigoLimpio},codigo_sorteo_asignado.eq.${codigoLimpio}`);
@@ -143,31 +167,114 @@
                 query = query.or(`referencia.eq.${codigoLimpio},codigo_sorteo_asignado.eq.${codigoLimpio}`);
             }
 
-            const { data, error } = await query.maybeSingle();
+            const { data: ordenData, error: ordenError } = await query.maybeSingle();
 
-            if (error || !data) {
-                alert(`❌ El código "${codigoIngresado}" no fue encontrado en el sistema o no es válido.`);
+            if (!ordenError && ordenData) {
+                if (ordenData.estado !== 'verificado') {
+                    alert(`⚠️ La orden #${ordenData.id} asociada a este código aún se encuentra pendiente de verificación por el comercio.`);
+                    return;
+                }
+                const nombreTitular = ordenData.nombre_cliente || 'Participante VIP';
+                const codigoAsignado = ordenData.codigo_sorteo_asignado || `VIP-${ordenData.id}`;
+                data = {
+                    codigo: codigoAsignado,
+                    titulo: "¡Participante Oficial del Sorteo de la Moto! 🏍️",
+                    descripcion: `¡Felicidades ${nombreTitular}! Tu orden #${ordenData.id} ha sido verificada con éxito. Ya estás participando oficialmente por la gran moto de MAC DONALS con tu código de acceso. ¡Mucho éxito!`,
+                    whatsapp: ordenData.whatsapp_negocio ? String(ordenData.whatsapp_negocio).trim() : ""
+                };
+            } else {
+                // 2. Buscar en tabla cupones genéricos si no está en órdenes
+                const { data: dataCupon } = await supabaseClient
+                    .from('cupones')
+                    .select('*')
+                    .eq('codigo', codigoLimpio.toUpperCase())
+                    .maybeSingle();
+
+                if (dataCupon) {
+                    data = dataCupon;
+                } else {
+                    // 3. Buscar en participantes_sorteo
+                    const { data: dataSorteo } = await supabaseClient
+                        .from('participantes_sorteo')
+                        .select('*')
+                        .or(`codigo.eq.${codigoLimpio.toUpperCase()},codigo_sorteo.eq.${codigoLimpio.toUpperCase()}`)
+                        .maybeSingle();
+
+                    if (dataSorteo) {
+                        const nombreTitular = dataSorteo.nombre || 'Participante';
+                        data = {
+                            codigo: codigoLimpio.toUpperCase(),
+                            titulo: "Participante Oficial Verificado",
+                            descripcion: `¡Participante oficial verificado! Titular: ${nombreTitular}. Su número de la suerte está participando por la gran moto de MAC DONALS. ¡Mucho éxito! 😎🇻🇪`,
+                            whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
+                        };
+                    }
+                }
+            }
+
+            if (!data) {
+                alert(`❌ El código "${codigoIngresado}" no fue encontrado en el sistema o aún no ha sido verificado.`);
                 return;
             }
 
-            if (data.estado === 'verificado') {
-                mostrarPremioEnPantalla(data);
-            } else {
-                alert(`⚠️ La orden #${data.id} asociada a este código aún se encuentra pendiente de verificación por el comercio.`);
-            }
+            mostrarPremioEnPantalla(data);
         }
 
         function mostrarPremioEnPantalla(data) {
-            document.getElementById('cupon-orden-asociada').innerText = `Orden Asociada: #${data.id} | Cliente: ${data.nombre_cliente || 'VIP'}`;
+            const tituloFinal = data.titulo || "Participante Oficial Verificado";
+            const descripcionTexto = data.descripcion || "Su código está participando oficialmente por la moto.";
+            
+            document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
+            document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
+
+            // Cargar automáticamente el video sincronizado desde localStorage (subido desde el panel)
+            const videoElemento = document.getElementById('video-premio-oficial');
+            const contenedorVideo = document.getElementById('contenedor-video-modal');
+            const urlVideoGuardada = localStorage.getItem('url_video_premio_supabase');
+
+            if (urlVideoGuardada) {
+                videoElemento.src = urlVideoGuardada;
+                contenedorVideo.classList.remove('hidden');
+                videoElemento.load();
+                videoElemento.play().catch(e => console.log("Autoplay con interacción requerida:", e));
+            } else {
+                contenedorVideo.classList.add('hidden');
+            }
+            
+            // Configurar enlaces de compartir en redes sociales
+            const textoCompartir = `¡Ya estoy participando por la gran moto en el sorteo oficial de MAC DONALS con mi código VIP: ${data.codigo}! 🏍️✨ ¡Participa tú también!`;
+            const urlActual = window.location.href;
+
+            // WhatsApp Share
+            document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoCompartir + " " + urlActual)}`;
+            
+            // Facebook Share
+            document.getElementById('btn-share-facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(urlActual)}&quote=${encodeURIComponent(textoCompartir)}`;
+
             document.getElementById('modal-cupon-exito').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             if (window.lucide) lucide.createIcons();
+        }
+
+        function copiarEnlaceRedes(redSocial) {
+            const enlaceActual = window.location.href;
+            const textoCopia = `¡Participando por la moto en MAC DONALS! 🏍️ Mi código VIP es mi pase seguro. ¡Entra aquí para verificar el tuyo! ${enlaceActual}`;
+            
+            navigator.clipboard.writeText(textoCopia).then(() => {
+                alert(`¡Enlace copiado con éxito para ${redSocial}!\n\nPuedes pegarlo directamente en tu historia o publicación.`);
+            }).catch(err => {
+                alert("No se pudo copiar automáticamente, pero puedes copiar la URL de la barra de direcciones.");
+            });
         }
 
         function cerrarCuponExito() {
             document.getElementById('modal-cupon-exito').classList.add('hidden');
             document.body.style.overflow = 'auto';
             document.getElementById('input-codigo-ingresado').value = "";
+            
+            const videoElemento = document.getElementById('video-premio-oficial');
+            videoElemento.pause();
+            videoElemento.currentTime = 0;
         }
 
         window.addEventListener('DOMContentLoaded', () => { 
