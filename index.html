@@ -444,7 +444,7 @@
 
         let datosDePago = {};
 
-        // NUEVA FUNCIÓN: REGISTRO ÚNICO DEL CLIENTE EN SUPABASE Y LOCALSTORAGE
+        // FUNCIÓN MEJORADA CON ALERTAS PARA DEPURAR RLS O ERRORES
         async function registrarClienteUnico(event) {
             event.preventDefault();
             const nombre = document.getElementById('reg-nombre').value.trim();
@@ -464,9 +464,13 @@
 
                 if (error) {
                     console.error("Error al registrar en Supabase:", error);
+                    alert("Error de permisos en Supabase (Revisa RLS): " + error.message);
+                    return;
                 }
             } catch (err) {
                 console.error("Excepción al guardar cliente:", err);
+                alert("Excepción de red o conexión al registrar.");
+                return;
             }
 
             // Guardar en el almacenamiento local para que no vuelva a pedirlo
