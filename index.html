@@ -444,7 +444,6 @@
 
         let datosDePago = {};
 
-        // FUNCIÓN MEJORADA CON ALERTAS PARA DEPURAR RLS O ERRORES
         async function registrarClienteUnico(event) {
             event.preventDefault();
             const nombre = document.getElementById('reg-nombre').value.trim();
@@ -457,7 +456,6 @@
             }
 
             try {
-                // Guardar en la tabla "clientes_vip" de Supabase
                 const { error } = await supabaseClient.from('clientes_vip').insert([
                     { nombre: nombre, whatsapp: whatsapp, correo: correo }
                 ]);
@@ -473,15 +471,12 @@
                 return;
             }
 
-            // Guardar en el almacenamiento local para que no vuelva a pedirlo
             const datosCliente = { nombre, whatsapp, correo };
             localStorage.setItem('dunig_cliente_registrado', JSON.stringify(datosCliente));
 
-            // Ocultar modal de registro
             document.getElementById('modal-registro-cliente').style.display = 'none';
         }
 
-        // VERIFICAR SI YA ESTÁ REGISTRADO AL CARGAR LA PÁGINA
         function verificarClienteRegistrado() {
             const clienteGuardado = localStorage.getItem('dunig_cliente_registrado');
             const modal = document.getElementById('modal-registro-cliente');
@@ -1326,8 +1321,14 @@
             const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || 'NINGUNO';
             const clienteLocal = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
             
+            // Datos del cliente integrados para Supabase
+            const nombreIngresado = clienteLocal.nombre || 'Cliente Anónimo';
+            const telefonoIngresado = clienteLocal.whatsapp || 'N/A';
+
+            let resumenProductosTexto = carrito.map(i => i.titulo).join(', ');
             let subtotalProductos = carrito.reduce((a, b) => a + b.precio, 0);
-            let totalGeneral = subtotalProductos + costoDeliveryKm;
+            let montoTotalFinal = subtotalProductos + costoDeliveryKm;
+            
             let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
             const linkGoogleMaps = `https://maps.google.com/?q=${gpsClienteLat},${gpsClienteLng}`;
 
@@ -1336,13 +1337,16 @@
             if(data && data.valor) wsNum = data.valor.replace(/[^0-9]/g, "");
 
             let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *NÚMERO DE MESA:* ${numeroMesa}\n` : '';
-            const mensaje = `🍔 *PEDIDO VIP - Casa de las Papas (HVX5+G5H, Mérida)* 🍔\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n📦 *Subtotal:* $${subtotalProductos.toFixed(2)}\n🛵 *Delivery (${distanciaCalculadaKm.toFixed(2)} km):* $${costoDeliveryKm.toFixed(2)}\n💵 *TOTAL A PAGAR:* $${totalGeneral.toFixed(2)}\n📍 *Ubicación Google Maps:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
+            const mensaje = `🍔 *PEDIDO VIP - Casa de las Papas (HVX5+G5H, Mérida)* 🍔\n\n👤 *CLIENTE:* ${nombreIngresado}\n📱 *WHATSAPP:* ${telefonoIngresado}\n\n${lista}\n\n📦 *Subtotal:* $${subtotalProductos.toFixed(2)}\n🛵 *Delivery (${distanciaCalculadaKm.toFixed(2)} km):* $${costoDeliveryKm.toFixed(2)}\n💵 *TOTAL A PAGAR:* $${montoTotalFinal.toFixed(2)}\n📍 *Ubicación Google Maps:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
 
-            const datosOrdenPendiente = {
-                productos: carrito.map(i => i.titulo).join(', '),
-                total: totalGeneral,
-                monto_total: totalGeneral,
+            const nuevaOrden = {
+                productos: resumenProductosTexto,
+                total: montoTotalFinal,
                 referencia: ref,
+                nombre_cliente: nombreIngresado, // <--- Integrado exitosamente
+                telefono: telefonoIngresado,        // <--- Integrado exitosamente
+                estatus_pago: 'pendiente',
+                monto_total: montoTotalFinal,
                 referencia_bancaria: ref,
                 estado: "Pendiente",
                 codigo_referido: codigoReferidoCliente,
@@ -1350,11 +1354,17 @@
                 costo_delivery: costoDeliveryKm
             };
 
-            await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
+            const { error: errorSupabase } = await supabaseClient
+                .from('ordenes_vip')
+                .insert([nuevaOrden]); 
+
+            if (errorSupabase) {
+                console.error("Error al insertar orden VIP:", errorSupabase.message);
+            }
 
             await guardarOrdenEnCentral({
                 nombre: 'HVX5+G5H, Mérida',
-                detalles: carrito.map(i => i.titulo).join(', '),
+                detalles: resumenProductosTexto,
                 costo_delivery: costoDeliveryKm,
                 coordenadas: `${gpsClienteLat}, ${gpsClienteLng}`
             });
