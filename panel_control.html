@@ -918,7 +918,6 @@
 
                 data.forEach(o => {
                     const fechaFormateada = new Date(o.created_at).toLocaleDateString();
-                    // Capturamos el nombre y el teléfono priorizando las columnas oficiales de tu tabla
                     const nombreCliente = o.nombre_cliente || "Cliente Anónimo";
                     const telefonoCliente = o.telefono || o.whatsapp_cliente || o.telefono_cliente || "No registrado";
                     const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
@@ -963,7 +962,7 @@
             }
         }
 
-        // Función integrada para confirmar la orden en Supabase y abrir WhatsApp con el código de sorteo
+        // Función integrada para confirmar la orden en Supabase y abrir WhatsApp con el enlace de la cuponera
         async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
             if (!idOrden) return;
 
@@ -991,18 +990,22 @@
             // 3. Limpiar el formato del número (solo dígitos)
             const numeroLimpio = telefonoCliente.replace(/[^0-9]/g, "");
 
-            // 4. Construir el mensaje con el código del sorteo
-            const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código exclusivo para el sorteo es:\n📌 *${codigoPremio}*\n\n¡Guarda muy bien este código para participar! Gracias por tu compra.`;
+            // 4. Generar enlace directo a la cuponera con el código
+            const urlCuponera = `https://dinigoficial-ui.github.io/dunig3/cuponera.html?codigo=${encodeURIComponent(codigoPremio)}`;
+
+            // 5. Construir el mensaje con el código del sorteo y el enlace de la cuponera
+            const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código exclusivo para el sorteo es:\n📌 *${codigoPremio}*\n\n👉 *Haz clic aquí para ingresar a la cuponera y reclamar tu premio:* ${urlCuponera}\n\n¡Guarda muy bien este código para participar! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
             
-            // 5. Abrir WhatsApp en una nueva pestaña
+            // 6. Abrir WhatsApp en una nueva pestaña
             window.open(urlWhatsApp, '_blank');
 
-            // 6. Recargar el historial de órdenes para reflejar el cambio de estado visualmente
+            // 7. Recargar el historial de órdenes para reflejar el cambio de estado visualmente
             descargarHistorialDeOrdenes();
         }
 
+        // Función integrada para reenviar el WhatsApp incluyendo el acceso directo a la cuponera
         function enviarWhatsAppPremio(telefono, codigo, idOrden) {
             if (!telefono) {
                 alert("Error: Número de teléfono no válido.");
@@ -1010,7 +1013,11 @@
             }
 
             const numeroLimpio = telefono.replace(/[^0-9]/g, "");
-            const mensaje = `¡Hola! Tu orden #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código de acceso exclusivo para ingresar a la cuponera y ver tu premio es:\n📌 *${codigo}*\n\n¡Ingresa a nuestra plataforma con este código para descubrir tu sorpresa!`;
+            
+            // Generar enlace directo a la cuponera con el código
+            const urlCuponera = `https://dinigoficial-ui.github.io/dunig3/cuponera.html?codigo=${encodeURIComponent(codigo)}`;
+
+            const mensaje = `¡Hola! Tu orden #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código de acceso exclusivo para ingresar a la cuponera y ver tu premio es:\n📌 *${codigo}*\n\n👉 *Haz clic aquí para reclamar tu premio en la cuponera:* ${urlCuponera}`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
             window.open(urlWhatsApp, '_blank');
