@@ -910,16 +910,9 @@
                 if (!tbody) return;
                 
                 tbody.innerHTML = "";
-                
-                if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-stone-500">No hay órdenes registradas.</td></tr>`;
-                    return;
-                }
-
                 data.forEach(o => {
                     const fechaFormateada = new Date(o.created_at).toLocaleDateString();
-                    const nombreCliente = o.nombre_cliente || "Cliente Anónimo";
-                    const telefonoCliente = o.telefono || o.whatsapp_cliente || o.telefono_cliente || "No registrado";
+                    const telefonoCliente = o.telefono || o.whatsapp_cliente || o.telefono_cliente || "";
                     const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
 
                     let estadoHtml = "";
@@ -947,9 +940,8 @@
                         <td class="p-3 text-white nombre-del-plato">${o.productos}</td>
                         <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || 0).toFixed(2)}</td>
                         <td class="p-3 font-mono text-stone-400">
-                            <div class="text-white font-bold">${nombreCliente}</div>
                             <div>Ref: ${o.referencia || 'N/A'}</div>
-                            <div class="text-[10px] text-amber-500/80 font-bold">Tlf: ${telefonoCliente}</div>
+                            <div class="text-[10px] text-amber-500/80">Tlf: ${telefonoCliente || 'No registrado'}</div>
                         </td>
                         <td class="p-3 text-right">
                             ${estadoHtml}
@@ -962,55 +954,59 @@
             }
         }
 
-        // Función auxiliar para generar un código de solo números aleatorios (ej: 48291)
-function generarCodigoNumericoAleatorio() {
-    let numeroAleatorio = '';
-    for (let i = 0; i < 5; i++) {
-        numeroAleatorio += Math.floor(Math.random() * 10);
-    }
-    return numeroAleatorio;
-}
+        // Función integrada para confirmar la orden en Supabase y abrir WhatsApp con el código de sorteo
+        async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
+            if (!idOrden) return;
 
-async function confirmarYEnviarPedido(idOrden, telefonoCliente) {
-    if (!idOrden) return;
+            // 1. Actualizar el estado de la orden en Supabase a 'verificado'
+            const { error } = await supabaseClient
+                .from('ordenes_vip')
+                .update({ estado: 'verificado' })
+                .eq('id', idOrden);
 
-    // Generamos el código numérico aleatorio único
-    const codigoPremio = generarCodigoNumericoAleatorio();
+            if (error) {
+                alert("Error al actualizar la orden en la base de datos: " + error.message);
+                return;
+            }
 
-    // 1. Actualizar el estado en Supabase
-    const { error } = await supabaseClient
-        .from('ordenes_vip')
-        .update({ 
-            estado: 'verificado',
-            codigo_sorteo_asignado: codigoPremio 
-        })
-        .eq('id', idOrden);
+            // 2. Si no hay teléfono registrado, advertir pero permitir continuar ingresándolo
+            if (!telefonoCliente || telefonoCliente.trim() === "" || telefonoCliente === "No registrado") {
+                telefonoCliente = prompt("Esta orden no tiene un número de WhatsApp registrado. Por favor, ingresa el número del cliente (con código de país):");
+                if (!telefonoCliente) {
+                    alert("Orden verificada, pero no se pudo enviar el WhatsApp por falta de número.");
+                    descargarHistorialDeOrdenes();
+                    return;
+                }
+            }
 
-    if (error) {
-        alert("Error al actualizar la orden en la base de datos: " + error.message);
-        return;
-    }
+            // 3. Limpiar el formato del número (solo dígitos)
+            const numeroLimpio = telefonoCliente.replace(/[^0-9]/g, "");
 
-    // 2. Validar teléfono
-    if (!telefonoCliente || telefonoCliente.trim() === "" || telefonoCliente === "No registrado") {
-        telefonoCliente = prompt("Esta orden no tiene un número de WhatsApp registrado. Por favor, ingresa el número del cliente (con código de país):");
-        if (!telefonoCliente) {
-            alert("Orden verificada, pero no se pudo enviar el WhatsApp por falta de número.");
+            // 4. Construir el mensaje con el código del sorteo
+            const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código exclusivo para el sorteo es:\n📌 *${codigoPremio}*\n\n¡Guarda muy bien este código para participar! Gracias por tu compra.`;
+
+            const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
+            
+            // 5. Abrir WhatsApp en una nueva pestaña
+            window.open(urlWhatsApp, '_blank');
+
+            // 6. Recargar el historial de órdenes para reflejar el cambio de estado visualmente
             descargarHistorialDeOrdenes();
-            return;
         }
-    }
 
-    const numeroLimpio = telefonoCliente.replace(/[^0-9]/g, "");
-    const linkCuponera = "https://dinigoficial-ui.github.io/dunig7/cuponera.html";
+        function enviarWhatsAppPremio(telefono, codigo, idOrden) {
+            if (!telefono) {
+                alert("Error: Número de teléfono no válido.");
+                return;
+            }
 
-    const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo es:\n📌 *${codigoPremio}*\n\n👉 Ingresa a la cuponera aquí: ${linkCuponera}\n\n¡Guarda muy bien este código para participar! Gracias por tu compra.`;
-    
-    const urlWhatsApp = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
-  
-    window.open(urlWhatsApp, '_blank');
-    descargarHistorialDeOrdenes();
-}
+            const numeroLimpio = telefono.replace(/[^0-9]/g, "");
+            const mensaje = `¡Hola! Tu orden #${idOrden} ha sido *verificada y confirmada* con éxito por MAC DONALS. 🎉\n\nTu código de acceso exclusivo para ingresar a la cuponera y ver tu premio es:\n📌 *${codigo}*\n\n¡Ingresa a nuestra plataforma con este código para descubrir tu sorpresa!`;
+
+            const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
+            window.open(urlWhatsApp, '_blank');
+        }
+
         async function descargarAjusteWhatsApp() {
             const { data, error } = await supabaseClient
                 .from('ajustes_sistema')
@@ -1019,16 +1015,12 @@ async function confirmarYEnviarPedido(idOrden, telefonoCliente) {
                 .single();
             
             if(!error && data) {
-                const inputNum = document.getElementById('config-whatsapp-num');
-                if (inputNum) inputNum.value = data.valor;
+                document.getElementById('config-whatsapp-num').value = data.valor;
             }
         }
 
         async function guardarAjusteWhatsAppEnSupabase() {
-            const inputNum = document.getElementById('config-whatsapp-num');
-            if (!inputNum) return;
-            
-            const num = inputNum.value.trim().replace(/[^0-9]/g, "");
+            const num = document.getElementById('config-whatsapp-num').value.trim().replace(/[^0-9]/g, "");
             if(!num || num.length < 10) { alert("Ingrese un número válido con código de país."); return; }
 
             const { error } = await supabaseClient
@@ -1046,16 +1038,12 @@ async function confirmarYEnviarPedido(idOrden, telefonoCliente) {
                 .single();
             
             if(!error && data) {
-                const selectEstado = document.getElementById('config-estado-negocio');
-                if (selectEstado) selectEstado.value = data.valor;
+                document.getElementById('config-estado-negocio').value = data.valor;
             }
         }
 
         async function guardarEstadoNegocioEnSupabase() {
-            const selectEstado = document.getElementById('config-estado-negocio');
-            if (!selectEstado) return;
-            
-            const estado = selectEstado.value;
+            const estado = document.getElementById('config-estado-negocio').value;
 
             const { error } = await supabaseClient
                 .from('ajustes_sistema')
@@ -1076,16 +1064,12 @@ async function confirmarYEnviarPedido(idOrden, telefonoCliente) {
                 .single();
             
             if(!error && data) {
-                const inputHora = document.getElementById('config-hora-vitrina');
-                if (inputHora) inputHora.value = data.valor;
+                document.getElementById('config-hora-vitrina').value = data.valor;
             }
         }
 
         async function guardarHoraVitrinaEnSupabase() {
-            const inputHora = document.getElementById('config-hora-vitrina');
-            if (!inputHora) return;
-            
-            const hora = inputHora.value.trim();
+            const hora = document.getElementById('config-hora-vitrina').value.trim();
             if(!hora) { alert("Por favor ingresa una hora o texto de horario válido."); return; }
 
             const { error } = await supabaseClient
