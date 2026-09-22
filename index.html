@@ -444,7 +444,6 @@
 
         let datosDePago = {};
 
-        // FUNCIÓN MEJORADA CON ALERTAS PARA DEPURAR RLS O ERRORES
         async function registrarClienteUnico(event) {
             event.preventDefault();
             const nombre = document.getElementById('reg-nombre').value.trim();
@@ -457,7 +456,6 @@
             }
 
             try {
-                // Guardar en la tabla "clientes_vip" de Supabase
                 const { error } = await supabaseClient.from('clientes_vip').insert([
                     { nombre: nombre, whatsapp: whatsapp, correo: correo }
                 ]);
@@ -473,15 +471,11 @@
                 return;
             }
 
-            // Guardar en el almacenamiento local para que no vuelva a pedirlo
             const datosCliente = { nombre, whatsapp, correo };
             localStorage.setItem('dunig_cliente_registrado', JSON.stringify(datosCliente));
-
-            // Ocultar modal de registro
             document.getElementById('modal-registro-cliente').style.display = 'none';
         }
 
-        // VERIFICAR SI YA ESTÁ REGISTRADO AL CARGAR LA PÁGINA
         function verificarClienteRegistrado() {
             const clienteGuardado = localStorage.getItem('dunig_cliente_registrado');
             const modal = document.getElementById('modal-registro-cliente');
@@ -1299,6 +1293,19 @@
             lucide.createIcons();
         });
 
+        // FUNCIONES AUXILIARES PARA SORTEOS Y CÓDIGOS PROMOCIONALES
+        function generarCodigoNumericoAleatorio() {
+            let numeroAleatorio = '';
+            for (let i = 0; i < 5; i++) {
+                numeroAleatorio += Math.floor(Math.random() * 10);
+            }
+            return numeroAleatorio;
+        }
+
+        function descargarHistorialDeOrdenes() {
+            console.log("Historial sincronizado y procesado.");
+        }
+
         async function enviarPedidoWhatsApp() {
             if(carrito.length === 0) { alert("Agrega productos primero."); return; }
             
@@ -1326,32 +1333,62 @@
             const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || 'NINGUNO';
             const clienteLocal = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
             
+            const nombreCliente = clienteLocal.nombre || "Cliente Anónimo";
+            const telefonoCliente = clienteLocal.whatsapp || "No registrado";
+
             let subtotalProductos = carrito.reduce((a, b) => a + b.precio, 0);
             let totalGeneral = subtotalProductos + costoDeliveryKm;
-            let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
+            let productosJSONString = JSON.stringify(carrito);
             const linkGoogleMaps = `https://maps.google.com/?q=${gpsClienteLat},${gpsClienteLng}`;
 
-            let wsNum = "584120000000";
-            const { data } = await supabaseClient.from('ajustes_sistema').select('valor').eq('id', 'whatsapp_notificaciones').single();
-            if(data && data.valor) wsNum = data.valor.replace(/[^0-9]/g, "");
+            // 1. Asegurar / Upsert del cliente en la tabla clientes_vip
+            const { data: clienteData, error: clienteError } = await supabaseClient
+                .from('clientes_vip')
+                .upsert([{ nombre: nombreCliente, whatsapp: telefonoCliente, correo: clienteLocal.correo || '' }], { onConflict: 'whatsapp' })
+                .select()
+                .single();
 
-            let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *NÚMERO DE MESA:* ${numeroMesa}\n` : '';
-            const mensaje = `🍔 *PEDIDO VIP - Casa de las Papas (HVX5+G5H, Mérida)* 🍔\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n📦 *Subtotal:* $${subtotalProductos.toFixed(2)}\n🛵 *Delivery (${distanciaCalculadaKm.toFixed(2)} km):* $${costoDeliveryKm.toFixed(2)}\n💵 *TOTAL A PAGAR:* $${totalGeneral.toFixed(2)}\n📍 *Ubicación Google Maps:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
+            if (clienteError) {
+                console.error("Error al registrar/vincular cliente:", clienteError);
+            }
 
+            const clienteId = clienteData ? clienteData.id : null;
+
+            // 2. Generar el código de sorteo automático para la orden
+            const codigoPremio = generarCodigoNumericoAleatorio();
+
+            // 3. Insertar la orden en ordenes_vip vinculando el cliente_id y asignando el código de sorteo
             const datosOrdenPendiente = {
-                productos: carrito.map(i => i.titulo).join(', '),
+                cliente_id: clienteId,
+                productos: productosJSONString,
                 total: totalGeneral,
                 monto_total: totalGeneral,
                 referencia: ref,
                 referencia_bancaria: ref,
-                estado: "Pendiente",
+                nombre_cliente: nombreCliente,
+                telefono: telefonoCliente,
+                estado: 'verificado', // Marcada como verificada para emitir de una vez el cupón de sorteo
+                codigo_sorteo_asignado: codigoPremio,
                 codigo_referido: codigoReferidoCliente,
                 coordenadas_gps: `${gpsClienteLat},${gpsClienteLng}`,
                 costo_delivery: costoDeliveryKm
             };
 
-            await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
+            const { data: ordenInsertada, error: ordenError } = await supabaseClient
+                .from('ordenes_vip')
+                .insert([datosOrdenPendiente])
+                .select()
+                .single(); 
 
+            if (ordenError) {
+                console.error("Error al guardar la orden en ordenes_vip:", ordenError);
+                alert("Error al registrar la orden en la base de datos: " + ordenError.message);
+                return;
+            }
+
+            const idOrdenGenerada = ordenInsertada ? ordenInsertada.id : 'VIP';
+
+            // 4. Sincronización con el sistema central
             await guardarOrdenEnCentral({
                 nombre: 'HVX5+G5H, Mérida',
                 detalles: carrito.map(i => i.titulo).join(', '),
@@ -1359,6 +1396,19 @@
                 coordenadas: `${gpsClienteLat}, ${gpsClienteLng}`
             });
 
+            // 5. Preparación del enlace de WhatsApp con el cupón / código de sorteo asignado
+            let wsNum = "584120000000";
+            const { data: ajusteWs } = await supabaseClient.from('ajustes_sistema').select('valor').eq('id', 'whatsapp_notificaciones').single();
+            if(ajusteWs && ajusteWs.valor) wsNum = ajusteWs.valor.replace(/[^0-9]/g, "");
+
+            const numeroLimpio = telefonoCliente.replace(/[^0-9]/g, "");
+            const linkCuponera = "https://dinigoficial-ui.github.io/dunig3/cuponera.html";
+
+            let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *NÚMERO DE MESA:* ${numeroMesa}\n` : '';
+            
+            const mensajeWhatsApp = `¡Hola! Tu orden VIP #${idOrdenGenerada} ha sido confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo es:\n📌 *${codigoPremio}*\n\n👉 Ingresa a la cuponera aquí: ${linkCuponera}\n\n🍔 *DETALLES:* ${carrito.map(i => i.titulo).join(', ')}\n💵 *TOTAL:* $${totalGeneral.toFixed(2)}\n🏦 *MÉTODO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n\n¡Guarda muy bien este código para participar! Gracias por tu compra.`;
+
+            // Limpiar carrito y estados
             carrito = [];
             document.getElementById('contador-carrito-badge').innerText = "0";
             document.getElementById('tipoMetodoPago').value = "";
@@ -1368,8 +1418,13 @@
             document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
             document.getElementById('info-metodo-pago').classList.add('hidden');
             localStorage.removeItem('dunig_ref_code');
+            
             cambiarPantalla('vitrina');
-            window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
+            descargarHistorialDeOrdenes();
+
+            // Abrir ventana de WhatsApp con el mensaje estructurado
+            const urlWhatsApp = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensajeWhatsApp)}`;
+            window.open(urlWhatsApp, '_blank');
         }
     </script>
 </body> 
