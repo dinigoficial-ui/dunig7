@@ -905,62 +905,61 @@
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (error) {
-                console.error("Error al descargar órdenes:", error.message);
-                return;
-            }
-
-            const tbody = document.getElementById('tabla-ordenes-body'); 
-            if (!tbody) return;
-            
-            tbody.innerHTML = "";
-            
-            if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-stone-500">No hay órdenes registradas.</td></tr>`;
-                return;
-            }
-
-            data.forEach(o => {
-                const fechaFormateada = new Date(o.created_at).toLocaleDateString();
-                const telefonoCliente = o.telefono || o.whatsapp_cliente || o.telefono_cliente || "";
-                const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
-
-                let estadoHtml = "";
-
-                if (o.estado === 'verificado') {
-                    estadoHtml = `
-                        <div class="flex items-center justify-end gap-2">
-                            <span class="text-green-400 font-bold uppercase text-[10px]">Verificado</span>
-                            <button onclick="enviarWhatsAppPremio('${telefonoCliente}', '${codigoPremio}', ${o.id})" class="bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
-                                <i data-lucide="send" class="w-3 h-3"></i> Reenviar WhatsApp
-                            </button>
-                        </div>`;
-                } else if (o.estado === 'cancelado') {
-                    estadoHtml = `<span class="text-red-500 font-bold uppercase text-[10px]">Cancelado</span>`;
-                } else {
-                    estadoHtml = `
-                        <button onclick="confirmarYEnviarPedido(${o.id}, '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
-                            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar Pedido
-                        </button>`;
-                }
+            if (!error && data) {
+                const tbody = document.getElementById('tabla-ordenes-body'); 
+                if (!tbody) return;
                 
-                tbody.innerHTML += `<tr class="border-b border-stone-900/40 hover:bg-stone-900/10 transition-colors">
-                    <td class="p-3 font-mono text-amber-400 font-bold">#${o.id}</td>
-                    <td class="p-3 text-stone-400">${fechaFormateada}</td>
-                    <td class="p-3 text-white nombre-del-plato">${o.productos || 'Sin productos'}</td>
-                    <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || 0).toFixed(2)}</td>
-                    <td class="p-3 font-mono text-stone-400">
-                        <div>Ref: ${o.referencia || 'N/A'}</div>
-                        <div class="text-[10px] text-amber-500/80">Tlf: ${telefonoCliente || 'No registrado'}</div>
-                    </td>
-                    <td class="p-3 text-right">
-                        ${estadoHtml}
-                    </td>
-                </tr>`;
-            });
-            
-            if (typeof lucide !== 'undefined') {
+                tbody.innerHTML = "";
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-stone-500">No hay órdenes registradas.</td></tr>`;
+                    return;
+                }
+
+                data.forEach(o => {
+                    const fechaFormateada = new Date(o.created_at).toLocaleDateString();
+                    // Capturamos el nombre y el teléfono priorizando las columnas oficiales de tu tabla
+                    const nombreCliente = o.nombre_cliente || "Cliente Anónimo";
+                    const telefonoCliente = o.telefono || o.whatsapp_cliente || o.telefono_cliente || "No registrado";
+                    const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
+
+                    let estadoHtml = "";
+
+                    if (o.estado === 'verificado') {
+                        estadoHtml = `
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="text-green-400 font-bold uppercase text-[10px]">Verificado</span>
+                                <button onclick="enviarWhatsAppPremio('${telefonoCliente}', '${codigoPremio}', ${o.id})" class="bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
+                                    <i data-lucide="send" class="w-3 h-3"></i> Reenviar WhatsApp
+                                </button>
+                            </div>`;
+                    } else if (o.estado === 'cancelado') {
+                        estadoHtml = `<span class="text-red-500 font-bold uppercase text-[10px]">Cancelado</span>`;
+                    } else {
+                        estadoHtml = `
+                            <button onclick="confirmarYEnviarPedido(${o.id}, '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
+                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar Pedido
+                            </button>`;
+                    }
+                    
+                    tbody.innerHTML += `<tr class="border-b border-stone-900/40 hover:bg-stone-900/10 transition-colors">
+                        <td class="p-3 font-mono text-amber-400 font-bold">#${o.id}</td>
+                        <td class="p-3 text-stone-400">${fechaFormateada}</td>
+                        <td class="p-3 text-white nombre-del-plato">${o.productos}</td>
+                        <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || 0).toFixed(2)}</td>
+                        <td class="p-3 font-mono text-stone-400">
+                            <div class="text-white font-bold">${nombreCliente}</div>
+                            <div>Ref: ${o.referencia || 'N/A'}</div>
+                            <div class="text-[10px] text-amber-500/80 font-bold">Tlf: ${telefonoCliente}</div>
+                        </td>
+                        <td class="p-3 text-right">
+                            ${estadoHtml}
+                        </td>
+                    </tr>`;
+                });
                 lucide.createIcons();
+            } else if (error) {
+                console.error("Error al descargar órdenes:", error.message);
             }
         }
 
