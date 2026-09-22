@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D'UNIG - Ecosistema Studio 3D & VIP</title>
+    <title>CASA de las PAPAS - Ecosistema Studio 3D & VIP</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -81,7 +81,7 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-black tracking-widest text-white font-futurista">
-                       D'U<span class="text-amber-400">NIG</span>
+                       CASA de las<span class="text-amber-400">PAPAS</span>
                     </h1>
                     <p class="text-[8px] text-amber-500/70 uppercase tracking-[0.25em] font-bold font-futurista">
                         MERIDA VENEZUELA
@@ -1136,14 +1136,6 @@
         }
 
         function fijarUbicacionActualMapa() {
-            // Tomamos directamente el centro exacto donde el usuario posicionó el mapa
-            if (map) {
-                const centro = map.getCenter();
-                gpsClienteLat = centro.lat();
-                gpsClienteLng = centro.lng();
-                procesarCalculoDistanciaYCostos();
-            }
-
             const btn = document.getElementById('btn-usar-ubicacion');
             if(btn) {
                 btn.classList.remove('bg-amber-500', 'hover:bg-amber-400');
@@ -1157,6 +1149,19 @@
                 }, 1500);
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             }
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        gpsClienteLat = position.coords.latitude;
+                        gpsClienteLng = position.coords.longitude;
+                        if(map) { map.setCenter({ lat: gpsClienteLat, lng: gpsClienteLng }); map.setZoom(17); }
+                        procesarCalculoDistanciaYCostos();
+                    },
+                    () => { procesarCalculoDistanciaYCostos(); },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            } else { procesarCalculoDistanciaYCostos(); }
         }
 
         function procesarCalculoDistanciaYCostos() {
@@ -1297,7 +1302,6 @@
         async function enviarPedidoWhatsApp() {
             if(carrito.length === 0) { alert("Agrega productos primero."); return; }
             
-            // Fija la ubicación actual directamente del mapa antes de armar y enviar el pedido
             fijarUbicacionActualMapa();
 
             const metodo = document.getElementById('tipoMetodoPago').value;
