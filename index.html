@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CASA de las PAPAS - Ecosistema Studio 3D & VIP</title>
+    <title>D'UNIG - Ecosistema Studio 3D & VIP</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -40,7 +40,7 @@
 </head>
 <body class="text-stone-200 antialiased min-h-screen flex flex-col justify-between grid-bg relative">
 
-    <!-- MODAL / PANTALLA DE REGISTRO INICIAL -->
+    <!-- MODAL / PANTALLA DE REGISTRO INICIAL (OBLIGATORIA 1 SOLA VEZ) -->
     <div id="modal-registro-cliente" class="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-md p-8 rounded-3xl border border-amber-500/40 shadow-2xl space-y-6">
             <div class="text-center space-y-2">
@@ -81,7 +81,7 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-black tracking-widest text-white font-futurista">
-                       CASA de las<span class="text-amber-400">PAPAS</span>
+                       D'U<span class="text-amber-400">NIG</span>
                     </h1>
                     <p class="text-[8px] text-amber-500/70 uppercase tracking-[0.25em] font-bold font-futurista">
                         MERIDA VENEZUELA
@@ -444,6 +444,7 @@
 
         let datosDePago = {};
 
+        // FUNCIÓN MEJORADA CON ALERTAS PARA DEPURAR RLS O ERRORES
         async function registrarClienteUnico(event) {
             event.preventDefault();
             const nombre = document.getElementById('reg-nombre').value.trim();
@@ -456,23 +457,31 @@
             }
 
             try {
-                // Registrar tanto en clientes_vip como respaldar en localStorage
+                // Guardar en la tabla "clientes_vip" de Supabase
                 const { error } = await supabaseClient.from('clientes_vip').insert([
-                    { nombre_cliente: nombre, telefono: whatsapp }
+                    { nombre: nombre, whatsapp: whatsapp, correo: correo }
                 ]);
 
                 if (error) {
-                    console.error("Nota de registro en clientes_vip:", error.message);
+                    console.error("Error al registrar en Supabase:", error);
+                    alert("Error de permisos en Supabase (Revisa RLS): " + error.message);
+                    return;
                 }
             } catch (err) {
                 console.error("Excepción al guardar cliente:", err);
+                alert("Excepción de red o conexión al registrar.");
+                return;
             }
 
+            // Guardar en el almacenamiento local para que no vuelva a pedirlo
             const datosCliente = { nombre, whatsapp, correo };
             localStorage.setItem('dunig_cliente_registrado', JSON.stringify(datosCliente));
+
+            // Ocultar modal de registro
             document.getElementById('modal-registro-cliente').style.display = 'none';
         }
 
+        // VERIFICAR SI YA ESTÁ REGISTRADO AL CARGAR LA PÁGINA
         function verificarClienteRegistrado() {
             const clienteGuardado = localStorage.getItem('dunig_cliente_registrado');
             const modal = document.getElementById('modal-registro-cliente');
@@ -1127,6 +1136,14 @@
         }
 
         function fijarUbicacionActualMapa() {
+            // Tomamos directamente el centro exacto donde el usuario posicionó el mapa
+            if (map) {
+                const centro = map.getCenter();
+                gpsClienteLat = centro.lat();
+                gpsClienteLng = centro.lng();
+                procesarCalculoDistanciaYCostos();
+            }
+
             const btn = document.getElementById('btn-usar-ubicacion');
             if(btn) {
                 btn.classList.remove('bg-amber-500', 'hover:bg-amber-400');
@@ -1140,19 +1157,6 @@
                 }, 1500);
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             }
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        gpsClienteLat = position.coords.latitude;
-                        gpsClienteLng = position.coords.longitude;
-                        if(map) { map.setCenter({ lat: gpsClienteLat, lng: gpsClienteLng }); map.setZoom(17); }
-                        procesarCalculoDistanciaYCostos();
-                    },
-                    () => { procesarCalculoDistanciaYCostos(); },
-                    { enableHighAccuracy: true, timeout: 5000 }
-                );
-            } else { procesarCalculoDistanciaYCostos(); }
         }
 
         function procesarCalculoDistanciaYCostos() {
@@ -1293,6 +1297,7 @@
         async function enviarPedidoWhatsApp() {
             if(carrito.length === 0) { alert("Agrega productos primero."); return; }
             
+            // Fija la ubicación actual directamente del mapa antes de armar y enviar el pedido
             fijarUbicacionActualMapa();
 
             const metodo = document.getElementById('tipoMetodoPago').value;
@@ -1329,7 +1334,6 @@
             let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *NÚMERO DE MESA:* ${numeroMesa}\n` : '';
             const mensaje = `🍔 *PEDIDO VIP - Casa de las Papas (HVX5+G5H, Mérida)* 🍔\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n📦 *Subtotal:* $${subtotalProductos.toFixed(2)}\n🛵 *Delivery (${distanciaCalculadaKm.toFixed(2)} km):* $${costoDeliveryKm.toFixed(2)}\n💵 *TOTAL A PAGAR:* $${totalGeneral.toFixed(2)}\n📍 *Ubicación Google Maps:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
 
-            // OBJETO CORREGIDO INCLUYENDO NOMBRE Y TELÉFONO DEL CLIENTE
             const datosOrdenPendiente = {
                 productos: carrito.map(i => i.titulo).join(', '),
                 total: totalGeneral,
@@ -1339,9 +1343,7 @@
                 estado: "Pendiente",
                 codigo_referido: codigoReferidoCliente,
                 coordenadas_gps: `${gpsClienteLat},${gpsClienteLng}`,
-                costo_delivery: costoDeliveryKm,
-                nombre_cliente: clienteLocal.nombre || 'N/A',  // <-- Integrado
-                telefono: clienteLocal.whatsapp || 'N/A'         // <-- Integrado
+                costo_delivery: costoDeliveryKm
             };
 
             await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
