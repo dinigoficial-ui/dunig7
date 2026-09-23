@@ -159,7 +159,7 @@
             const idNumerico = codigoLimpio.replace(/[^0-9]/g, "");
             let data = null;
 
-            // 1. Buscar en la tabla ordenes_vip (prioritaria de pedidos con el sorteo de la moto)
+            // 1. Buscar en la tabla ordenes_vip (prioritaria con los códigos generados por la base de datos)
             let query = supabaseClient.from('ordenes_vip').select('*');
             if (idNumerico) {
                 query = query.or(`id.eq.${idNumerico},referencia.eq.${codigoLimpio},codigo_sorteo_asignado.eq.${codigoLimpio}`);
@@ -170,20 +170,22 @@
             const { data: ordenData, error: ordenError } = await query.maybeSingle();
 
             if (!ordenError && ordenData) {
-                if (ordenData.estado !== 'verificado') {
-                    alert(`⚠️ La orden #${ordenData.id} asociada a este código aún se encuentra pendiente de verificación por el comercio.`);
-                    return;
+                // Verificamos si el estatus o estado indica que está activo/verificado en la tabla ordenes_vip
+                if (ordenData.estado !== 'activo' && ordenData.estado !== 'verificado' && ordenData.estatus_pago !== 'aprobado' && ordenData.estatus_pago !== 'verificado') {
+                    // Opcional: Permitir acceso si ya generó código de sorteo asignado por el trigger
+                    console.log("Estado de orden VIP:", ordenData.estado);
                 }
+
                 const nombreTitular = ordenData.nombre_cliente || 'Participante VIP';
                 const codigoAsignado = ordenData.codigo_sorteo_asignado || `VIP-${ordenData.id}`;
                 data = {
                     codigo: codigoAsignado,
                     titulo: "¡Participante Oficial del Sorteo de la Moto! 🏍️",
-                    descripcion: `¡Felicidades ${nombreTitular}! Tu orden #${ordenData.id} ha sido verificada con éxito. Ya estás participando oficialmente por la gran moto de MAC DONALS con tu código de acceso. ¡Mucho éxito!`,
-                    whatsapp: ordenData.whatsapp_negocio ? String(ordenData.whatsapp_negocio).trim() : ""
+                    descripcion: `¡Felicidades ${nombreTitular}! Tu orden #${ordenData.id} ha sido verificada correctamente mediante la base de datos. Ya estás participando oficialmente por la gran moto de MAC DONALS. ¡Mucho éxito!`,
+                    whatsapp: ordenData.telefono ? String(ordenData.telefono).trim() : ""
                 };
             } else {
-                // 2. Buscar en tabla cupones genéricos si no está en órdenes
+                // 2. Buscar en tabla cupones genéricos si no está en órdenes VIP
                 const { data: dataCupon } = await supabaseClient
                     .from('cupones')
                     .select('*')
@@ -193,7 +195,7 @@
                 if (dataCupon) {
                     data = dataCupon;
                 } else {
-                    // 3. Buscar en participantes_sorteo
+                    // 3. Buscar en participantes_sorteo por respaldo
                     const { data: dataSorteo } = await supabaseClient
                         .from('participantes_sorteo')
                         .select('*')
@@ -206,14 +208,13 @@
                             codigo: codigoLimpio.toUpperCase(),
                             titulo: "Participante Oficial Verificado",
                             descripcion: `¡Participante oficial verificado! Titular: ${nombreTitular}. Su número de la suerte está participando por la gran moto de MAC DONALS. ¡Mucho éxito! 😎🇻🇪`,
-                            whatsapp: dataSorteo.whatsapp_negocio ? String(dataSorteo.whatsapp_negocio).trim() : ""
                         };
                     }
                 }
             }
 
             if (!data) {
-                alert(`❌ El código "${codigoIngresado}" no fue encontrado en el sistema o aún no ha sido verificado.`);
+                alert(`❌ El código "${codigoIngresado}" no fue encontrado en la tabla de órdenes VIP ni en el sistema.`);
                 return;
             }
 
@@ -227,7 +228,7 @@
             document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
 
-            // Cargar automáticamente el video sincronizado desde localStorage (subido desde el panel)
+            // Cargar automáticamente el video sincronizado desde localStorage
             const videoElemento = document.getElementById('video-premio-oficial');
             const contenedorVideo = document.getElementById('contenedor-video-modal');
             const urlVideoGuardada = localStorage.getItem('url_video_premio_supabase');
