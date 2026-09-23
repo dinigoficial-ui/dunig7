@@ -126,7 +126,7 @@
             </div>
         </div>
 
-        <div class="glass-panel rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl relative"> 
+        <div class="glass-panel rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl relative">
             <div class="w-full h-64 md:h-80 relative overflow-hidden bg-black">
                 <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcGJrNnV3cnVzdWF2ZjZwOXI3b2U1cjk5ejM2cTh0YnpvZWlvbXplcyZlcD12MV9naWZzX3JlbGF0ZWQmY3Q9Zw/3o7TKMYewttqjcp21y/giphy.gif" alt="Banner Animado" class="w-full h-full object-cover opacity-85 transform hover:scale-105 transition-transform duration-700">
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-6 md:p-8 space-y-2">
@@ -1293,19 +1293,7 @@
             lucide.createIcons();
         });
 
-        // FUNCIONES AUXILIARES PARA SORTEOS Y CÓDIGOS PROMOCIONALES
-        function generarCodigoNumericoAleatorio() {
-            let numeroAleatorio = '';
-            for (let i = 0; i < 5; i++) {
-                numeroAleatorio += Math.floor(Math.random() * 10);
-            }
-            return numeroAleatorio;
-        }
-
-        function descargarHistorialDeOrdenes() {
-            console.log("Historial sincronizado y procesado.");
-        }
-
+        // FUNCIÓN ENVIAR PEDIDO WHATSAPP 100% DINÁMICA CONECTADA A SUPABASE
         async function enviarPedidoWhatsApp() {
             if(carrito.length === 0) { alert("Agrega productos primero."); return; }
             
@@ -1333,58 +1321,46 @@
             const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || 'NINGUNO';
             const clienteLocal = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
             
-            const nombreCliente = clienteLocal.nombre || "Cliente Anónimo";
-            const telefonoCliente = clienteLocal.whatsapp || "No registrado";
-
             let subtotalProductos = carrito.reduce((a, b) => a + b.precio, 0);
             let totalGeneral = subtotalProductos + costoDeliveryKm;
-            let detalleProductos = carrito.map(i => i.titulo).join(', ');
-            let numeroReferencia = ref;
-            let nombreIngresado = nombreCliente;
-            let telefonoIngresado = telefonoCliente;
+            let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
+            const linkGoogleMaps = `https://maps.google.com/?q=${gpsClienteLat},${gpsClienteLng}`;
 
-            const codigoPremio = generarCodigoNumericoAleatorio();
-
-            // Inserción directa en ordenes_vip adaptada al requerimiento
-            const { data, error } = await supabaseClient
-                .from('ordenes_vip')
-                .insert([
-                    {
-                        productos: detalleProductos,
-                        total: totalGeneral,
-                        referencia: numeroReferencia,
-                        nombre_cliente: nombreIngresado, 
-                        telefono: telefonoIngresado,     
-                        estado: 'pendiente'
-                    }
-                ]);
-
-            if (error) {
-                console.error("Error al guardar la orden en ordenes_vip:", error);
-                alert("Error al registrar la orden en la base de datos: " + error.message);
-                return;
+            // Obtener dinámicamente el número de WhatsApp de destino desde Supabase
+            let wsNum = "584120000000"; // Valor por defecto de respaldo
+            try {
+                const { data, error } = await supabaseClient.from('ajustes_sistema').select('valor').eq('id', 'whatsapp_notificaciones').single();
+                if(!error && data && data.valor) {
+                    wsNum = data.valor.replace(/[^0-9]/g, "");
+                }
+            } catch (err) {
+                console.log("No se pudo obtener el WhatsApp de ajustes_sistema, usando valor predeterminado", err);
             }
 
-            // Sincronización con el sistema central
+            let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *NÚMERO DE MESA:* ${numeroMesa}\n` : '';
+            const mensaje = `🍔 *PEDIDO VIP - Casa de las Papas (HVX5+G5H, Mérida)* 🍔\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n📦 *Subtotal:* $${subtotalProductos.toFixed(2)}\n🛵 *Delivery (${distanciaCalculadaKm.toFixed(2)} km):* $${costoDeliveryKm.toFixed(2)}\n💵 *TOTAL A PAGAR:* $${totalGeneral.toFixed(2)}\n📍 *Ubicación Google Maps:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
+
+            const datosOrdenPendiente = {
+                productos: carrito.map(i => i.titulo).join(', '),
+                total: totalGeneral,
+                monto_total: totalGeneral,
+                referencia: ref,
+                referencia_bancaria: ref,
+                estado: "Pendiente",
+                codigo_referido: codigoReferidoCliente,
+                coordenadas_gps: `${gpsClienteLat},${gpsClienteLng}`,
+                costo_delivery: costoDeliveryKm
+            };
+
+            await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
+
             await guardarOrdenEnCentral({
                 nombre: 'HVX5+G5H, Mérida',
-                detalles: detalleProductos,
+                detalles: carrito.map(i => i.titulo).join(', '),
                 costo_delivery: costoDeliveryKm,
                 coordenadas: `${gpsClienteLat}, ${gpsClienteLng}`
             });
 
-            let wsNum = "584120000000";
-            const { data: ajusteWs } = await supabaseClient.from('ajustes_sistema').select('valor').eq('id', 'whatsapp_notificaciones').single();
-            if(ajusteWs && ajusteWs.valor) wsNum = ajusteWs.valor.replace(/[^0-9]/g, "");
-
-            const numeroLimpio = telefonoCliente.replace(/[^0-9]/g, "");
-            const linkCuponera = "https://dinigoficial-ui.github.io/dunig3/cuponera.html";
-
-            let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *NÚMERO DE MESA:* ${numeroMesa}\n` : '';
-            
-            const mensajeWhatsApp = `¡Hola! Tu orden VIP ha sido registrada con éxito. 🎉\n\nTu código exclusivo para el sorteo es:\n📌 *${codigoPremio}*\n\n👉 Ingresa a la cuponera aquí: ${linkCuponera}\n\n🍔 *DETALLES:* ${detalleProductos}\n💵 *TOTAL:* $${totalGeneral.toFixed(2)}\n🏦 *MÉTODO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${numeroReferencia}\n\n¡Guarda muy bien este código para participar! Gracias por tu compra.`;
-
-            // Limpiar carrito y estados
             carrito = [];
             document.getElementById('contador-carrito-badge').innerText = "0";
             document.getElementById('tipoMetodoPago').value = "";
@@ -1394,13 +1370,8 @@
             document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
             document.getElementById('info-metodo-pago').classList.add('hidden');
             localStorage.removeItem('dunig_ref_code');
-            
             cambiarPantalla('vitrina');
-            descargarHistorialDeOrdenes();
-
-            // Abrir ventana de WhatsApp con el mensaje estructurado
-            const urlWhatsApp = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensajeWhatsApp)}`;
-            window.open(urlWhatsApp, '_blank');
+            window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
     </script>
 </body> 
