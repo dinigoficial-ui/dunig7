@@ -954,7 +954,7 @@
             }
         }
 
-        // Función integrada para confirmar la orden en Supabase y abrir WhatsApp con el código de sorteo
+        // Función integrada para confirmar la orden en Supabase y abrir WhatsApp con el código de sorteo y enlace a la cuponera
         async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
             if (!idOrden) return;
 
@@ -982,8 +982,9 @@
             // 3. Limpiar el formato del número (solo dígitos)
             const numeroLimpio = telefonoCliente.replace(/[^0-9]/g, "");
 
-            // 4. Construir el mensaje con el código del sorteo
-            const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código exclusivo para el sorteo es:\n📌 *${codigoPremio}*\n\n¡Guarda muy bien este código para participar! Gracias por tu compra.`;
+            // 4. Definir link de la cuponera y construir el mensaje completo
+            const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/";
+            const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigoPremio}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
             
@@ -1000,10 +1001,10 @@
                 return;
             }
 
-            // Reemplaza o ajusta la variable del mensaje de WhatsApp con este formato:
-const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/"; // Ajusta tu URL real si es diferente
+            const numeroLimpio = telefono.replace(/[^0-9]/g, "");
+            const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/";
 
-const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido verificada y confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigoSorteo}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
+            const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido verificada y confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigo}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
             window.open(urlWhatsApp, '_blank');
