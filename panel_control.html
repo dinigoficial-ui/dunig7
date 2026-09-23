@@ -1000,8 +1000,10 @@
                 return;
             }
 
-            const numeroLimpio = telefono.replace(/[^0-9]/g, "");
-            const mensaje = `¡Hola! Tu orden #${idOrden} ha sido *verificada y confirmada* con éxito por MAC DONALS. 🎉\n\nTu código de acceso exclusivo para ingresar a la cuponera y ver tu premio es:\n📌 *${codigo}*\n\n¡Ingresa a nuestra plataforma con este código para descubrir tu sorpresa!`;
+            // Reemplaza o ajusta la variable del mensaje de WhatsApp con este formato:
+const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/"; // Ajusta tu URL real si es diferente
+
+const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido verificada y confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigoSorteo}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
             window.open(urlWhatsApp, '_blank');
