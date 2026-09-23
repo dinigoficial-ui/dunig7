@@ -1340,6 +1340,7 @@
             let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *NÚMERO DE MESA:* ${numeroMesa}\n` : '';
             const mensaje = `🍔 *PEDIDO VIP - Casa de las Papas (HVX5+G5H, Mérida)* 🍔\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n📦 *Subtotal:* $${subtotalProductos.toFixed(2)}\n🛵 *Delivery (${distanciaCalculadaKm.toFixed(2)} km):* $${costoDeliveryKm.toFixed(2)}\n💵 *TOTAL A PAGAR:* $${totalGeneral.toFixed(2)}\n📍 *Ubicación Google Maps:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
 
+            // Objeto con los datos incluyendo nombre_cliente y telefono obtenidos del localStorage
             const datosOrdenPendiente = {
                 productos: carrito.map(i => i.titulo).join(', '),
                 total: totalGeneral,
@@ -1349,7 +1350,9 @@
                 estado: "Pendiente",
                 codigo_referido: codigoReferidoCliente,
                 coordenadas_gps: `${gpsClienteLat},${gpsClienteLng}`,
-                costo_delivery: costoDeliveryKm
+                costo_delivery: costoDeliveryKm,
+                nombre_cliente: clienteLocal.nombre || null, // <-- Registra el nombre
+                telefono: clienteLocal.whatsapp || null     // <-- Registra el teléfono/WhatsApp
             };
 
             await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
