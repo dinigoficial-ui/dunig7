@@ -64,12 +64,12 @@
                     <i data-lucide="shield-check" class="w-8 h-8"></i>
                 </div>
                 <h2 class="text-lg font-black font-futurista text-white uppercase tracking-wider">Validación de Código</h2>
-                <p class="text-xs text-stone-400 leading-relaxed">Ingresa tu código único de seguridad o número de la suerte para verificar tu estatus en el sorteo.</p>
+                <p class="text-xs text-stone-400 leading-relaxed">Ingresa tu código de sorteo asignado para verificar tu participación oficial.</p>
             </div>
 
             <div class="space-y-4">
                 <div class="space-y-2">
-                    <label class="text-[10px] uppercase text-amber-400 font-bold tracking-[0.2em] block font-futurista text-center">Código de Acceso / Sorteo</label>
+                    <label class="text-[10px] uppercase text-amber-400 font-bold tracking-[0.2em] block font-futurista text-center">Código de Sorteo Asignado</label>
                     <input type="text" id="input-codigo-ingresado" placeholder="EJ: VIP-15" class="w-full bg-stone-950/80 border border-stone-800 text-base text-center text-amber-300 font-mono font-bold p-4 rounded-2xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 tracking-[0.25em] uppercase transition-all">
                 </div>
 
@@ -148,7 +148,7 @@
         async function desbloquearCuponVIP() {
             const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
             if(!inputVal) {
-                alert("Por favor ingresa un código válido.");
+                alert("Por favor ingresa un código de sorteo válido.");
                 return;
             }
             await validarCodigoEnCuponera(inputVal);
@@ -156,65 +156,75 @@
 
         async function validarCodigoEnCuponera(codigoIngresado) {
             const codigoLimpio = codigoIngresado.trim();
-            const idNumerico = codigoLimpio.replace(/[^0-9]/g, "");
             let data = null;
 
-            // 1. Buscar en la tabla ordenes_vip (prioritaria con los códigos generados por la base de datos)
-            let query = supabaseClient.from('ordenes_vip').select('*');
-            if (idNumerico) {
-                query = query.or(`id.eq.${idNumerico},referencia.eq.${codigoLimpio},codigo_sorteo_asignado.eq.${codigoLimpio}`);
-            } else {
-                query = query.or(`referencia.eq.${codigoLimpio},codigo_sorteo_asignado.eq.${codigoLimpio}`);
-            }
+            // 1. BUSQUEDA DIRECTA Y PRINCIPAL: En la columna codigo_sorteo_asignado de la tabla ordenes_vip
+            const { data: ordenesSorteo, error: errorSorteo } = await supabaseClient
+                .from('ordenes_vip')
+                .select('*')
+                .ilike('codigo_sorteo_asignado', codigoLimpio);
 
-            const { data: ordenData, error: ordenError } = await query.maybeSingle();
-
-            if (!ordenError && ordenData) {
-                // Verificamos si el estatus o estado indica que está activo/verificado en la tabla ordenes_vip
-                if (ordenData.estado !== 'activo' && ordenData.estado !== 'verificado' && ordenData.estatus_pago !== 'aprobado' && ordenData.estatus_pago !== 'verificado') {
-                    // Opcional: Permitir acceso si ya generó código de sorteo asignado por el trigger
-                    console.log("Estado de orden VIP:", ordenData.estado);
-                }
-
+            if (!errorSorteo && ordenesSorteo && ordenesSorteo.length > 0) {
+                const ordenData = ordenesSorteo[0];
                 const nombreTitular = ordenData.nombre_cliente || 'Participante VIP';
                 const codigoAsignado = ordenData.codigo_sorteo_asignado || `VIP-${ordenData.id}`;
+                
                 data = {
                     codigo: codigoAsignado,
                     titulo: "¡Participante Oficial del Sorteo de la Moto! 🏍️",
-                    descripcion: `¡Felicidades ${nombreTitular}! Tu orden #${ordenData.id} ha sido verificada correctamente mediante la base de datos. Ya estás participando oficialmente por la gran moto de MAC DONALS. ¡Mucho éxito!`,
-                    whatsapp: ordenData.telefono ? String(ordenData.telefono).trim() : ""
+                    descripcion: `¡Felicidades ${nombreTitular}! Tu código de sorteo (${codigoAsignado}) ha sido verificado correctamente en el sistema. Ya estás participando oficialmente por la gran moto de MAC DONALS. ¡Mucho éxito!`
                 };
             } else {
-                // 2. Buscar en tabla cupones genéricos si no está en órdenes VIP
-                const { data: dataCupon } = await supabaseClient
-                    .from('cupones')
-                    .select('*')
-                    .eq('codigo', codigoLimpio.toUpperCase())
-                    .maybeSingle();
-
-                if (dataCupon) {
-                    data = dataCupon;
+                // 2. RESPALDO OPCIONAL: Buscar por ID numérico exacto o referencia si no lo encuentra por código de sorteo directo
+                const idNumerico = codigoLimpio.replace(/[^0-9]/g, "");
+                let queryAlternativa = supabaseClient.from('ordenes_vip').select('*');
+                
+                if (idNumerico) {
+                    queryAlternativa = queryAlternativa.or(`id.eq.${idNumerico},referencia.eq.${codigoLimpio}`);
                 } else {
-                    // 3. Buscar en participantes_sorteo por respaldo
-                    const { data: dataSorteo } = await supabaseClient
-                        .from('participantes_sorteo')
+                    queryAlternativa = queryAlternativa.eq('referencia', codigoLimpio);
+                }
+
+                const { data: ordenAltData, error: altError } = await queryAlternativa.maybeSingle();
+
+                if (!altError && ordenAltData) {
+                    const nombreTitular = ordenAltData.nombre_cliente || 'Participante VIP';
+                    const codigoAsignado = ordenAltData.codigo_sorteo_asignado || `VIP-${ordenAltData.id}`;
+                    data = {
+                        codigo: codigoAsignado,
+                        titulo: "¡Participante Oficial del Sorteo de la Moto! 🏍️",
+                        descripcion: `¡Felicidades ${nombreTitular}! Tu orden #${ordenAltData.id} ha sido verificada. Tu código de sorteo asignado es ${codigoAsignado}. ¡Mucho éxito!`
+                    };
+                } else {
+                    // 3. RESPALDO ADICIONAL: Buscar en cupones o participantes_sorteo por si acaso
+                    const { data: dataCupon } = await supabaseClient
+                        .from('cupones')
                         .select('*')
-                        .or(`codigo.eq.${codigoLimpio.toUpperCase()},codigo_sorteo.eq.${codigoLimpio.toUpperCase()}`)
+                        .ilike('codigo', codigoLimpio)
                         .maybeSingle();
 
-                    if (dataSorteo) {
-                        const nombreTitular = dataSorteo.nombre || 'Participante';
-                        data = {
-                            codigo: codigoLimpio.toUpperCase(),
-                            titulo: "Participante Oficial Verificado",
-                            descripcion: `¡Participante oficial verificado! Titular: ${nombreTitular}. Su número de la suerte está participando por la gran moto de MAC DONALS. ¡Mucho éxito! 😎🇻🇪`,
-                        };
+                    if (dataCupon) {
+                        data = dataCupon;
+                    } else {
+                        const { data: dataSorteo } = await supabaseClient
+                            .from('participantes_sorteo')
+                            .select('*')
+                            .or(`codigo.ilike.${codigoLimpio},codigo_sorteo.ilike.${codigoLimpio}`)
+                            .maybeSingle();
+
+                        if (dataSorteo) {
+                            data = {
+                                codigo: codigoLimpio.toUpperCase(),
+                                titulo: "Participante Oficial Verificado",
+                                descripcion: `¡Participante oficial verificado! Su número de la suerte está participando por la gran moto de MAC DONALS. ¡Mucho éxito! 😎🇻🇪`
+                            };
+                        }
                     }
                 }
             }
 
             if (!data) {
-                alert(`❌ El código "${codigoIngresado}" no fue encontrado en la tabla de órdenes VIP ni en el sistema.`);
+                alert(`❌ El código de sorteo "${codigoIngresado}" no fue encontrado en el sistema. Asegúrate de escribirlo correctamente.`);
                 return;
             }
 
@@ -243,13 +253,10 @@
             }
             
             // Configurar enlaces de compartir en redes sociales
-            const textoCompartir = `¡Ya estoy participando por la gran moto en el sorteo oficial de MAC DONALS con mi código VIP: ${data.codigo}! 🏍️✨ ¡Participa tú también!`;
+            const textoCompartir = `¡Ya estoy participando por la gran moto en el sorteo oficial de MAC DONALS con mi código de sorteo: ${data.codigo}! 🏍️✨ ¡Participa tú también!`;
             const urlActual = window.location.href;
 
-            // WhatsApp Share
             document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoCompartir + " " + urlActual)}`;
-            
-            // Facebook Share
             document.getElementById('btn-share-facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(urlActual)}&quote=${encodeURIComponent(textoCompartir)}`;
 
             document.getElementById('modal-cupon-exito').classList.remove('hidden');
@@ -259,12 +266,12 @@
 
         function copiarEnlaceRedes(redSocial) {
             const enlaceActual = window.location.href;
-            const textoCopia = `¡Participando por la moto en MAC DONALS! 🏍️ Mi código VIP es mi pase seguro. ¡Entra aquí para verificar el tuyo! ${enlaceActual}`;
+            const textoCopia = `¡Participando por la moto en MAC DONALS! 🏍️ Mi código de sorteo es mi pase seguro. ¡Entra aquí para verificar el tuyo! ${enlaceActual}`;
             
             navigator.clipboard.writeText(textoCopia).then(() => {
                 alert(`¡Enlace copiado con éxito para ${redSocial}!\n\nPuedes pegarlo directamente en tu historia o publicación.`);
             }).catch(err => {
-                alert("No se pudo copiar automáticamente, pero puedes copiar la URL de la barra de direcciones.");
+                alert("No se pudo copiar automáticamente.");
             });
         }
 
@@ -281,7 +288,7 @@
         window.addEventListener('DOMContentLoaded', () => { 
             if (window.lucide) lucide.createIcons(); 
 
-            // Detectar si la URL trae un código de forma automática (ej: cuponera.html?codigo=VIP-15)
+            // Detectar si la URL trae un código automáticamente (ej: cuponera.html?codigo=VIP-15)
             const urlParams = new URLSearchParams(window.location.search);
             const codigoUrl = urlParams.get('codigo');
             if (codigoUrl) {
