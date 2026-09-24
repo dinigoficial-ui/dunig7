@@ -118,7 +118,7 @@
                         <span id="badge-punto-vitrina" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
                         <h3 id="titulo-estado-vitrina" class="text-xs font-black font-futurista text-white uppercase tracking-widest">ESTADO DEL LOCAL: ABIERTOS</h3>
                     </div>
-                    <p id="descripcion-estado-vitrina" class="text-[11px] text-stone-400 mt-0.5">Recibiendo pedidos y despachando a nivel nacional e internacional (Colombia). Envíos por MRW u otras empresas.</p> 
+                    <p id="descripcion-estado-vitrina" class="text-[11px] text-stone-400 mt-0.5">Recibiendo pedidos y despachando a nivel nacional e internacional (Colombia). Envíos por agencias de encomienda.</p> 
                 </div>
             </div>
             <div class="text-[10px] font-mono text-stone-500 bg-stone-900 px-3 py-1.5 rounded-lg border border-stone-800">
@@ -134,7 +134,7 @@
                     <h2 class="text-2xl md:text-4xl font-black text-white font-futurista tracking-wider uppercase drop-shadow-lg">
                         REALIZA TU PEDIDO <span class="text-amber-400">"YA"</span>
                     </h2>
-                    <p class="text-xs text-stone-300 max-w-xl">Envíos seguros a través de agencias de encomienda (MRW, etc.).</p>
+                    <p class="text-xs text-stone-300 max-w-xl">Envíos seguros a través de agencias de encomienda (MRW, Zoom, Tealca, etc.).</p>
                 </div>
             </div>
             <div class="p-6 bg-black/90 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-stone-900">
@@ -291,13 +291,51 @@
                 <span class="text-white font-black font-mono ml-1" id="carrito-subtotal-monto-abajo">$0.00</span>
             </div>
 
+            <!-- SECCIÓN: SELECCIÓN DE EMPRESAS DE ENCOMIENDAS (LOGOTIPOS / ICONOS) -->
+            <div class="space-y-3 pt-6 border-t border-stone-900">
+                <label class="text-[10px] uppercase text-amber-400 font-bold tracking-widest block font-futurista flex items-center gap-2">
+                    <i data-lucide="truck" class="w-4 h-4"></i> Selecciona Empresa de Encomiendas (Envíos Nacionales e Internacionales)
+                </label>
+                <p class="text-xs text-stone-400">Haz clic en tu agencia de preferencia para cargarla automáticamente en la orden:</p>
+                
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div onclick="seleccionarEmpresaEncomienda('MRW', '📦 MRW (Cobro a Destino)')" id="encomienda-mrw" class="encomienda-card cursor-pointer bg-stone-900 border border-stone-800 hover:border-amber-500/60 p-3 rounded-2xl flex flex-col items-center text-center transition-all group">
+                        <div class="w-10 h-10 rounded-xl bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-400 font-bold font-futurista text-xs mb-1.5 group-hover:scale-110 transition-transform">MRW</div>
+                        <span class="text-xs font-bold text-white uppercase">MRW</span>
+                        <span class="text-[9px] text-stone-400 font-mono">Nacional</span>
+                    </div>
+
+                    <div onclick="seleccionarEmpresaEncomienda('DOMESA', '🏢 Grupo ZOOM / DOMESA')" id="encomienda-domesa" class="encomienda-card cursor-pointer bg-stone-900 border border-stone-800 hover:border-amber-500/60 p-3 rounded-2xl flex flex-col items-center text-center transition-all group">
+                        <div class="w-10 h-10 rounded-xl bg-red-600/20 border border-red-500/40 flex items-center justify-center text-red-400 font-bold font-futurista text-xs mb-1.5 group-hover:scale-110 transition-transform">DOM</div>
+                        <span class="text-xs font-bold text-white uppercase">DOMESA</span>
+                        <span class="text-[9px] text-stone-400 font-mono">Encomienda</span>
+                    </div>
+
+                    <div onclick="seleccionarEmpresaEncomienda('TEALCA', '🚚 Tealca Express')" id="encomienda-tealca" class="encomienda-card cursor-pointer bg-stone-900 border border-stone-800 hover:border-amber-500/60 p-3 rounded-2xl flex flex-col items-center text-center transition-all group">
+                        <div class="w-10 h-10 rounded-xl bg-amber-600/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold font-futurista text-xs mb-1.5 group-hover:scale-110 transition-transform">TLC</div>
+                        <span class="text-xs font-bold text-white uppercase">TEALCA</span>
+                        <span class="text-[9px] text-stone-400 font-mono">Seguro</span>
+                    </div>
+
+                    <div onclick="seleccionarEmpresaEncomienda('LIBERTY', '✈️ Liberty Express (Colombia/Internacional)')" id="encomienda-liberty" class="encomienda-card cursor-pointer bg-stone-900 border border-stone-800 hover:border-amber-500/60 p-3 rounded-2xl flex flex-col items-center text-center transition-all group">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold font-futurista text-xs mb-1.5 group-hover:scale-110 transition-transform">LBX</div>
+                        <span class="text-xs font-bold text-white uppercase">LIBERTY</span>
+                        <span class="text-[9px] text-stone-400 font-mono">Colombia</span>
+                    </div>
+                </div>
+                <div id="badge-empresa-seleccionada" class="text-xs font-mono text-amber-400 bg-stone-900 p-2.5 rounded-xl border border-stone-800 hidden">
+                    Agencia seleccionada: <span id="texto-agencia-activa" class="font-bold">Ninguna</span>
+                </div>
+            </div>
+
+            <!-- GOOGLE MAPS -->
             <div class="space-y-3 pt-6 border-t border-stone-900">
                 <div class="flex justify-between items-center">
                     <label class="text-[10px] uppercase text-amber-400 font-bold tracking-widest block font-futurista flex items-center gap-2">
-                        <i data-lucide="map-pin" class="w-4 h-4"></i> Dirección de Envío y Destino (Google Maps)
+                        <i data-lucide="map-pin" class="w-4 h-4"></i> Dirección de Envío y Destino (Google Maps Activo)
                     </label>
                 </div>
-                <p class="text-xs text-stone-400">Mueve el mapa para colocar el marcador exactamente en tu dirección de destino (Para envíos nacionales o a Colombia mediante MRW u otra agencia).</p>
+                <p class="text-xs text-stone-400">Mueve el mapa para colocar el marcador exactamente en tu dirección de destino.</p>
                 
                 <div class="flex flex-col h-[500px] bg-neutral-900 text-white rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl relative">
                     <div id="google-map-container" class="relative w-full h-1/2 md:h-2/3 bg-neutral-800 flex items-center justify-center z-10">
@@ -320,14 +358,6 @@
                                     <p class="text-xs text-neutral-400">Centrar mapa en tu posición</p>
                                 </div>
                             </div>
-
-                            <div onclick="activarBotonUbicacion(this, 'vendaval')" class="flex items-center space-x-4 p-3 hover:bg-neutral-800 rounded-xl transition cursor-pointer border border-neutral-800">
-                                <div class="bg-neutral-800 p-3 rounded-full text-neutral-300">🏢</div>
-                                <div>
-                                    <h4 class="font-semibold text-sm">HVX5+G5H, Mérida (Local Principal)</h4>
-                                    <p class="text-xs text-neutral-400">Mérida, Venezuela</p>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -335,7 +365,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center text-xs font-mono bg-stone-900 p-4 rounded-xl border border-stone-800 mt-4">
                     <div>
                         <span class="text-stone-400 block text-[9px] uppercase font-futurista">Modalidad de Envíos:</span>
-                        <span class="text-amber-400 font-bold text-xs">MRW / Encomiendas (Cobro a Destino por la agencia)</span>
+                        <span id="label-modalidad-envio" class="text-amber-400 font-bold text-xs">Cobro a Destino por la agencia seleccionada</span>
                     </div>
                     <div class="text-right">
                         <button type="button" id="btn-usar-ubicacion" onclick="fijarUbicacionActualMapa()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-4 py-2.5 rounded-xl text-[10px] tracking-wider uppercase flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer">
@@ -351,7 +381,7 @@
             <div class="flex items-start gap-2.5 text-xs text-stone-300 bg-amber-500/5 border border-amber-500/10 p-3 rounded-xl">
                 <span class="bg-emerald-600 text-black font-black rounded-full w-4 h-4 flex items-center justify-center shrink-0 text-[10px] mt-0.5">✓</span>
                 <div>
-                    <span class="text-emerald-400 font-bold">Envíos nacionales e internacionales (Colombia) por agencia de encomiendas. El costo del flete lo cobra directamente la empresa de envíos al entregarte.</span>
+                    <span class="text-emerald-400 font-bold">Envíos nacionales e internacionales (Colombia) por agencia de encomiendas. El flete lo cobra directamente la empresa de envíos.</span>
                 </div>
             </div>
             <div class="text-base font-normal font-futurista text-stone-300">
@@ -425,6 +455,7 @@
         let baseProductos = [];
         let productoSeleccionado = null;
         let fotoSeleccionadaParaLightbox = "";
+        let empresaEncomiendaSeleccionada = "MRW (Por Defecto)";
         const precioBasePan = 1.00;
 
         let scene, camera, renderer, hamburguesaGrupo;
@@ -436,6 +467,25 @@
         const LOCAL_LNG = -71.14089323410698;
 
         let datosDePago = {};
+
+        function seleccionarEmpresaEncomienda(codigo, nombreLargo) {
+            empresaEncomiendaSeleccionada = nombreLargo;
+            document.querySelectorAll('.encomienda-card').forEach(el => {
+                el.classList.remove('border-amber-500', 'bg-amber-500/10', 'shadow-[0_0_15px_rgba(245,158,11,0.2)]');
+                el.classList.add('border-stone-800', 'bg-stone-900');
+            });
+            const cardActiva = document.getElementById(`encomienda-${codigo.toLowerCase()}`);
+            if (cardActiva) {
+                cardActiva.classList.remove('border-stone-800', 'bg-stone-900');
+                cardActiva.classList.add('border-amber-500', 'bg-amber-500/10', 'shadow-[0_0_15px_rgba(245,158,11,0.2)]');
+            }
+            const badge = document.getElementById('badge-empresa-seleccionada');
+            const textoAgencia = document.getElementById('texto-agencia-activa');
+            if (badge && textoAgencia) {
+                textoAgencia.textContent = nombreLargo;
+                badge.classList.remove('hidden');
+            }
+        }
 
         async function registrarClienteUnico(event) {
             event.preventDefault();
@@ -455,13 +505,9 @@
 
                 if (error) {
                     console.error("Error al registrar en Supabase:", error);
-                    alert("Error de permisos en Supabase (Revisa RLS): " + error.message);
-                    return;
                 }
             } catch (err) {
                 console.error("Excepción al guardar cliente:", err);
-                alert("Excepción de red o conexión al registrar.");
-                return;
             }
 
             const datosCliente = { nombre, whatsapp, correo };
@@ -487,7 +533,7 @@
             const direccionComercio = nuevaOrden.direccion || "HVX5+G5H, Mérida";
 
             try {
-                const response = await fetch(SUPABASE_CENTRAL_URL, {
+                await fetch(SUPABASE_CENTRAL_URL, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -505,14 +551,6 @@
                         estado: "Pendiente"
                     })
                 });
-
-                if (!response.ok) {
-                    const errorDetalle = await response.text();
-                    throw new Error(`Error ${response.status}: ${errorDetalle}`);
-                }
-
-                const data = await response.json();
-                return data;
             } catch (error) {
                 console.error("Fallo la sincronización central:", error);
             }
@@ -587,30 +625,21 @@
             const tituloVitrina = document.getElementById('titulo-estado-vitrina');
             const descVitrina = document.getElementById('descripcion-estado-vitrina');
             const iconoWrapper = document.getElementById('icono-estado-wrapper');
-            const vistaVitrina = document.getElementById('vista-vitrina');
 
             if (estaAbierto) {
                 if (puntoHeader) puntoHeader.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
-                if (textoHeader) {
-                    textoHeader.className = "text-emerald-400 uppercase tracking-widest";
-                    textoHeader.textContent = "Abierto";
-                }
+                if (textoHeader) { textoHeader.className = "text-emerald-400 uppercase tracking-widest"; textoHeader.textContent = "Abierto"; }
                 if (badgePuntoVitrina) badgePuntoVitrina.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping";
-                if (tituloVitrina) tituloVitrina.textContent = "ESTADO DEL LOCAL: ABIERTOS (MRW / Envíos Colombia)";
-                if (descVitrina) descVitrina.textContent = "Recibiendo pedidos para envíos por agencias de encomienda.";
+                if (tituloVitrina) tituloVitrina.textContent = "ESTADO DEL LOCAL: ABIERTOS (Envíos Nacionales/Internacionales)";
+                if (descVitrina) descVitrina.textContent = "Recibiendo pedidos para despachos por agencias de encomienda.";
                 if (iconoWrapper) iconoWrapper.className = "w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400";
-                if (vistaVitrina) { vistaVitrina.style.pointerEvents = "auto"; vistaVitrina.style.opacity = "1"; }
             } else {
                 if (puntoHeader) puntoHeader.className = "w-2 h-2 rounded-full bg-red-500";
-                if (textoHeader) {
-                    textoHeader.className = "text-red-400 uppercase tracking-widest";
-                    textoHeader.textContent = "Cerrado";
-                }
+                if (textoHeader) { textoHeader.className = "text-red-400 uppercase tracking-widest"; textoHeader.textContent = "Cerrado"; }
                 if (badgePuntoVitrina) badgePuntoVitrina.className = "w-2.5 h-2.5 rounded-full bg-red-500";
                 if (tituloVitrina) tituloVitrina.textContent = "ESTADO DEL LOCAL: CERRADOS";
                 if (descVitrina) descVitrina.textContent = "Lo sentimos, nuestro horario de atención ha finalizado.";
                 if (iconoWrapper) iconoWrapper.className = "w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400";
-                if (vistaVitrina) { vistaVitrina.style.pointerEvents = "none"; vistaVitrina.style.opacity = "0.5"; }
             }
         }
 
@@ -683,7 +712,7 @@
                         </div>`;
                 });
             } else {
-                grid.innerHTML = `<div class="col-span-3 text-center text-stone-500 font-mono text-xs">No se encontraron productos registrados en Supabase.</div>`;
+                grid.innerHTML = `<div class="col-span-3 text-center text-stone-500 font-mono text-xs">No se encontraron productos registrados.</div>`;
             }
             lucide.createIcons();
         }
@@ -1095,17 +1124,6 @@
             }, 800);
 
             if (tipo === 'gps') centrarEnMiGPS();
-            else if (tipo === 'vendaval') irAVendavalHouse();
-        }
-
-        function irAVendavalHouse() {
-            if(map) {
-                map.setCenter({ lat: LOCAL_LAT, lng: LOCAL_LNG });
-                map.setZoom(17);
-                gpsClienteLat = LOCAL_LAT;
-                gpsClienteLng = LOCAL_LNG;
-                actualizarCoordenadasPantalla();
-            }
         }
 
         function fijarUbicacionActualMapa() {
@@ -1231,6 +1249,7 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             verificarClienteRegistrado();
+            seleccionarEmpresaEncomienda('MRW', '📦 MRW (Cobro a Destino)');
 
             const urlParams = new URLSearchParams(window.location.search);
             const codigoReferido = urlParams.get('ref');
@@ -1251,7 +1270,6 @@
             lucide.createIcons();
         });
 
-        // FUNCIÓN ENVIAR PEDIDO WHATSAPP 100% DINÁMICA CONECTADA A SUPABASE
         async function enviarPedidoWhatsApp() {
             if(carrito.length === 0) { alert("Agrega productos primero."); return; }
             
@@ -1266,7 +1284,7 @@
             if (metodo === 'efectivo') {
                 numeroMesa = document.getElementById('input-num-mesa').value.trim();
                 if(!numeroMesa) {
-                    alert("Por favor ingresa el número de mesa u observación de retiro en local.");
+                    alert("Por favor ingresa el número de mesa u observación.");
                     document.getElementById('input-num-mesa').focus();
                     return;
                 }
@@ -1283,21 +1301,19 @@
             let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
             const linkGoogleMaps = `https://maps.google.com/?q=${gpsClienteLat},${gpsClienteLng}`;
 
-            // Obtener dinámicamente el número de WhatsApp de destino desde Supabase
-            let wsNum = "584120000000"; // Valor por defecto de respaldo
+            let wsNum = "584120000000"; 
             try {
                 const { data, error } = await supabaseClient.from('ajustes_sistema').select('valor').eq('id', 'whatsapp_notificaciones').single();
                 if(!error && data && data.valor) {
                     wsNum = data.valor.replace(/[^0-9]/g, "");
                 }
             } catch (err) {
-                console.log("No se pudo obtener el WhatsApp de ajustes_sistema, usando valor predeterminado", err);
+                console.log("Usando WhatsApp predeterminado", err);
             }
 
             let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *OBSERVACIÓN / MESA:* ${numeroMesa}\n` : '';
-            const mensaje = `📦 *PEDIDO NACIONAL / COLOMBIA (MRW) - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n🚚 *ENVÍO:* Cobro a destino por empresa de envíos (MRW / Otras)\n📍 *DIRECCIÓN DESTINO (Google Maps):* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
+            const mensaje = `📦 *PEDIDO NACIONAL / INTERNACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n📍 *DIRECCIÓN DESTINO (Google Maps):* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
 
-            // Objeto con los datos incluyendo nombre_cliente y telefono obtenidos del localStorage
             const datosOrdenPendiente = {
                 productos: carrito.map(i => i.titulo).join(', '),
                 total: totalGeneral,
@@ -1315,7 +1331,7 @@
             await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
 
             await guardarOrdenEnCentral({
-                nombre: 'Casa de las Papas - Envío Nacional/Colombia',
+                nombre: `Casa de las Papas - Envío por ${empresaEncomiendaSeleccionada}`,
                 detalles: carrito.map(i => i.titulo).join(', '),
                 coordenadas: `${gpsClienteLat}, ${gpsClienteLng}`
             });
