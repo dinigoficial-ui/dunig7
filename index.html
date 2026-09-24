@@ -8,8 +8,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Se eliminó la API de Google Maps -->
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Plus+Jakarta+Sans:wght@200;300;400;500;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at 50% 0%, #1c1917 0%, #0c0a09 100%); background-color: #000000; overflow-x: hidden; }
@@ -33,7 +31,7 @@
 </head>
 <body class="text-stone-200 antialiased min-h-screen flex flex-col justify-between grid-bg relative">
 
-    <!-- MODAL / PANTALLA DE REGISTRO INICIAL Y EDICIÓN -->
+    <!-- MODAL / PANTALLA DE REGISTRO INICIAL Y EDICIÓN OBLIGATORIOS -->
     <div id="modal-registro-cliente" class="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-md p-8 rounded-3xl border border-amber-500/40 shadow-2xl space-y-6 relative">
             <button type="button" onclick="cerrarModalRegistroSiEsValido()" id="btn-cerrar-modal" class="hidden absolute top-4 right-4 text-stone-400 hover:text-white cursor-pointer">
@@ -43,21 +41,21 @@
                 <div class="w-12 h-12 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center mx-auto text-amber-400">
                     <i data-lucide="user-check" class="w-6 h-6"></i>
                 </div>
-                <h2 class="text-xl font-black font-futurista text-white uppercase tracking-wider">¡BIENVENIDO A LA CÚPULA VIP!</h2>
-                <p class="text-xs text-stone-400">Ingresa o edita tus datos de acceso para procesar tus pedidos correctamente.</p>
+                <h2 class="text-xl font-black font-futurista text-white uppercase tracking-wider">¡REGISTRO OBLIGATORIO VIP!</h2>
+                <p class="text-xs text-stone-400">Debes ingresar tus datos obligatoriamente para poder continuar y guardar tu progreso.</p>
             </div>
 
             <form id="form-registro-cliente" onsubmit="registrarClienteUnico(event)" class="space-y-4">
                 <div class="space-y-1">
-                    <label class="text-[10px] font-futurista uppercase text-amber-400 font-bold">Nombre y Apellido</label>
+                    <label class="text-[10px] font-futurista uppercase text-amber-400 font-bold">Nombre y Apellido *</label>
                     <input type="text" id="reg-nombre" required placeholder="Ej. Carlos Pérez" class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-amber-500/50">
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[10px] font-futurista uppercase text-amber-400 font-bold">Número de WhatsApp</label>
+                    <label class="text-[10px] font-futurista uppercase text-amber-400 font-bold">Número de WhatsApp *</label>
                     <input type="tel" id="reg-whatsapp" required placeholder="Ej. +584120000000" class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-amber-500/50 font-mono">
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[10px] font-futurista uppercase text-amber-400 font-bold">Correo Electrónico</label>
+                    <label class="text-[10px] font-futurista uppercase text-amber-400 font-bold">Correo Electrónico *</label>
                     <input type="email" id="reg-correo" required placeholder="tucorreo@dominio.com" class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-amber-500/50 font-mono">
                 </div>
 
@@ -126,7 +124,8 @@
 
         <div class="glass-panel rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl relative">
             <div class="w-full h-64 md:h-80 relative overflow-hidden bg-black">
-                <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1200" alt="Banner Animado" class="w-full h-full object-cover opacity-85 transform hover:scale-105 transition-transform duration-700">
+                <!-- GIF DE UNA TIENDA DE ROPA ELEGANTE -->
+                <img src="https://media.giphy.com/media/xT5LMPj8P2GHcGHOqY/giphy.gif" alt="Banner Animado Tienda de Ropa Elegante" class="w-full h-full object-cover opacity-85 transform hover:scale-105 transition-transform duration-700">
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-6 md:p-8 space-y-2">
                     <span class="text-[10px] text-amber-400 font-futurista font-bold uppercase tracking-widest bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30 w-max backdrop-blur-md">TU MEJOR OPCION VIP</span>
                     <h2 class="text-2xl md:text-4xl font-black text-white font-futurista tracking-wider uppercase drop-shadow-lg">
@@ -382,7 +381,6 @@
 
         let datosDePago = {};
 
-        // Base de datos de ubicaciones y oficinas dinámicas
         const datosUbicaciones = {
             venezuela: {
                 "Caracas": ["Centro", "El Paraíso", "Chacao", "Petare"],
@@ -461,7 +459,7 @@
             const correo = document.getElementById('reg-correo').value.trim();
 
             if (!nombre || !whatsapp || !correo) {
-                alert("Por favor completa todos los campos.");
+                alert("Por favor completa todos los campos obligatorios.");
                 return;
             }
 
@@ -486,6 +484,8 @@
             const clienteGuardado = localStorage.getItem('dunig_cliente_registrado');
             const modal = document.getElementById('modal-registro-cliente');
             const btnCerrar = document.getElementById('btn-cerrar-modal');
+            
+            // OBLIGATORIO: Si no existe el cliente guardado, se muestra el modal y se oculta el botón de cierre (impide continuar sin datos)
             if (clienteGuardado) {
                 if (modal) modal.style.display = 'none';
             } else {
@@ -510,7 +510,7 @@
         function cerrarModalRegistroSiEsValido() {
             const clienteGuardado = localStorage.getItem('dunig_cliente_registrado');
             if (!clienteGuardado) {
-                alert("Debes registrar tus datos al menos una vez para continuar.");
+                alert("Los datos de ingreso son obligatorios para poder continuar.");
                 return;
             }
             document.getElementById('modal-registro-cliente').style.display = 'none';
@@ -635,6 +635,13 @@
         }
 
         async function cambiarPantalla(nombre) {
+            // Validación estricta para asegurar que el usuario esté registrado antes de cambiar de sección
+            const clienteGuardado = localStorage.getItem('dunig_cliente_registrado');
+            if (!clienteGuardado) {
+                verificarClienteRegistrado();
+                return;
+            }
+
             ['vitrina', 'detalle', 'carrito'].forEach(v => {
                 const el = document.getElementById(`vista-${v}`);
                 if(el) el.classList.add('hidden');
@@ -705,6 +712,12 @@
         }
 
         function verDetalleDeProducto(idProducto) {
+            const clienteGuardado = localStorage.getItem('dunig_cliente_registrado');
+            if (!clienteGuardado) {
+                verificarClienteRegistrado();
+                return;
+            }
+
             productoSeleccionado = baseProductos.find(p => p.id === idProducto); 
             if (!productoSeleccionado) return;
 
@@ -790,6 +803,12 @@
         }
 
         function agregarDetalleAlCarritoYVolver() {
+            const clienteGuardado = localStorage.getItem('dunig_cliente_registrado');
+            if (!clienteGuardado) {
+                verificarClienteRegistrado();
+                return;
+            }
+
             if (!productoSeleccionado) return;
 
             const checkboxes = document.querySelectorAll('.check-adicional:checked');
@@ -907,6 +926,12 @@
         });
 
         async function enviarPedidoWhatsApp() {
+            const clienteRegistradoValidacion = localStorage.getItem('dunig_cliente_registrado');
+            if (!clienteRegistradoValidacion) {
+                verificarClienteRegistrado();
+                return;
+            }
+
             if(carrito.length === 0) { alert("Agrega productos primero."); return; }
 
             const paisVal = document.getElementById('pais').value;
@@ -938,7 +963,7 @@
             }
 
             const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || 'NINGUNO';
-            const clienteLocal = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
+            const clienteLocal = JSON.parse(clienteRegistradoValidacion);
             
             let totalGeneral = carrito.reduce((a, b) => a + b.precio, 0);
             let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
