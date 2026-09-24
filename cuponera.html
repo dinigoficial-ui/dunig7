@@ -94,9 +94,9 @@
                 <h3 id="cupon-titulo-modal" class="text-xl font-black font-futurista text-white tracking-wide">Participante Oficial Verificado</h3>
             </div>
 
-            <!-- Contenedor de Video Dinámico -->
+            <!-- Contenedor de Video Dinámico (Actualizado con atributos de compatibilidad móvil) -->
             <div id="contenedor-video-modal" class="rounded-2xl overflow-hidden bg-black border border-amber-500/20 aspect-video flex items-center justify-center shadow-inner relative">
-                <video id="video-premio-oficial" class="w-full h-full object-cover" autoplay muted playsinline controls loop></video>
+                <video id="video-premio-oficial" class="w-full h-full object-cover" autoplay muted playsinline webkit-playsinline controls loop preload="auto"></video>
             </div>
 
             <p id="cupon-descripcion-modal" class="text-xs sm:text-sm text-stone-300 leading-relaxed font-medium bg-stone-950/50 p-4 rounded-2xl border border-stone-800/80"></p>
@@ -238,7 +238,7 @@
             document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
 
-            // Cargar automáticamente el video sincronizado desde localStorage
+            // Cargar automáticamente el video sincronizado desde localStorage con manejo seguro para móviles
             const videoElemento = document.getElementById('video-premio-oficial');
             const contenedorVideo = document.getElementById('contenedor-video-modal');
             const urlVideoGuardada = localStorage.getItem('url_video_premio_supabase');
@@ -247,7 +247,12 @@
                 videoElemento.src = urlVideoGuardada;
                 contenedorVideo.classList.remove('hidden');
                 videoElemento.load();
-                videoElemento.play().catch(e => console.log("Autoplay con interacción requerida:", e));
+                
+                // Intento seguro de reproducción automática con respaldo si el navegador lo bloquea
+                videoElemento.play().catch(error => {
+                    console.log("Autoplay bloqueado por políticas del navegador móvil. Mostrando controles manuales:", error);
+                    videoElemento.controls = true; // Forzar visibilidad de controles si el navegador frena el video
+                });
             } else {
                 contenedorVideo.classList.add('hidden');
             }
