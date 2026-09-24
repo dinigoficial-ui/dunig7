@@ -118,7 +118,7 @@
                         <span id="badge-punto-vitrina" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
                         <h3 id="titulo-estado-vitrina" class="text-xs font-black font-futurista text-white uppercase tracking-widest">ESTADO DEL LOCAL: ABIERTOS</h3>
                     </div>
-                    <p id="descripcion-estado-vitrina" class="text-[11px] text-stone-400 mt-0.5">Recibiendo pedidos y despachando a nivel nacional e internacional (Colombia). Envíos por agencias de encomienda.</p> 
+                    <p id="descripcion-estado-vitrina" class="text-[11px] text-stone-400 mt-0.5">Recibiendo pedidos y despachando a nivel nacional. Envíos por agencias de encomienda.</p> 
                 </div>
             </div>
             <div class="text-[10px] font-mono text-stone-500 bg-stone-900 px-3 py-1.5 rounded-lg border border-stone-800">
@@ -128,13 +128,13 @@
 
         <div class="glass-panel rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl relative">
             <div class="w-full h-64 md:h-80 relative overflow-hidden bg-black">
-                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcGJrNnV3cnVzdWF2ZjZwOXI3b2U1cjk5ejM2cTh0YnpvZWlvbXplcyZlcD12MV9naWZzX3JlbGF0ZWQmY3Q9Zw/3o7TKMYewttqjcp21y/giphy.gif" alt="Banner Animado" class="w-full h-full object-cover opacity-85 transform hover:scale-105 transition-transform duration-700">
+                <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1200" alt="Banner Animado" class="w-full h-full object-cover opacity-85 transform hover:scale-105 transition-transform duration-700">
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-6 md:p-8 space-y-2">
                     <span class="text-[10px] text-amber-400 font-futurista font-bold uppercase tracking-widest bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30 w-max backdrop-blur-md">TU MEJOR OPCION VIP</span>
                     <h2 class="text-2xl md:text-4xl font-black text-white font-futurista tracking-wider uppercase drop-shadow-lg">
                         REALIZA TU PEDIDO <span class="text-amber-400">"YA"</span>
                     </h2>
-                    <p class="text-xs text-stone-300 max-w-xl">Envíos seguros a través de agencias de encomienda (MRW, Zoom, Tealca, etc.).</p>
+                    <p class="text-xs text-stone-300 max-w-xl">Envíos seguros a través de agencias de encomienda (MRW, Zoom, Tealca).</p>
                 </div>
             </div>
             <div class="p-6 bg-black/90 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-stone-900">
@@ -291,36 +291,67 @@
                 <span class="text-white font-black font-mono ml-1" id="carrito-subtotal-monto-abajo">$0.00</span>
             </div>
 
-            <!-- SECCIÓN: SELECCIÓN DE EMPRESAS DE ENCOMIENDAS (LOGOTIPOS / ICONOS) -->
-            <div class="space-y-3 pt-6 border-t border-stone-900">
+            <!-- SECCIÓN: SELECTORES DINÁMICOS DE DESTINO -->
+            <div class="space-y-4 pt-6 border-t border-stone-900 bg-stone-900/40 p-4 rounded-2xl border border-stone-800">
+                <h3 class="text-xs font-futurista uppercase text-amber-400 font-bold flex items-center gap-2">
+                    <i data-lucide="map" class="w-4 h-4"></i> Destino y Logística de Encomienda
+                </h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="form-group space-y-1">
+                        <label for="pais" class="text-[10px] font-futurista uppercase text-stone-400 font-bold">País de destino:</label>
+                        <select id="pais" name="pais" onchange="actualizarCiudades()" required class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3 rounded-xl focus:outline-none focus:border-amber-500/50">
+                            <option value="">Seleccione un país...</option>
+                            <option value="venezuela">Venezuela</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group space-y-1">
+                        <label for="ciudad" class="text-[10px] font-futurista uppercase text-stone-400 font-bold">Ciudad:</label>
+                        <select id="ciudad" name="ciudad" onchange="actualizarRegiones()" required class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3 rounded-xl focus:outline-none focus:border-amber-500/50">
+                            <option value="">Seleccione primero un país...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group space-y-1">
+                        <label for="region" class="text-[10px] font-futurista uppercase text-stone-400 font-bold">Región o Sector:</label>
+                        <select id="region" name="region" onchange="seleccionarOficinaPorRegion()" required class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3 rounded-xl focus:outline-none focus:border-amber-500/50">
+                            <option value="">Seleccione primero una ciudad...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN: SELECCIÓN DE EMPRESAS DE ENCOMIENDAS (CON FOTOS REALES) -->
+            <div class="space-y-3 pt-4">
                 <label class="text-[10px] uppercase text-amber-400 font-bold tracking-widest block font-futurista flex items-center gap-2">
-                    <i data-lucide="truck" class="w-4 h-4"></i> Selecciona Empresa de Encomiendas (Envíos Nacionales e Internacionales)
+                    <i data-lucide="truck" class="w-4 h-4"></i> Selecciona Empresa de Encomiendas (Envíos Nacionales)
                 </label>
                 <p class="text-xs text-stone-400">Haz clic en tu agencia de preferencia para cargarla automáticamente en la orden:</p>
                 
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div onclick="seleccionarEmpresaEncomienda('MRW', '📦 MRW (Cobro a Destino)')" id="encomienda-mrw" class="encomienda-card cursor-pointer bg-stone-900 border border-stone-800 hover:border-amber-500/60 p-3 rounded-2xl flex flex-col items-center text-center transition-all group">
-                        <div class="w-10 h-10 rounded-xl bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-400 font-bold font-futurista text-xs mb-1.5 group-hover:scale-110 transition-transform">MRW</div>
+                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-white mb-2 flex items-center justify-center p-1 border border-stone-700 group-hover:scale-105 transition-transform">
+                            <img src="descarga (1).png" alt="MRW" class="w-full h-full object-contain">
+                        </div>
                         <span class="text-xs font-bold text-white uppercase">MRW</span>
                         <span class="text-[9px] text-stone-400 font-mono">Nacional</span>
                     </div>
 
                     <div onclick="seleccionarEmpresaEncomienda('DOMESA', '🏢 Grupo ZOOM / DOMESA')" id="encomienda-domesa" class="encomienda-card cursor-pointer bg-stone-900 border border-stone-800 hover:border-amber-500/60 p-3 rounded-2xl flex flex-col items-center text-center transition-all group">
-                        <div class="w-10 h-10 rounded-xl bg-red-600/20 border border-red-500/40 flex items-center justify-center text-red-400 font-bold font-futurista text-xs mb-1.5 group-hover:scale-110 transition-transform">DOM</div>
+                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-white mb-2 flex items-center justify-center p-1 border border-stone-700 group-hover:scale-105 transition-transform">
+                            <img src="images (8).jpg" alt="DOMESA" class="w-full h-full object-contain">
+                        </div>
                         <span class="text-xs font-bold text-white uppercase">DOMESA</span>
                         <span class="text-[9px] text-stone-400 font-mono">Encomienda</span>
                     </div>
 
                     <div onclick="seleccionarEmpresaEncomienda('TEALCA', '🚚 Tealca Express')" id="encomienda-tealca" class="encomienda-card cursor-pointer bg-stone-900 border border-stone-800 hover:border-amber-500/60 p-3 rounded-2xl flex flex-col items-center text-center transition-all group">
-                        <div class="w-10 h-10 rounded-xl bg-amber-600/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold font-futurista text-xs mb-1.5 group-hover:scale-110 transition-transform">TLC</div>
+                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-white mb-2 flex items-center justify-center p-1 border border-stone-700 group-hover:scale-105 transition-transform">
+                            <img src="images (9).jpg" alt="TEALCA" class="w-full h-full object-contain">
+                        </div>
                         <span class="text-xs font-bold text-white uppercase">TEALCA</span>
                         <span class="text-[9px] text-stone-400 font-mono">Seguro</span>
-                    </div>
-
-                    <div onclick="seleccionarEmpresaEncomienda('LIBERTY', '✈️ Liberty Express (Colombia/Internacional)')" id="encomienda-liberty" class="encomienda-card cursor-pointer bg-stone-900 border border-stone-800 hover:border-amber-500/60 p-3 rounded-2xl flex flex-col items-center text-center transition-all group">
-                        <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold font-futurista text-xs mb-1.5 group-hover:scale-110 transition-transform">LBX</div>
-                        <span class="text-xs font-bold text-white uppercase">LIBERTY</span>
-                        <span class="text-[9px] text-stone-400 font-mono">Colombia</span>
                     </div>
                 </div>
                 <div id="badge-empresa-seleccionada" class="text-xs font-mono text-amber-400 bg-stone-900 p-2.5 rounded-xl border border-stone-800 hidden">
@@ -337,8 +368,8 @@
                 </div>
                 <p class="text-xs text-stone-400">Mueve el mapa para colocar el marcador exactamente en tu dirección de destino.</p>
                 
-                <div class="flex flex-col h-[500px] bg-neutral-900 text-white rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl relative">
-                    <div id="google-map-container" class="relative w-full h-1/2 md:h-2/3 bg-neutral-800 flex items-center justify-center z-10">
+                <div class="flex flex-col h-[400px] bg-neutral-900 text-white rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl relative">
+                    <div id="google-map-container" class="relative w-full h-2/3 bg-neutral-800 flex items-center justify-center z-10">
                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -100%); z-index: 1000; pointer-events: none; font-size: 35px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">📍</div>
                         
                         <button type="button" onclick="centrarEnMiGPS()" class="absolute top-4 right-4 z-[1000] bg-neutral-800/90 hover:bg-neutral-700 p-3 rounded-full shadow-lg border border-neutral-700 cursor-pointer">
@@ -346,17 +377,13 @@
                         </button>
                     </div>
 
-                    <div class="w-full h-1/2 md:h-1/3 bg-neutral-900 rounded-t-3xl p-5 overflow-y-auto shadow-2xl border-t border-neutral-800 z-20">
-                        <div class="w-12 h-1.5 bg-neutral-700 rounded-full mx-auto mb-4"></div>
-                        <h3 class="text-neutral-400 text-sm font-medium mb-3">Opciones de Referencia de Ubicación</h3>
-                        
-                        <div class="space-y-3">
-                            <div onclick="activarBotonUbicacion(this, 'gps')" class="flex items-center space-x-4 p-3 hover:bg-neutral-800 rounded-xl transition cursor-pointer border border-neutral-800">
-                                <div class="bg-neutral-800 p-3 rounded-full text-emerald-400">📍</div>
-                                <div>
-                                    <h4 class="font-semibold text-sm">Usar tu ubicación actual (GPS)</h4>
-                                    <p class="text-xs text-neutral-400">Centrar mapa en tu posición</p>
-                                </div>
+                    <div class="w-full h-1/3 bg-neutral-900 rounded-t-3xl p-4 overflow-y-auto shadow-2xl border-t border-neutral-800 z-20">
+                        <div class="w-10 h-1 bg-neutral-700 rounded-full mx-auto mb-2"></div>
+                        <div onclick="activarBotonUbicacion(this, 'gps')" class="flex items-center space-x-3 p-2.5 hover:bg-neutral-800 rounded-xl transition cursor-pointer border border-neutral-800">
+                            <div class="bg-neutral-800 p-2 rounded-full text-emerald-400">📍</div>
+                            <div>
+                                <h4 class="font-semibold text-xs">Usar tu ubicación actual (GPS)</h4>
+                                <p class="text-[10px] text-neutral-400">Centrar mapa en tu posición</p>
                             </div>
                         </div>
                     </div>
@@ -381,7 +408,7 @@
             <div class="flex items-start gap-2.5 text-xs text-stone-300 bg-amber-500/5 border border-amber-500/10 p-3 rounded-xl">
                 <span class="bg-emerald-600 text-black font-black rounded-full w-4 h-4 flex items-center justify-center shrink-0 text-[10px] mt-0.5">✓</span>
                 <div>
-                    <span class="text-emerald-400 font-bold">Envíos nacionales e internacionales (Colombia) por agencia de encomiendas. El flete lo cobra directamente la empresa de envíos.</span>
+                    <span class="text-emerald-400 font-bold">Envíos nacionales por agencia de encomienda. El flete lo cobra directamente la empresa de envíos.</span>
                 </div>
             </div>
             <div class="text-base font-normal font-futurista text-stone-300">
@@ -467,6 +494,59 @@
         const LOCAL_LNG = -71.14089323410698;
 
         let datosDePago = {};
+
+        // Base de datos de ubicaciones y oficinas dinámicas
+        const datosUbicaciones = {
+            venezuela: {
+                "Caracas": ["Centro", "El Paraíso", "Chacao", "Petare"],
+                "Maracaibo": ["Norte", "Oeste", "Centro", "San Francisco"],
+                "Mérida": ["Centro", "Ejido", "El Vigía", "Tabay"],
+                "Valencia": ["Norte", "Sur", "San Diego", "Naguanagua"]
+            }
+        };
+
+        function actualizarCiudades() {
+            const paisSelect = document.getElementById('pais').value;
+            const ciudadSelect = document.getElementById('ciudad');
+            const regionSelect = document.getElementById('region');
+
+            ciudadSelect.innerHTML = '<option value="">Seleccione una ciudad...</option>';
+            regionSelect.innerHTML = '<option value="">Seleccione primero una ciudad...</option>';
+
+            if (paisSelect && datosUbicaciones[paisSelect]) {
+                const ciudades = Object.keys(datosUbicaciones[paisSelect]);
+                ciudades.forEach(c => {
+                    ciudadSelect.innerHTML += `<option value="${c}">${c}</option>`;
+                });
+            } else {
+                ciudadSelect.innerHTML = '<option value="">Seleccione primero un país...</option>';
+            }
+        }
+
+        function actualizarRegiones() {
+            const paisSelect = document.getElementById('pais').value;
+            const ciudadSelect = document.getElementById('ciudad').value;
+            const regionSelect = document.getElementById('region');
+
+            regionSelect.innerHTML = '<option value="">Seleccione una región o sector...</option>';
+
+            if (paisSelect && ciudadSelect && datosUbicaciones[paisSelect][ciudadSelect]) {
+                const regiones = datosUbicaciones[paisSelect][ciudadSelect];
+                regiones.forEach(r => {
+                    regionSelect.innerHTML += `<option value="${r}">${r} (Oficina Cercana)</option>`;
+                });
+            } else {
+                regionSelect.innerHTML = '<option value="">Seleccione primero una ciudad...</option>';
+            }
+        }
+
+        function seleccionarOficinaPorRegion() {
+            const region = document.getElementById('region').value;
+            const ciudad = document.getElementById('ciudad').value;
+            if (region) {
+                console.log(`Oficina de encomienda asignada automáticamente para ${ciudad} - Sector: ${region}`);
+            }
+        }
 
         function seleccionarEmpresaEncomienda(codigo, nombreLargo) {
             empresaEncomiendaSeleccionada = nombreLargo;
@@ -630,7 +710,7 @@
                 if (puntoHeader) puntoHeader.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
                 if (textoHeader) { textoHeader.className = "text-emerald-400 uppercase tracking-widest"; textoHeader.textContent = "Abierto"; }
                 if (badgePuntoVitrina) badgePuntoVitrina.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping";
-                if (tituloVitrina) tituloVitrina.textContent = "ESTADO DEL LOCAL: ABIERTOS (Envíos Nacionales/Internacionales)";
+                if (tituloVitrina) tituloVitrina.textContent = "ESTADO DEL LOCAL: ABIERTOS (Envíos Nacionales)";
                 if (descVitrina) descVitrina.textContent = "Recibiendo pedidos para despachos por agencias de encomienda.";
                 if (iconoWrapper) iconoWrapper.className = "w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400";
             } else {
@@ -1275,6 +1355,15 @@
             
             fijarUbicacionActualMapa();
 
+            const paisVal = document.getElementById('pais').value;
+            const ciudadVal = document.getElementById('ciudad').value;
+            const regionVal = document.getElementById('region').value;
+
+            if(!paisVal || !ciudadVal || !regionVal) {
+                alert("Por favor selecciona País, Ciudad y Región/Sector de destino.");
+                return;
+            }
+
             const metodo = document.getElementById('tipoMetodoPago').value;
             if(!metodo) { alert("Por favor selecciona un método de pago."); return; }
 
@@ -1312,7 +1401,7 @@
             }
 
             let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *OBSERVACIÓN / MESA:* ${numeroMesa}\n` : '';
-            const mensaje = `📦 *PEDIDO NACIONAL / INTERNACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n📍 *DIRECCIÓN DESTINO (Google Maps):* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
+            const mensaje = `📦 *PEDIDO NACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🗺️ *MAPS:* ${linkGoogleMaps}\n🏦 *MÉTODO DE PAGO:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
 
             const datosOrdenPendiente = {
                 productos: carrito.map(i => i.titulo).join(', '),
