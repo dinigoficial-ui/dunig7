@@ -94,9 +94,9 @@
                 <h3 id="cupon-titulo-modal" class="text-xl font-black font-futurista text-white tracking-wide">Participante Oficial Verificado</h3>
             </div>
 
-            <!-- Contenedor de Video Dinámico (Sin autoplay, con controles y audio habilitados para reproducción manual) -->
+            <!-- Contenedor de Video Dinámico (Configurado con Autoplay Silenciado y Reproducción Automática) -->
             <div id="contenedor-video-modal" class="rounded-2xl overflow-hidden bg-black border border-amber-500/20 aspect-video flex items-center justify-center shadow-inner relative">
-                <video id="video-premio-oficial" class="w-full h-full object-cover" controls playsinline webkit-playsinline preload="auto"></video>
+                <video id="video-premio-oficial" class="w-full h-full object-cover" autoplay muted playsinline webkit-playsinline loop preload="auto"></video>
             </div>
 
             <p id="cupon-descripcion-modal" class="text-xs sm:text-sm text-stone-300 leading-relaxed font-medium bg-stone-950/50 p-4 rounded-2xl border border-stone-800/80"></p>
@@ -238,7 +238,7 @@
             document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
 
-            // Enlace directo y fijo a tu base de datos de Supabase para que funcione en cualquier dispositivo
+            // Carga automática del video directo desde Supabase y reproducción inmediata
             const videoElemento = document.getElementById('video-premio-oficial');
             const contenedorVideo = document.getElementById('contenedor-video-modal');
             const urlVideoFija = "https://mkewwlmeikixpvfayisj.supabase.co/storage/v1/object/public/premios/moto-premio-1790015113044.mp4";
@@ -247,6 +247,9 @@
                 videoElemento.src = urlVideoFija;
                 contenedorVideo.classList.remove('hidden');
                 videoElemento.load();
+                videoElemento.play().catch(error => {
+                    console.log("El navegador restringió el autoplay automático:", error);
+                });
             } else {
                 contenedorVideo.classList.add('hidden');
             }
