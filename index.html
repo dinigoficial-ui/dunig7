@@ -89,7 +89,7 @@
                     <span id="texto-estado-header" class="text-emerald-400 uppercase tracking-widest">Abierto</span>
                 </div>
 
-                <!-- BOTÓN DE LA ROSCA (CONFIGURACIÓN / EDITAR DATOS) -->
+                <!-- BOTÓN DE CONFIGURACIÓN / EDITAR DATOS -->
                 <button onclick="abrirModalEdicionDatos()" class="bg-stone-900 border border-amber-500/30 hover:border-amber-500/60 p-2.5 rounded-xl flex items-center gap-2 cursor-pointer transition-all text-amber-400" title="Editar mis datos de ingreso">
                     <i data-lucide="settings" class="w-4 h-4 animate-spin-slow"></i>
                 </button>
@@ -124,8 +124,7 @@
 
         <div class="glass-panel rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl relative">
             <div class="w-full h-64 md:h-80 relative overflow-hidden bg-black">
-                <!-- GIF DE UNA TIENDA DE ROPA ELEGANTE -->
-                <img src="https://media.giphy.com/media/xT5LMPj8P2GHcGHOqY/giphy.gif" alt="Banner Animado Tienda de Ropa Elegante" class="w-full h-full object-cover opacity-85 transform hover:scale-105 transition-transform duration-700">
+                <img src="https://media.giphy.com/media/xT5LMPj8P2GHcGHOqY/giphy.gif" alt="Banner Animado" class="w-full h-full object-cover opacity-85 transform hover:scale-105 transition-transform duration-700">
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-6 md:p-8 space-y-2">
                     <span class="text-[10px] text-amber-400 font-futurista font-bold uppercase tracking-widest bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30 w-max backdrop-blur-md">TU MEJOR OPCION VIP</span>
                     <h2 class="text-2xl md:text-4xl font-black text-white font-futurista tracking-wider uppercase drop-shadow-lg">
@@ -232,7 +231,7 @@
                 <span class="text-white font-black font-mono ml-1" id="carrito-subtotal-monto-abajo">$0.00</span>
             </div>
 
-            <!-- SECCIÓN: SELECTORES DINÁMICOS DE DESTINO -->
+            <!-- SECCIÓN: SELECTORES DINÁMICOS DE DESTINO (ACTUALIZADO) -->
             <div class="space-y-4 pt-6 border-t border-stone-900 bg-stone-900/40 p-4 rounded-2xl border border-stone-800">
                 <h3 class="text-xs font-futurista uppercase text-amber-400 font-bold flex items-center gap-2">
                     <i data-lucide="map" class="w-4 h-4"></i> Destino y Logística de Encomienda
@@ -255,15 +254,13 @@
                     </div>
 
                     <div class="form-group space-y-1">
-                        <label for="region" class="text-[10px] font-futurista uppercase text-stone-400 font-bold">Región o Sector:</label>
-                        <select id="region" name="region" onchange="seleccionarOficinaPorRegion()" required class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3 rounded-xl focus:outline-none focus:border-amber-500/50">
-                            <option value="">Seleccione primero una ciudad...</option>
-                        </select>
+                        <label for="region" class="text-[10px] font-futurista uppercase text-stone-400 font-bold">Región o Sector (Escribe tu ubicación):</label>
+                        <input type="text" id="region" name="region" placeholder="Ej. Urbanización, Av. Principal, Local..." required class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3 rounded-xl focus:outline-none focus:border-amber-500/50">
                     </div>
                 </div>
             </div>
 
-            <!-- SECCIÓN: SELECCIÓN DE EMPRESAS DE ENCOMIENDAS (CON FOTOS REALES) -->
+            <!-- SECCIÓN: SELECCIÓN DE EMPRESAS DE ENCOMIENDAS -->
             <div class="space-y-3 pt-4">
                 <label class="text-[10px] uppercase text-amber-400 font-bold tracking-widest block font-futurista flex items-center gap-2">
                     <i data-lucide="truck" class="w-4 h-4"></i> Selecciona Empresa de Encomiendas (Envíos Nacionales)
@@ -381,26 +378,53 @@
 
         let datosDePago = {};
 
+        // Objeto actualizado con todas las capitales / principales ciudades de Venezuela agrupadas por Estado
         const datosUbicaciones = {
             venezuela: {
-                "Caracas": ["Centro", "El Paraíso", "Chacao", "Petare"],
-                "Maracaibo": ["Norte", "Oeste", "Centro", "San Francisco"],
-                "Mérida": ["Centro", "Ejido", "El Vigía", "Tabay"],
-                "Valencia": ["Norte", "Sur", "San Diego", "Naguanagua"]
+                "Amazonas": ["Puerto Ayacucho"],
+                "Anzoátegui": ["Barcelona", "Puerto La Cruz", "El Tigre", "Anaco"],
+                "Apure": ["San Fernando de Apure", "Guasdualito"],
+                "Aragua": ["Maracay", "Turmero", "La Victoria", "Cagua"],
+                "Barinas": ["Barinas", "Barinitas"],
+                "Bolívar": ["Ciudad Bolívar", "Puerto Ordaz", "San Félix", "Upata"],
+                "Carabobo": ["Valencia", "Puerto Cabello", "Guacara", "Naguanagua", "San Diego"],
+                "Cojedes": ["San Carlos", "Tinaquillo"],
+                "Delta Amacuro": ["Tucupita"],
+                "Distrito Capital": ["Caracas"],
+                "Falcón": ["Coro", "Punto Fijo", "Tucacas"],
+                "Guárico": ["San Juan de los Morros", "Calabozo", "Altagracia de Orituco", "Valle de la Pascua"],
+                "Lara": ["Barquisimeto", "Carora", "El Tocuyo", "Cabudare"],
+                "Mérida": ["Mérida", "Ejido", "El Vigía", "Tabay", "Tovar"],
+                "Miranda": ["Los Teques", "Guarenas", "Guatire", "Petare", "Baruta", "Chacao"],
+                "Monagas": ["Maturín", "Punta de Mata"],
+                "Nueva Esparta": ["La Asunción", "Porlamar", "Pampatar", "Juan Griego"],
+                "Portuguesa": ["Guanare", "Acarigua", "Araure"],
+                "Sucre": ["Cumaná", "Carúpano"],
+                "Táchira": ["San Cristóbal", "Táriba", "Rubio", "San Antonio del Táchira"],
+                "Trujillo": ["Trujillo", "Valera", "Boconó"],
+                "Vargas (La Guaira)": ["La Guaira", "Maiquetía", "Catia La Mar"],
+                "Yaracuy": ["San Felipe", "Yaritagua"],
+                "Zulia": ["Maracaibo", "Cabimas", "Ciudad Ojeda", "San Francisco", "Machiques"]
             }
         };
 
         function actualizarCiudades() {
             const paisSelect = document.getElementById('pais').value;
             const ciudadSelect = document.getElementById('ciudad');
-            const regionSelect = document.getElementById('region');
+            const regionInput = document.getElementById('region');
+            
+            // Limpiamos el input de texto de región si cambia el país
+            if (regionInput) regionInput.value = '';
 
             ciudadSelect.innerHTML = '<option value="">Seleccione una ciudad...</option>';
-            regionSelect.innerHTML = '<option value="">Seleccione primero una ciudad...</option>';
 
             if (paisSelect && datosUbicaciones[paisSelect]) {
-                const ciudades = Object.keys(datosUbicaciones[paisSelect]);
-                ciudades.forEach(c => {
+                let listaCiudades = [];
+                for (let estado in datosUbicaciones[paisSelect]) {
+                    listaCiudades = listaCiudades.concat(datosUbicaciones[paisSelect][estado]);
+                }
+                // Ordenamos alfabéticamente
+                listaCiudades.sort().forEach(c => {
                     ciudadSelect.innerHTML += `<option value="${c}">${c}</option>`;
                 });
             } else {
@@ -409,28 +433,18 @@
         }
 
         function actualizarRegiones() {
-            const paisSelect = document.getElementById('pais').value;
+            // Función adaptada para mantener compatibilidad si se invoca desde el evento onchange,
+            // ya que ahora la región es un campo de texto libre editable.
             const ciudadSelect = document.getElementById('ciudad').value;
-            const regionSelect = document.getElementById('region');
-
-            regionSelect.innerHTML = '<option value="">Seleccione una región o sector...</option>';
-
-            if (paisSelect && ciudadSelect && datosUbicaciones[paisSelect][ciudadSelect]) {
-                const regiones = datosUbicaciones[paisSelect][ciudadSelect];
-                regiones.forEach(r => {
-                    regionSelect.innerHTML += `<option value="${r}">${r} (Oficina Cercana)</option>`;
-                });
-            } else {
-                regionSelect.innerHTML = '<option value="">Seleccione primero una ciudad...</option>';
+            const regionInput = document.getElementById('region');
+            if (regionInput) regionInput.value = ''; // Limpia el input al cambiar de ciudad
+            if (ciudadSelect) {
+                console.log(`Ciudad seleccionada: ${ciudadSelect}. El usuario ingresará su sector manualmente.`);
             }
         }
 
         function seleccionarOficinaPorRegion() {
-            const region = document.getElementById('region').value;
-            const ciudad = document.getElementById('ciudad').value;
-            if (region) {
-                console.log(`Oficina de encomienda asignada automáticamente para ${ciudad} - Sector: ${region}`);
-            }
+            // Opcional si se requiere compatibilidad con eventos anteriores
         }
 
         function seleccionarEmpresaEncomienda(codigo, nombreLargo) {
@@ -485,7 +499,6 @@
             const modal = document.getElementById('modal-registro-cliente');
             const btnCerrar = document.getElementById('btn-cerrar-modal');
             
-            // OBLIGATORIO: Si no existe el cliente guardado, se muestra el modal y se oculta el botón de cierre (impide continuar sin datos)
             if (clienteGuardado) {
                 if (modal) modal.style.display = 'none';
             } else {
@@ -635,7 +648,6 @@
         }
 
         async function cambiarPantalla(nombre) {
-            // Validación estricta para asegurar que el usuario esté registrado antes de cambiar de sección
             const clienteGuardado = localStorage.getItem('dunig_cliente_registrado');
             if (!clienteGuardado) {
                 verificarClienteRegistrado();
@@ -936,10 +948,10 @@
 
             const paisVal = document.getElementById('pais').value;
             const ciudadVal = document.getElementById('ciudad').value;
-            const regionVal = document.getElementById('region').value;
+            const regionVal = document.getElementById('region').value.trim();
 
             if(!paisVal || !ciudadVal || !regionVal) {
-                alert("Por favor selecciona País, Ciudad y Región/Sector de destino.");
+                alert("Por favor selecciona el país, la ciudad y escribe tu región o sector de destino.");
                 return;
             }
 
