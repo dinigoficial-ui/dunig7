@@ -10,16 +10,25 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8f9fa; color: #111111; overflow-x: hidden; padding-bottom: 70px; }
-        .glass-panel { background: #ffffff; border: 1px solid #eaeaea; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #0b0b0b; /* Negro mate profundo */
+            color: #f3f4f6; 
+            overflow-x: hidden; 
+            padding-bottom: 70px; 
+        }
+        .glass-panel { 
+            background: #141414; 
+            border: 1px solid #262626; 
+        }
         .btn-oro-flotante {
-            background: linear-gradient(135deg, #111111 0%, #333333 100%);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #1f1f1f 0%, #2f2f2f 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
         }
         .btn-oro-flotante:hover { transform: scale(1.05); }
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #cccccc; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #333333; border-radius: 10px; }
         .category-pill { transition: all 0.2s ease; }
         .category-pill:hover { transform: translateY(-2px); }
         
@@ -38,69 +47,69 @@
 <body class="antialiased min-h-screen flex flex-col justify-between relative">
 
     <!-- MODAL / PANTALLA DE REGISTRO INICIAL Y EDICIÓN OBLIGATORIOS -->
-    <div id="modal-registro-cliente" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl space-y-6 relative border border-gray-100">
-            <button type="button" onclick="cerrarModalRegistroSiEsValido()" id="btn-cerrar-modal" class="hidden absolute top-4 right-4 text-gray-400 hover:text-black cursor-pointer">
+    <div id="modal-registro-cliente" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+        <div class="bg-[#141414] w-full max-w-md p-8 rounded-3xl shadow-2xl space-y-6 relative border border-[#262626]">
+            <button type="button" onclick="cerrarModalRegistroSiEsValido()" id="btn-cerrar-modal" class="hidden absolute top-4 right-4 text-gray-400 hover:text-white cursor-pointer">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
             <div class="text-center space-y-2">
-                <div class="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center mx-auto shadow-md">
+                <div class="w-12 h-12 bg-white text-black rounded-2xl flex items-center justify-center mx-auto shadow-md">
                     <i data-lucide="user-check" class="w-6 h-6"></i>
                 </div>
-                <h2 class="text-xl font-extrabold text-black tracking-tight">¡REGISTRO OBLIGATORIO VIP!</h2>
-                <p class="text-xs text-gray-500">Debes ingresar tus datos obligatoriamente para poder continuar y guardar tu progreso.</p>
+                <h2 class="text-xl font-extrabold text-white tracking-tight">¡REGISTRO OBLIGATORIO VIP!</h2>
+                <p class="text-xs text-gray-400">Debes ingresar tus datos obligatoriamente para poder continuar y guardar tu progreso.</p>
             </div>
 
             <form id="form-registro-cliente" onsubmit="registrarClienteUnico(event)" class="space-y-4">
                 <div class="space-y-1">
-                    <label class="text-[10px] font-bold uppercase tracking-wider text-gray-600">Nombre y Apellido *</label>
-                    <input type="text" id="reg-nombre" required placeholder="Ej. Carlos Pérez" class="w-full bg-gray-50 border border-gray-200 text-xs text-black p-3.5 rounded-xl focus:outline-none focus:border-black">
+                    <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Nombre y Apellido *</label>
+                    <input type="text" id="reg-nombre" required placeholder="Ej. Carlos Pérez" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-white">
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[10px] font-bold uppercase tracking-wider text-gray-600">Número de WhatsApp *</label>
-                    <input type="tel" id="reg-whatsapp" required placeholder="Ej. +584120000000" class="w-full bg-gray-50 border border-gray-200 text-xs text-black p-3.5 rounded-xl focus:outline-none focus:border-black font-mono">
+                    <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Número de WhatsApp *</label>
+                    <input type="tel" id="reg-whatsapp" required placeholder="Ej. +584120000000" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-white font-mono">
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[10px] font-bold uppercase tracking-wider text-gray-600">Correo Electrónico *</label>
-                    <input type="email" id="reg-correo" required placeholder="tucorreo@dominio.com" class="w-full bg-gray-50 border border-gray-200 text-xs text-black p-3.5 rounded-xl focus:outline-none focus:border-black font-mono">
+                    <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Correo Electrónico *</label>
+                    <input type="email" id="reg-correo" required placeholder="tucorreo@dominio.com" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-white font-mono">
                 </div>
 
-                <button type="submit" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-4 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg transition-all">
+                <button type="submit" class="w-full bg-white hover:bg-gray-200 text-black font-bold py-4 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg transition-all">
                     GUARDAR Y CONTINUAR 🚀
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- HEADER ESTILO APP MODERNA (SHEIN-LIKE) -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 px-4 shadow-xs">
+    <!-- HEADER ESTILO APP MODERNA -->
+    <header class="bg-[#121212] border-b border-[#222222] sticky top-0 z-50 px-4 shadow-md">
         <div class="max-w-7xl mx-auto h-16 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 cursor-pointer" onclick="cambiarPantalla('vitrina')">
-                <div class="bg-black p-2 rounded-xl text-white shadow-sm">
+                <div class="bg-white p-2 rounded-xl text-black shadow-sm">
                     <i data-lucide="store" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h1 class="text-sm font-black tracking-tight text-black">
-                       CASA de las <span class="text-amber-600">PAPAS</span>
+                    <h1 class="text-sm font-black tracking-tight text-white">
+                       CASA de las <span class="text-amber-500">PAPAS</span>
                     </h1>
                     <p class="text-[8px] text-gray-400 uppercase tracking-widest font-semibold">MÉRIDA, VENEZUELA</p>
                 </div>
             </div>
 
             <!-- BUSCADOR SUPERIOR COMPACTO -->
-            <div class="flex-1 max-w-md mx-2 hidden md:flex items-center bg-gray-100 rounded-full px-3 py-1.5 border border-transparent focus-within:border-black transition-all">
+            <div class="flex-1 max-w-md mx-2 hidden md:flex items-center bg-[#1b1b1b] rounded-full px-3 py-1.5 border border-[#333333] focus-within:border-white transition-all">
                 <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i>
-                <input type="text" id="input-buscador-vitrina-desktop" placeholder="Buscar productos..." oninput="document.getElementById('input-buscador-vitrina').value=this.value;filtrarProductosVitrina();" class="w-full bg-transparent text-xs text-black focus:outline-none">
+                <input type="text" id="input-buscador-vitrina-desktop" placeholder="Buscar productos..." oninput="document.getElementById('input-buscador-vitrina').value=this.value;filtrarProductosVitrina();" class="w-full bg-transparent text-xs text-white focus:outline-none">
             </div>
 
             <div class="flex items-center gap-2">
-                <button onclick="abrirModalEdicionDatos()" class="bg-gray-50 border border-gray-200 hover:border-black p-2 rounded-full flex items-center justify-center cursor-pointer transition-all text-gray-700" title="Editar mis datos">
+                <button onclick="abrirModalEdicionDatos()" class="bg-[#1b1b1b] border border-[#333333] hover:border-white p-2 rounded-full flex items-center justify-center cursor-pointer transition-all text-gray-300" title="Editar mis datos">
                     <i data-lucide="settings" class="w-4 h-4"></i>
                 </button>
 
-                <button onclick="cambiarPantalla('carrito')" class="relative bg-gray-50 border border-gray-200 p-2 rounded-full flex items-center justify-center hover:border-black cursor-pointer">
-                    <i data-lucide="shopping-bag" class="w-4 h-4 text-gray-800"></i>
-                    <span id="contador-carrito-badge" class="absolute -top-1 -right-1 bg-black text-white font-mono text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                <button onclick="cambiarPantalla('carrito')" class="relative bg-[#1b1b1b] border border-[#333333] p-2 rounded-full flex items-center justify-center hover:border-white cursor-pointer">
+                    <i data-lucide="shopping-bag" class="w-4 h-4 text-gray-200"></i>
+                    <span id="contador-carrito-badge" class="absolute -top-1 -right-1 bg-white text-black font-mono text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
                 </button>
             </div>
         </div>
@@ -111,42 +120,42 @@
         
         <!-- BARRA DE BÚSQUEDA MÓVIL -->
         <div class="w-full md:hidden">
-            <div class="relative flex items-center bg-white border border-gray-200 rounded-full px-4 py-2 shadow-xs">
+            <div class="relative flex items-center bg-[#141414] border border-[#262626] rounded-full px-4 py-2 shadow-xs">
                 <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i>
-                <input type="text" id="input-buscador-vitrina" placeholder="Buscar especialidades o categorías..." oninput="filtrarProductosVitrina()" class="w-full bg-transparent text-xs text-black focus:outline-none">
-                <button onclick="limpiarBuscadorVitrina()" class="text-gray-400 hover:text-black">
+                <input type="text" id="input-buscador-vitrina" placeholder="Buscar especialidades o categorías..." oninput="filtrarProductosVitrina()" class="w-full bg-transparent text-xs text-white focus:outline-none">
+                <button onclick="limpiarBuscadorVitrina()" class="text-gray-400 hover:text-white">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
         </div>
 
-        <!-- CARRUSEL DE IMÁGENES EN MOVIMIENTO (RÁPIDO) -->
-        <div class="w-full rounded-2xl overflow-hidden shadow-sm relative bg-black text-white">
+        <!-- CARRUSEL DE IMÁGENES EN MOVIMIENTO -->
+        <div class="w-full rounded-2xl overflow-hidden shadow-sm relative bg-black text-white border border-[#262626]">
             <div class="w-full h-48 sm:h-64 relative overflow-hidden">
                 <div id="carrusel-slider-track" class="carrusel-contenedor h-full">
                     <!-- Slide 1 -->
                     <div class="carrusel-slide relative h-full flex-shrink-0">
-                        <img src="https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?q=80&w=1200" alt="Banner 1" class="w-full h-full object-cover opacity-75">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
-                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-300">Exclusivo VIP</span>
+                        <img src="https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?q=80&w=1200" alt="Banner 1" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
+                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Exclusivo VIP</span>
                             <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">CASA DE LAS PAPAS</h2>
                             <p class="text-[11px] text-gray-300">Las mejores papas y especialidades directo a tu puerta.</p>
                         </div>
                     </div>
                     <!-- Slide 2 -->
                     <div class="carrusel-slide relative h-full flex-shrink-0">
-                        <img src="https://images.unsplash.com/photo-1573080496219-bb080dd4f877?q=80&w=1200" alt="Banner 2" class="w-full h-full object-cover opacity-75">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
-                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-300">Envíos Nacionales</span>
+                        <img src="https://images.unsplash.com/photo-1573080496219-bb080dd4f877?q=80&w=1200" alt="Banner 2" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
+                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Envíos Nacionales</span>
                             <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">MRW, ZOOM Y TEALCA</h2>
                             <p class="text-[11px] text-gray-300">Despachos seguros a nivel nacional con cobro a destino.</p>
                         </div>
                     </div>
                     <!-- Slide 3 -->
                     <div class="carrusel-slide relative h-full flex-shrink-0">
-                        <img src="https://images.unsplash.com/photo-1585109649139-366815a0d713?q=80&w=1200" alt="Banner 3" class="w-full h-full object-cover opacity-75">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
-                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-300">Cupones Activos</span>
+                        <img src="https://images.unsplash.com/photo-1585109649139-366815a0d713?q=80&w=1200" alt="Banner 3" class="w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
+                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Cupones Activos</span>
                             <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">¡AHORRA MÁS!</h2>
                             <p class="text-[11px] text-gray-300">Utiliza tus códigos de referido y obtén grandes descuentos.</p>
                         </div>
@@ -161,23 +170,23 @@
             </div>
         </div>
 
-        <!-- GRID DE PRODUCTOS ESTILO GRID DE TARJETAS MODERNO -->
+        <!-- GRID DE PRODUCTOS -->
         <div id="grid-productos-vitrina" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"></div>
     </main>
 
     <!-- VISTA DETALLE -->
     <main id="vista-detalle" class="hidden max-w-5xl w-full mx-auto px-4 py-6 flex-grow relative z-10">
-        <button onclick="cambiarPantalla('vitrina')" class="mb-4 flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-black cursor-pointer transition-colors">
+        <button onclick="cambiarPantalla('vitrina')" class="mb-4 flex items-center gap-1 text-xs font-bold text-gray-400 hover:text-white cursor-pointer transition-colors">
             <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver
         </button>
 
-        <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6 p-4 sm:p-6">
+        <div class="bg-[#141414] border border-[#262626] rounded-2xl overflow-hidden shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6 p-4 sm:p-6">
             <div class="space-y-3">
-                <div class="relative rounded-xl overflow-hidden bg-gray-100 aspect-square flex items-center justify-center border border-gray-100">
-                    <div id="contenedor-media-principal" class="w-full h-full flex items-center justify-center bg-gray-50 cursor-zoom-in" onclick="amplificarFotoActual()">
+                <div class="relative rounded-xl overflow-hidden bg-[#1f1f1f] aspect-square flex items-center justify-center border border-[#262626]">
+                    <div id="contenedor-media-principal" class="w-full h-full flex items-center justify-center bg-[#1a1a1a] cursor-zoom-in" onclick="amplificarFotoActual()">
                         <img id="detalle-visor-principal" src="" alt="Visor Principal" class="w-full h-full object-cover">
                     </div>
-                    <button onclick="amplificarFotoActual()" class="absolute bottom-3 right-3 bg-black/70 backdrop-blur-md text-white p-2 rounded-full text-xs shadow-md cursor-pointer hover:bg-black">
+                    <button onclick="amplificarFotoActual()" class="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md text-white p-2 rounded-full text-xs shadow-md cursor-pointer hover:bg-black">
                         <i data-lucide="maximize-2" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -186,19 +195,19 @@
 
             <div class="space-y-4 flex flex-col justify-between">
                 <div class="space-y-3">
-                    <span id="detalle-categoria" class="text-[9px] uppercase tracking-wider font-bold bg-gray-100 text-gray-800 px-2.5 py-1 rounded-md">CATEGORÍA</span>
-                    <h2 id="detalle-titulo" class="text-xl sm:text-2xl font-black text-black tracking-tight">Título del Producto</h2>
-                    <p id="detalle-precio" class="text-xl font-mono text-black font-extrabold">$0.00</p>
+                    <span id="detalle-categoria" class="text-[9px] uppercase tracking-wider font-bold bg-[#222222] text-gray-300 px-2.5 py-1 rounded-md">CATEGORÍA</span>
+                    <h2 id="detalle-titulo" class="text-xl sm:text-2xl font-black text-white tracking-tight">Título del Producto</h2>
+                    <p id="detalle-precio" class="text-xl font-mono text-white font-extrabold">$0.00</p>
                     
-                    <div class="border-t border-gray-100 pt-3 space-y-1">
+                    <div class="border-t border-[#262626] pt-3 space-y-1">
                         <h4 class="text-[9px] uppercase tracking-wider text-gray-400 font-bold">Descripción:</h4>
-                        <p id="detalle-descripcion" class="text-xs text-gray-600 leading-relaxed">Cargando...</p>
+                        <p id="detalle-descripcion" class="text-xs text-gray-400 leading-relaxed">Cargando...</p>
                     </div>
 
                     <div id="contenedor-adicionales" class="w-full pt-2"></div>
                 </div>
 
-                <button onclick="agregarDetalleAlCarritoYVolver()" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3.5 px-6 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all">
+                <button onclick="agregarDetalleAlCarritoYVolver()" class="w-full bg-white hover:bg-gray-200 text-black font-bold py-3.5 px-6 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all">
                     <i data-lucide="shopping-bag" class="w-4 h-4"></i> AÑADIR A LA BOLSA VIP
                 </button>
             </div>
@@ -207,61 +216,61 @@
 
     <!-- VISTA CARRITO -->
     <main id="vista-carrito" class="hidden max-w-5xl w-full mx-auto px-4 py-6 flex-grow relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        <section class="lg:col-span-2 bg-white border border-gray-200 p-5 rounded-2xl space-y-4 shadow-xs">
-            <h2 class="text-base font-extrabold text-black uppercase tracking-tight flex items-center gap-2 border-b border-gray-100 pb-3">
-                <i data-lucide="shopping-basket" class="w-5 h-5 text-amber-600"></i> Bolsa de Pedidos VIP
+        <section class="lg:col-span-2 bg-[#141414] border border-[#262626] p-5 rounded-2xl space-y-4 shadow-xs">
+            <h2 class="text-base font-extrabold text-white uppercase tracking-tight flex items-center gap-2 border-b border-[#262626] pb-3">
+                <i data-lucide="shopping-basket" class="w-5 h-5 text-amber-500"></i> Bolsa de Pedidos VIP
             </h2>
-            <div id="lista-items-carrito" class="divide-y divide-gray-100"></div>
+            <div id="lista-items-carrito" class="divide-y divide-[#262626]"></div>
             
-            <div class="space-y-3 pt-4 border-t border-gray-100 bg-gray-50 p-4 rounded-xl">
-                <h3 class="text-xs font-bold text-black uppercase flex items-center gap-1.5">
-                    <i data-lucide="map-pin" class="w-4 h-4 text-amber-600"></i> Destino y Logística de Encomienda
+            <div class="space-y-3 pt-4 border-t border-[#262626] bg-[#1a1a1a] p-4 rounded-xl">
+                <h3 class="text-xs font-bold text-white uppercase flex items-center gap-1.5">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-amber-500"></i> Destino y Logística de Encomienda
                 </h3>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     <div class="space-y-1">
-                        <label class="text-[9px] font-bold uppercase text-gray-500">País</label>
-                        <select id="pais" name="pais" onchange="actualizarCiudades()" required class="w-full bg-white border border-gray-200 text-xs text-black p-2.5 rounded-lg focus:outline-none focus:border-black">
+                        <label class="text-[9px] font-bold uppercase text-gray-400">País</label>
+                        <select id="pais" name="pais" onchange="actualizarCiudades()" required class="w-full bg-[#141414] border border-[#333333] text-xs text-white p-2.5 rounded-lg focus:outline-none focus:border-white">
                             <option value="">Seleccione...</option>
                             <option value="venezuela">Venezuela</option>
                         </select>
                     </div>
                     <div class="space-y-1">
-                        <label class="text-[9px] font-bold uppercase text-gray-500">Ciudad</label>
-                        <select id="ciudad" name="ciudad" onchange="actualizarRegiones()" required class="w-full bg-white border border-gray-200 text-xs text-black p-2.5 rounded-lg focus:outline-none focus:border-black">
+                        <label class="text-[9px] font-bold uppercase text-gray-400">Ciudad</label>
+                        <select id="ciudad" name="ciudad" onchange="actualizarRegiones()" required class="w-full bg-[#141414] border border-[#333333] text-xs text-white p-2.5 rounded-lg focus:outline-none focus:border-white">
                             <option value="">Seleccione país...</option>
                         </select>
                     </div>
                     <div class="space-y-1">
-                        <label class="text-[9px] font-bold uppercase text-gray-500">Región / Sector</label>
-                        <input type="text" id="region" name="region" placeholder="Urbanización / Av..." required class="w-full bg-white border border-gray-200 text-xs text-black p-2.5 rounded-lg focus:outline-none focus:border-black">
+                        <label class="text-[9px] font-bold uppercase text-gray-400">Región / Sector</label>
+                        <input type="text" id="region" name="region" placeholder="Urbanización / Av..." required class="w-full bg-[#141414] border border-[#333333] text-xs text-white p-2.5 rounded-lg focus:outline-none focus:border-white">
                     </div>
                 </div>
             </div>
 
             <!-- EMPRESAS DE ENCOMIENDA -->
             <div class="space-y-2 pt-2">
-                <label class="text-[10px] uppercase text-black font-bold tracking-wider block">Selecciona Empresa de Encomiendas</label>
+                <label class="text-[10px] uppercase text-white font-bold tracking-wider block">Selecciona Empresa de Encomiendas</label>
                 <div id="grid-empresas-encomienda" class="grid grid-cols-3 gap-2"></div>
-                <div id="badge-empresa-seleccionada" class="text-xs font-mono text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-200 hidden">
+                <div id="badge-empresa-seleccionada" class="text-xs font-mono text-amber-400 bg-amber-500/10 p-2 rounded-lg border border-amber-500/20 hidden">
                     Agencia: <span id="texto-agencia-activa" class="font-bold">Ninguna</span>
                 </div>
             </div>
         </section>
 
         <!-- RESUMEN Y PAGO -->
-        <section class="bg-white border border-gray-200 p-5 rounded-2xl shadow-xs space-y-4">
-            <h3 class="text-sm font-extrabold text-black uppercase border-b border-gray-100 pb-2">Resumen de Orden</h3>
+        <section class="bg-[#141414] border border-[#262626] p-5 rounded-2xl shadow-xs space-y-4">
+            <h3 class="text-sm font-extrabold text-white uppercase border-b border-[#262626] pb-2">Resumen de Orden</h3>
             
-            <div class="flex justify-between items-center text-xs text-gray-600">
+            <div class="flex justify-between items-center text-xs text-gray-400">
                 <span>Total Productos (<span id="cantidad-items-abajo" class="font-bold font-mono">0</span>):</span>
-                <span class="text-black font-extrabold font-mono text-base" id="carrito-monto-total">$0.00</span>
+                <span class="text-white font-extrabold font-mono text-base" id="carrito-monto-total">$0.00</span>
             </div>
             
-            <div class="space-y-3 pt-2 border-t border-gray-100">
+            <div class="space-y-3 pt-2 border-t border-[#262626]">
                 <div class="space-y-1">
-                    <label class="text-[9px] uppercase text-gray-500 font-bold block">Método de Pago</label>
-                    <select id="tipoMetodoPago" onchange="gestionarCamposPagoCart()" class="w-full bg-gray-50 border border-gray-200 text-xs text-black p-3 rounded-xl focus:outline-none focus:border-black">
+                    <label class="text-[9px] uppercase text-gray-400 font-bold block">Método de Pago</label>
+                    <select id="tipoMetodoPago" onchange="gestionarCamposPagoCart()" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3 rounded-xl focus:outline-none focus:border-white">
                         <option value="">Seleccione...</option>
                         <option value="zelle">Zelle</option>
                         <option value="nequi">Nequi</option>
@@ -270,58 +279,58 @@
                     </select>
                 </div>
 
-                <div id="info-metodo-pago" class="hidden p-3 bg-gray-50 border border-gray-200 rounded-xl space-y-1 text-xs font-mono">
-                    <div class="flex items-center justify-between font-bold text-black border-b border-gray-200 pb-1 mb-1">
+                <div id="info-metodo-pago" class="hidden p-3 bg-[#1a1a1a] border border-[#262626] rounded-xl space-y-1 text-xs font-mono">
+                    <div class="flex items-center justify-between font-bold text-white border-b border-[#333333] pb-1 mb-1">
                         <span id="titulo-metodo-pago">Datos</span>
                     </div>
-                    <div id="detalle-datos-pago" class="text-gray-600 space-y-0.5"></div>
+                    <div id="detalle-datos-pago" class="text-gray-300 space-y-0.5"></div>
                 </div>
 
-                <!-- CAMPO CÓDIGO DE REFERIDO RESTITUIDO -->
+                <!-- CAMPO CÓDIGO DE REFERIDO -->
                 <div class="space-y-1">
-                    <label class="text-[9px] uppercase text-black font-bold block">Código de Referido / Promoción</label>
+                    <label class="text-[9px] uppercase text-white font-bold block">Código de Referido / Promoción</label>
                     <div class="flex gap-2">
-                        <input type="text" id="input-codigo-referido" placeholder="Ej. VIP2026" class="w-full bg-gray-50 border border-gray-200 text-xs text-black p-3 rounded-xl font-mono uppercase">
-                        <button type="button" onclick="aplicarCodigoReferido()" class="bg-black hover:bg-gray-800 text-white px-4 rounded-xl text-xs font-bold cursor-pointer">Aplicar</button>
+                        <input type="text" id="input-codigo-referido" placeholder="Ej. VIP2026" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3 rounded-xl font-mono uppercase">
+                        <button type="button" onclick="aplicarCodigoReferido()" class="bg-white hover:bg-gray-200 text-black px-4 rounded-xl text-xs font-bold cursor-pointer">Aplicar</button>
                     </div>
-                    <span id="mensaje-referido" class="text-[10px] font-mono text-emerald-600 hidden"></span>
+                    <span id="mensaje-referido" class="text-[10px] font-mono text-emerald-400 hidden"></span>
                 </div>
 
                 <div id="contenedorNumeroMesaCart" class="space-y-1 hidden">
-                    <label class="text-[9px] uppercase text-black font-bold block">Número de Mesa</label>
-                    <input type="text" id="input-num-mesa" placeholder="Ej. Mesa 04" class="w-full bg-gray-50 border border-gray-200 text-xs text-black p-3 rounded-xl font-mono">
+                    <label class="text-[9px] uppercase text-white font-bold block">Número de Mesa</label>
+                    <input type="text" id="input-num-mesa" placeholder="Ej. Mesa 04" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3 rounded-xl font-mono">
                 </div>
 
                 <div id="contenedorReferenciaCart" class="space-y-1 hidden">
-                    <label class="text-[9px] uppercase text-black font-bold block">Número de Referencia</label>
-                    <input type="text" id="input-ref-pago" placeholder="Código de referencia" class="w-full bg-gray-50 border border-gray-200 text-xs text-black p-3 rounded-xl font-mono">
+                    <label class="text-[9px] uppercase text-white font-bold block">Número de Referencia</label>
+                    <input type="text" id="input-ref-pago" placeholder="Código de referencia" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3 rounded-xl font-mono">
                 </div>
 
-                <button onclick="enviarPedidoWhatsApp()" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer shadow-md flex items-center justify-center gap-2 transition-all">
+                <button onclick="enviarPedidoWhatsApp()" class="w-full bg-white hover:bg-gray-200 text-black font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer shadow-md flex items-center justify-center gap-2 transition-all">
                     <i data-lucide="send" class="w-4 h-4"></i> Enviar por WhatsApp
                 </button>
             </div>
         </section>
     </main>
 
-    <!-- NAVEGACIÓN INFERIOR FIJA (ESTILO APP TIPO SHEIN) -->
-    <nav aria-label="Navegación inferior" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 px-6 py-2 flex items-center justify-around shadow-lg">
-        <button onclick="cambiarPantalla('vitrina')" class="flex flex-col items-center gap-1 text-gray-700 hover:text-black cursor-pointer">
+    <!-- NAVEGACIÓN INFERIOR FIJA -->
+    <nav aria-label="Navegación inferior" class="fixed bottom-0 left-0 right-0 bg-[#121212] border-t border-[#222222] z-40 px-6 py-2 flex items-center justify-around shadow-lg">
+        <button onclick="cambiarPantalla('vitrina')" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white cursor-pointer">
             <i data-lucide="home" class="w-5 h-5"></i>
             <span class="text-[10px] font-bold uppercase tracking-wide">Comprar</span>
         </button>
-        <button onclick="cambiarPantalla('carrito')" class="flex flex-col items-center gap-1 text-gray-700 hover:text-black cursor-pointer relative">
+        <button onclick="cambiarPantalla('carrito')" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white cursor-pointer relative">
             <i data-lucide="shopping-cart" class="w-5 h-5"></i>
             <span class="text-[10px] font-bold uppercase tracking-wide">Cesta</span>
         </button>
-        <a href="cuponera.html" class="flex flex-col items-center gap-1 text-gray-700 hover:text-black cursor-pointer">
+        <a href="cuponera.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white cursor-pointer">
             <i data-lucide="ticket" class="w-5 h-5"></i>
             <span class="text-[10px] font-bold uppercase tracking-wide">Cupones</span>
         </a>
     </nav>
 
     <!-- LIGHTBOX -->
-    <div id="modal-lightbox" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 cursor-zoom-out" onclick="cerrarAmplificacion()">
+    <div id="modal-lightbox" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 cursor-zoom-out" onclick="cerrarAmplificacion()">
         <button class="absolute top-4 right-4 text-white p-2">
             <i data-lucide="x" class="w-6 h-6"></i>
         </button>
@@ -350,13 +359,12 @@
             intervaloCarrusel = setInterval(() => {
                 slideActual = (slideActual + 1) % totalSlides;
                 actualizarPosicionCarrusel();
-            }, 2500); // 2.5 segundos para movimiento rápido
+            }, 2500);
         }
 
         function irASlide(indice) {
             slideActual = indice;
             actualizarPosicionCarrusel();
-            // Reiniciar intervalo al hacer click manual
             clearInterval(intervaloCarrusel);
             iniciarCarrusel();
         }
@@ -372,7 +380,7 @@
                 if (i === slideActual) {
                     botones[i].className = "w-4 h-2 rounded-full bg-white cursor-pointer transition-all";
                 } else {
-                    botones[i].className = "w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all";
+                    botones[i].className = "w-2 h-2 rounded-full bg-white/40 cursor-pointer transition-all";
                 }
             }
         }
@@ -442,11 +450,11 @@
                     grid.innerHTML = "";
                     data.forEach(emp => {
                         grid.innerHTML += `
-                            <div onclick="seleccionarEmpresaEncomienda('${emp.codigo}', '${emp.nombre_largo}')" id="encomienda-${emp.codigo.toLowerCase()}" class="encomienda-card cursor-pointer bg-gray-50 border border-gray-200 hover:border-black p-2 rounded-xl flex flex-col items-center text-center transition-all">
-                                <div class="w-full h-12 rounded-lg overflow-hidden bg-white mb-1 flex items-center justify-center border border-gray-100">
+                            <div onclick="seleccionarEmpresaEncomienda('${emp.codigo}', '${emp.nombre_largo}')" id="encomienda-${emp.codigo.toLowerCase()}" class="encomienda-card cursor-pointer bg-[#1a1a1a] border border-[#262626] hover:border-white p-2 rounded-xl flex flex-col items-center text-center transition-all">
+                                <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]">
                                     <img src="${emp.imagen_url}" alt="${emp.codigo}" class="w-full h-full object-cover">
                                 </div>
-                                <span class="text-[10px] font-bold text-black uppercase">${emp.codigo}</span>
+                                <span class="text-[10px] font-bold text-white uppercase">${emp.codigo}</span>
                             </div>`;
                     });
                 } else {
@@ -460,17 +468,17 @@
 
         function renderizarEmpresasFallback(grid) {
             grid.innerHTML = `
-                <div onclick="seleccionarEmpresaEncomienda('MRW', '📦 MRW (Cobro a Destino)')" id="encomienda-mrw" class="encomienda-card cursor-pointer bg-gray-50 border border-gray-200 hover:border-black p-2 rounded-xl flex flex-col items-center text-center transition-all">
-                    <div class="w-full h-12 rounded-lg overflow-hidden bg-white mb-1 flex items-center justify-center border border-gray-100"><img src="descarga (1).png" alt="MRW" class="w-full h-full object-cover"></div>
-                    <span class="text-[10px] font-bold text-black uppercase">MRW</span>
+                <div onclick="seleccionarEmpresaEncomienda('MRW', '📦 MRW (Cobro a Destino)')" id="encomienda-mrw" class="encomienda-card cursor-pointer bg-[#1a1a1a] border border-[#262626] hover:border-white p-2 rounded-xl flex flex-col items-center text-center transition-all">
+                    <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="descarga (1).png" alt="MRW" class="w-full h-full object-cover"></div>
+                    <span class="text-[10px] font-bold text-white uppercase">MRW</span>
                 </div>
-                <div onclick="seleccionarEmpresaEncomienda('DOMESA', '🏢 Grupo ZOOM / DOMESA')" id="encomienda-domesa" class="encomienda-card cursor-pointer bg-gray-50 border border-gray-200 hover:border-black p-2 rounded-xl flex flex-col items-center text-center transition-all">
-                    <div class="w-full h-12 rounded-lg overflow-hidden bg-white mb-1 flex items-center justify-center border border-gray-100"><img src="images (8).jpg" alt="DOMESA" class="w-full h-full object-cover"></div>
-                    <span class="text-[10px] font-bold text-black uppercase">DOMESA</span>
+                <div onclick="seleccionarEmpresaEncomienda('DOMESA', '🏢 Grupo ZOOM / DOMESA')" id="encomienda-domesa" class="encomienda-card cursor-pointer bg-[#1a1a1a] border border-[#262626] hover:border-white p-2 rounded-xl flex flex-col items-center text-center transition-all">
+                    <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="images (8).jpg" alt="DOMESA" class="w-full h-full object-cover"></div>
+                    <span class="text-[10px] font-bold text-white uppercase">DOMESA</span>
                 </div>
-                <div onclick="seleccionarEmpresaEncomienda('TEALCA', '🚚 Tealca Express')" id="encomienda-tealca" class="encomienda-card cursor-pointer bg-gray-50 border border-gray-200 hover:border-black p-2 rounded-xl flex flex-col items-center text-center transition-all">
-                    <div class="w-full h-12 rounded-lg overflow-hidden bg-white mb-1 flex items-center justify-center border border-gray-100"><img src="images (9).jpg" alt="TEALCA" class="w-full h-full object-cover"></div>
-                    <span class="text-[10px] font-bold text-black uppercase">TEALCA</span>
+                <div onclick="seleccionarEmpresaEncomienda('TEALCA', '🚚 Tealca Express')" id="encomienda-tealca" class="encomienda-card cursor-pointer bg-[#1a1a1a] border border-[#262626] hover:border-white p-2 rounded-xl flex flex-col items-center text-center transition-all">
+                    <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="images (9).jpg" alt="TEALCA" class="w-full h-full object-cover"></div>
+                    <span class="text-[10px] font-bold text-white uppercase">TEALCA</span>
                 </div>
             `;
         }
@@ -478,13 +486,13 @@
         function seleccionarEmpresaEncomienda(codigo, nombreLargo) {
             empresaEncomiendaSeleccionada = nombreLargo;
             document.querySelectorAll('.encomienda-card').forEach(el => {
-                el.classList.remove('border-black', 'bg-black/5');
-                el.classList.add('border-gray-200', 'bg-gray-50');
+                el.classList.remove('border-white', 'bg-white/10');
+                el.classList.add('border-[#262626]', 'bg-[#1a1a1a]');
             });
             const cardActiva = document.getElementById(`encomienda-${codigo.toLowerCase()}`);
             if (cardActiva) {
-                cardActiva.classList.remove('border-gray-200', 'bg-gray-50');
-                cardActiva.classList.add('border-black', 'bg-black/5');
+                cardActiva.classList.remove('border-[#262626]', 'bg-[#1a1a1a]');
+                cardActiva.classList.add('border-white', 'bg-white/10');
             }
             const badge = document.getElementById('badge-empresa-seleccionada');
             const textoAgencia = document.getElementById('texto-agencia-activa');
@@ -566,7 +574,7 @@
                     data.forEach(cuenta => {
                         let htmlDetalle = '';
                         if (cuenta.plataforma === 'efectivo') {
-                            htmlDetalle = `<p class="text-black font-bold">💵 Efectivo en tienda física.</p>`;
+                            htmlDetalle = `<p class="text-white font-bold">💵 Efectivo en tienda física.</p>`;
                         } else {
                             if (cuenta.banco) htmlDetalle += `<p><strong>Banco:</strong> ${cuenta.banco}</p>`;
                             if (cuenta.telefono) htmlDetalle += `<p><strong>Teléfono:</strong> ${cuenta.telefono}</p>`;
@@ -577,7 +585,7 @@
                     });
                 }
             } catch (err) {}
-            if (!datosDePago['efectivo']) datosDePago['efectivo'] = `<p class="text-black font-bold">💵 Efectivo en tienda.</p>`;
+            if (!datosDePago['efectivo']) datosDePago['efectivo'] = `<p class="text-white font-bold">💵 Efectivo en tienda.</p>`;
         }
 
         async function cambiarPantalla(nombre) {
@@ -598,7 +606,7 @@
             const grid = document.getElementById('grid-productos-vitrina');
             if(!grid) return;
             const { data, error } = await supabaseClient.from('productos').select('*');
-            if (error) { grid.innerHTML = `<div class="col-span-2 text-center text-xs text-red-500">Error al conectar con base de datos.</div>`; return; }
+            if (error) { grid.innerHTML = `<div class="col-span-2 text-center text-xs text-red-400">Error al conectar con base de datos.</div>`; return; }
 
             if (data && data.length > 0) {
                 baseProductos = data;
@@ -610,16 +618,16 @@
                     const categoria = p.categoria || 'ESPECIALIDAD';
 
                     grid.innerHTML += `
-                        <div onclick="verDetalleDeProducto(${p.id})" class="bg-white rounded-2xl overflow-hidden border border-gray-100 flex flex-col justify-between shadow-xs cursor-pointer hover:shadow-md transition-all group">
-                            <div class="aspect-square bg-gray-50 overflow-hidden relative">
+                        <div onclick="verDetalleDeProducto(${p.id})" class="bg-[#141414] rounded-2xl overflow-hidden border border-[#262626] flex flex-col justify-between shadow-xs cursor-pointer hover:border-white transition-all group">
+                            <div class="aspect-square bg-[#1a1a1a] overflow-hidden relative">
                                 <img src="${imagen}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                                <span class="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-[8px] font-bold uppercase text-white px-2 py-0.5 rounded">${categoria}</span>
+                                <span class="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-[8px] font-bold uppercase text-white px-2 py-0.5 rounded">${categoria}</span>
                             </div>
                             <div class="p-3 space-y-1.5">
-                                <h3 class="font-bold text-xs text-black uppercase truncate">${titulo}</h3>
+                                <h3 class="font-bold text-xs text-white uppercase truncate">${titulo}</h3>
                                 <div class="flex justify-between items-center">
-                                    <span class="font-mono text-xs text-black font-extrabold">$${precio.toFixed(2)}</span>
-                                    <span class="text-[10px] text-amber-600 font-bold underline">Ver</span>
+                                    <span class="font-mono text-xs text-white font-extrabold">$${precio.toFixed(2)}</span>
+                                    <span class="text-[10px] text-amber-400 font-bold underline">Ver</span>
                                 </div>
                             </div>
                         </div>`;
@@ -662,7 +670,7 @@
             const containerMiniaturas = document.getElementById('detalle-contenedor-miniaturas'); 
             containerMiniaturas.innerHTML = "";
             fotosSlider.forEach(img => {
-                if(img) containerMiniaturas.innerHTML += `<div onclick="actualizarVisorFoto('${img}')" class="aspect-square rounded-lg bg-gray-50 border border-gray-200 overflow-hidden cursor-pointer"><img src="${img}" class="w-full h-full object-cover"></div>`;
+                if(img) containerMiniaturas.innerHTML += `<div onclick="actualizarVisorFoto('${img}')" class="aspect-square rounded-lg bg-[#1a1a1a] border border-[#262626] overflow-hidden cursor-pointer"><img src="${img}" class="w-full h-full object-cover"></div>`;
             });
 
             renderizarAdicionales();
@@ -703,16 +711,16 @@
                 return;
             }
             contenedor.innerHTML = `
-                <details class="group bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
-                    <summary class="list-none p-3 text-[10px] font-bold text-gray-600 cursor-pointer flex justify-between items-center">
+                <details class="group bg-[#1a1a1a] border border-[#262626] rounded-xl overflow-hidden">
+                    <summary class="list-none p-3 text-[10px] font-bold text-gray-300 cursor-pointer flex justify-between items-center">
                         <span>SELECCIONAR ADICIONALES / EXTRAS</span>
                         <i data-lucide="chevron-down" class="w-4 h-4 group-open:rotate-180 transition-transform"></i>
                     </summary>
-                    <div class="p-2 border-t border-gray-200 space-y-1">
+                    <div class="p-2 border-t border-[#262626] space-y-1">
                         ${window.listaAdicionales.map(ad => `
-                            <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-gray-100 rounded-lg">
-                                <input type="checkbox" class="check-adicional w-4 h-4 accent-black" data-nombre="${ad.nombre}" data-precio="${ad.precio}">
-                                <span class="text-xs text-black font-medium">${ad.nombre}</span>                                 <span class="text-xs text-gray-500 font-mono ml-auto">+$${parseFloat(ad.precio).toFixed(2)}</span>
+                            <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-[#222222] rounded-lg">
+                                <input type="checkbox" class="check-adicional w-4 h-4 accent-white" data-nombre="${ad.nombre}" data-precio="${ad.precio}">
+                                <span class="text-xs text-white font-medium">${ad.nombre}</span>                                 <span class="text-xs text-gray-400 font-mono ml-auto">+$${parseFloat(ad.precio).toFixed(2)}</span>
                             </label>
                         `).join('')}
                     </div>
@@ -750,7 +758,7 @@
             if(contAbajo) contAbajo.innerText = carrito.length;
 
             if(carrito.length === 0) {
-                cont.innerHTML = `<div class="p-6 text-center text-gray-400 text-xs">Tu bolsa está vacía.</div>`;
+                cont.innerHTML = `<div class="p-6 text-center text-gray-500 text-xs">Tu bolsa está vacía.</div>`;
                 document.getElementById('carrito-monto-total').innerText = "$0.00";
                 return;
             }
@@ -760,13 +768,13 @@
                 cont.innerHTML += `
                     <div class="flex justify-between items-center py-3">
                         <div class="flex items-center gap-3">
-                            <img src="${item.imagen_url}" class="w-10 h-10 object-cover rounded-lg border border-gray-100">
+                            <img src="${item.imagen_url}" class="w-10 h-10 object-cover rounded-lg border border-[#262626]">
                             <div>
-                                <h4 class="text-xs font-bold text-black uppercase">${item.titulo}</h4>
-                                <button onclick="carrito.splice(${idx},1);renderizarCarrito();document.getElementById('contador-carrito-badge').innerText=carrito.length;" class="text-[10px] text-red-500 hover:underline">Eliminar</button>
+                                <h4 class="text-xs font-bold text-white uppercase">${item.titulo}</h4>
+                                <button onclick="carrito.splice(${idx},1);renderizarCarrito();document.getElementById('contador-carrito-badge').innerText=carrito.length;" class="text-[10px] text-red-400 hover:underline">Eliminar</button>
                             </div>
                         </div>
-                        <span class="font-mono text-black font-bold text-xs">$${item.precio.toFixed(2)}</span>
+                        <span class="font-mono text-white font-bold text-xs">$${item.precio.toFixed(2)}</span>
                     </div>`;
             });
             document.getElementById('carrito-monto-total').innerText = `$${subtotalProductos.toFixed(2)}`;
@@ -817,42 +825,76 @@
         });
 
         async function enviarPedidoWhatsApp() {
-            if (!localStorage.getItem('dunig_cliente_registrado')) { verificarClienteRegistrado(); return; }
+            const clienteRegistradoValidacion = localStorage.getItem('dunig_cliente_registrado');
+            if (!clienteRegistradoValidacion) {
+                verificarClienteRegistrado();
+                return;
+            }
+
             if(carrito.length === 0) { alert("Agrega productos primero."); return; }
 
             const paisVal = document.getElementById('pais').value;
             const ciudadVal = document.getElementById('ciudad').value;
             const regionVal = document.getElementById('region').value.trim();
 
-            if(!paisVal || !ciudadVal || !regionVal) { alert("Selecciona país, ciudad y región."); return; }
+            if(!paisVal || !ciudadVal || !regionVal) {
+                alert("Por favor selecciona el país, la ciudad y escribe tu región o sector de destino.");
+                return;
+            }
+
             const metodo = document.getElementById('tipoMetodoPago').value;
-            if(!metodo) { alert("Selecciona método de pago."); return; }
+            if(!metodo) { alert("Por favor selecciona un método de pago."); return; }
 
-            let ref = metodo === 'efectivo' ? document.getElementById('input-num-mesa').value.trim() : document.getElementById('input-ref-pago').value.trim();
-            if(!ref) { alert("Ingresa referencia o número de mesa."); return; }
+            let ref = "";
+            let numeroMesa = "";
 
-            const clienteLocal = JSON.parse(localStorage.getItem('dunig_cliente_registrado'));
+            if (metodo === 'efectivo') {
+                numeroMesa = document.getElementById('input-num-mesa').value.trim();
+                if(!numeroMesa) {
+                    alert("Por favor ingresa el número de mesa u observación.");
+                    document.getElementById('input-num-mesa').focus();
+                    return;
+                }
+                ref = `Efectivo / Local (Mesa/Nota: ${numeroMesa})`;
+            } else {
+                ref = document.getElementById('input-ref-pago').value.trim();
+                if(!ref) { alert("Por favor ingresa el número o código de referencia."); return; }
+            }
+
+            const codigoReferidoCliente = codigoReferidoAplicado || localStorage.getItem('dunig_ref_code') || 'NINGUNO';
+            const clienteLocal = JSON.parse(clienteRegistradoValidacion);
+            
             let totalGeneral = carrito.reduce((a, b) => a + b.precio, 0);
             let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
 
             let wsNum = "584120000000"; 
             try {
-                const { data } = await supabaseClient.from('ajustes_sistema').select('valor').eq('id', 'whatsapp_notificaciones').single();
-                if(data && data.valor) wsNum = data.valor.replace(/[^0-9]/g, "");
-            } catch (err) {}
+                const { data, error } = await supabaseClient.from('ajustes_sistema').select('valor').eq('id', 'whatsapp_notificaciones').single();
+                if(!error && data && data.valor) {
+                    wsNum = data.valor.replace(/[^0-9]/g, "");
+                }
+            } catch (err) {
+                console.log("Usando WhatsApp predeterminado", err);
+            }
 
-            const mensaje = `📦 *PEDIDO - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp}\n\n${lista}\n\n💵 *TOTAL:* $${totalGeneral.toFixed(2)}\n🎟️ *CÓDIGO REFERIDO:* ${codigoReferidoAplicado || 'Ninguno'}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *ENCOMIENDA:* ${empresaEncomiendaSeleccionada}\n🏦 *PAGO:* ${metodo.toUpperCase()}\n🔢 *REF:* ${ref}`;
+            let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *OBSERVACIÓN / MESA:* ${numeroMesa}\n` : '';
+            const mensaje = `📦 *PEDIDO NACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
 
-            await supabaseClient.from('ordenes_vip').insert([{
+            const datosOrdenPendiente = {
                 productos: carrito.map(i => i.titulo).join(', '),
                 total: totalGeneral,
                 monto_total: totalGeneral,
                 referencia: ref,
+                referencia_bancaria: ref,
                 estado: "Pendiente",
-                nombre_cliente: clienteLocal.nombre,
-                telefono: clienteLocal.whatsapp,
-                codigo_referido: codigoReferidoAplicado
-            }]); 
+                codigo_referido: codigoReferidoCliente,
+                coordenadas_gps: "N/A",
+                costo_delivery: 0.00,
+                nombre_cliente: clienteLocal.nombre || null,
+                telefono: clienteLocal.whatsapp || null
+            };
+
+            await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
 
             await guardarOrdenEnCentral({
                 nombre: `Casa de las Papas - Envío por ${empresaEncomiendaSeleccionada}`,
@@ -862,6 +904,15 @@
             carrito = [];
             codigoReferidoAplicado = "";
             document.getElementById('contador-carrito-badge').innerText = "0";
+            document.getElementById('tipoMetodoPago').value = "";
+            document.getElementById('input-ref-pago').value = "";
+            document.getElementById('input-num-mesa').value = "";
+            document.getElementById('input-codigo-referido').value = "";
+            document.getElementById('mensaje-referido').classList.add('hidden');
+            document.getElementById('contenedorReferenciaCart').classList.add('hidden');
+            document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
+            document.getElementById('info-metodo-pago').classList.add('hidden');
+            localStorage.removeItem('dunig_ref_code');
             cambiarPantalla('vitrina');
             window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
