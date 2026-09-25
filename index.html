@@ -22,6 +22,17 @@
         ::-webkit-scrollbar-thumb { background: #cccccc; border-radius: 10px; }
         .category-pill { transition: all 0.2s ease; }
         .category-pill:hover { transform: translateY(-2px); }
+        
+        /* Estilos para el carrusel en movimiento */
+        .carrusel-contenedor {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            width: 100%;
+        }
+        .carrusel-slide {
+            min-width: 100%;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col justify-between relative">
@@ -83,11 +94,6 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <div id="badge-estado-header" class="hidden sm:flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-full text-[10px] font-bold">
-                    <span id="punto-estado-header" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span id="texto-estado-header" class="text-emerald-600 uppercase tracking-wider">Abierto</span>
-                </div>
-
                 <button onclick="abrirModalEdicionDatos()" class="bg-gray-50 border border-gray-200 hover:border-black p-2 rounded-full flex items-center justify-center cursor-pointer transition-all text-gray-700" title="Editar mis datos">
                     <i data-lucide="settings" class="w-4 h-4"></i>
                 </button>
@@ -114,31 +120,44 @@
             </div>
         </div>
 
-        <!-- BANNER PROMOCIONAL ESTILO CARrusel MODERNO -->
+        <!-- CARRUSEL DE IMÁGENES EN MOVIMIENTO (RÁPIDO) -->
         <div class="w-full rounded-2xl overflow-hidden shadow-sm relative bg-black text-white">
             <div class="w-full h-48 sm:h-64 relative overflow-hidden">
-                <img src="https://media.giphy.com/media/xT5LMPj8P2GHcGHOqY/giphy.gif" alt="Banner Animado" class="w-full h-full object-cover opacity-75">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
-                    <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-300">Exclusivo VIP</span>
-                    <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">CASA DE LAS PAPAS</h2>
-                    <p class="text-[11px] text-gray-300">Envíos seguros a nivel nacional por agencias de encomienda (MRW, Zoom, Tealca).</p>
+                <div id="carrusel-slider-track" class="carrusel-contenedor h-full">
+                    <!-- Slide 1 -->
+                    <div class="carrusel-slide relative h-full flex-shrink-0">
+                        <img src="https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?q=80&w=1200" alt="Banner 1" class="w-full h-full object-cover opacity-75">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
+                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-300">Exclusivo VIP</span>
+                            <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">CASA DE LAS PAPAS</h2>
+                            <p class="text-[11px] text-gray-300">Las mejores papas y especialidades directo a tu puerta.</p>
+                        </div>
+                    </div>
+                    <!-- Slide 2 -->
+                    <div class="carrusel-slide relative h-full flex-shrink-0">
+                        <img src="https://images.unsplash.com/photo-1573080496219-bb080dd4f877?q=80&w=1200" alt="Banner 2" class="w-full h-full object-cover opacity-75">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
+                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-300">Envíos Nacionales</span>
+                            <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">MRW, ZOOM Y TEALCA</h2>
+                            <p class="text-[11px] text-gray-300">Despachos seguros a nivel nacional con cobro a destino.</p>
+                        </div>
+                    </div>
+                    <!-- Slide 3 -->
+                    <div class="carrusel-slide relative h-full flex-shrink-0">
+                        <img src="https://images.unsplash.com/photo-1585109649139-366815a0d713?q=80&w=1200" alt="Banner 3" class="w-full h-full object-cover opacity-75">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
+                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-300">Cupones Activos</span>
+                            <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">¡AHORRA MÁS!</h2>
+                            <p class="text-[11px] text-gray-300">Utiliza tus códigos de referido y obtén grandes descuentos.</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- ESTADO DE LA TIENDA -->
-        <div id="banner-estado-tienda" class="bg-white border border-gray-200 rounded-xl p-3.5 flex items-center justify-between shadow-xs">
-            <div class="flex items-center gap-3">
-                <div id="icono-estado-wrapper" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                    <i data-lucide="store" class="w-4 h-4"></i>
+                <!-- Controles indicadores de puntos -->
+                <div class="absolute bottom-3 right-4 flex gap-1.5 z-10" id="carrusel-puntos">
+                    <button onclick="irASlide(0)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
+                    <button onclick="irASlide(1)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
+                    <button onclick="irASlide(2)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
                 </div>
-                <div>
-                    <h3 id="titulo-estado-vitrina" class="text-xs font-bold text-black uppercase tracking-wide">ESTADO: ABIERTOS</h3>
-                    <p id="descripcion-estado-vitrina" class="text-[10px] text-gray-500">Recibiendo pedidos y despachando.</p> 
-                </div>
-            </div>
-            <div class="text-[10px] font-mono text-gray-500 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 hidden sm:block">
-                Horario: <span id="texto-horario-vitrina" class="text-black font-bold">Cargando...</span>
             </div>
         </div>
 
@@ -258,6 +277,16 @@
                     <div id="detalle-datos-pago" class="text-gray-600 space-y-0.5"></div>
                 </div>
 
+                <!-- CAMPO CÓDIGO DE REFERIDO RESTITUIDO -->
+                <div class="space-y-1">
+                    <label class="text-[9px] uppercase text-black font-bold block">Código de Referido / Promoción</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-codigo-referido" placeholder="Ej. VIP2026" class="w-full bg-gray-50 border border-gray-200 text-xs text-black p-3 rounded-xl font-mono uppercase">
+                        <button type="button" onclick="aplicarCodigoReferido()" class="bg-black hover:bg-gray-800 text-white px-4 rounded-xl text-xs font-bold cursor-pointer">Aplicar</button>
+                    </div>
+                    <span id="mensaje-referido" class="text-[10px] font-mono text-emerald-600 hidden"></span>
+                </div>
+
                 <div id="contenedorNumeroMesaCart" class="space-y-1 hidden">
                     <label class="text-[9px] uppercase text-black font-bold block">Número de Mesa</label>
                     <input type="text" id="input-num-mesa" placeholder="Ej. Mesa 04" class="w-full bg-gray-50 border border-gray-200 text-xs text-black p-3 rounded-xl font-mono">
@@ -307,9 +336,46 @@
         let carrito = [];
         let baseProductos = [];
         let productoSeleccionado = null;
-        let fotoSeleccionadaParaLightbox = "";
+        let fotoSeleccionadaForLightbox = "";
         let empresaEncomiendaSeleccionada = "MRW (Por Defecto)";
         let datosDePago = {};
+        let codigoReferidoAplicado = "";
+
+        // Control del Carrusel en movimiento rápido (cada 2.5 segundos)
+        let slideActual = 0;
+        const totalSlides = 3;
+        let intervaloCarrusel = null;
+
+        function iniciarCarrusel() {
+            intervaloCarrusel = setInterval(() => {
+                slideActual = (slideActual + 1) % totalSlides;
+                actualizarPosicionCarrusel();
+            }, 2500); // 2.5 segundos para movimiento rápido
+        }
+
+        function irASlide(indice) {
+            slideActual = indice;
+            actualizarPosicionCarrusel();
+            // Reiniciar intervalo al hacer click manual
+            clearInterval(intervaloCarrusel);
+            iniciarCarrusel();
+        }
+
+        function actualizarPosicionCarrusel() {
+            const track = document.getElementById('carrusel-slider-track');
+            const puntos = document.getElementById('carrusel-puntos');
+            if (!track || !puntos) return;
+            track.style.transform = `translateX(-${slideActual * 100}%)`;
+            
+            const botones = puntos.getElementsByTagName('button');
+            for (let i = 0; i < botones.length; i++) {
+                if (i === slideActual) {
+                    botones[i].className = "w-4 h-2 rounded-full bg-white cursor-pointer transition-all";
+                } else {
+                    botones[i].className = "w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all";
+                }
+            }
+        }
 
         const datosUbicaciones = {
             venezuela: {
@@ -514,41 +580,6 @@
             if (!datosDePago['efectivo']) datosDePago['efectivo'] = `<p class="text-black font-bold">💵 Efectivo en tienda.</p>`;
         }
 
-        async function verificarEstadoTienda() {
-            let estaAbierto = true; 
-            try {
-                const { data, error } = await supabaseClient.from('ajustes_sistema').select('id, valor').in('id', ['estado_negocio', 'hora_vitrina']);
-                if (!error && data) {
-                    data.forEach(item => {
-                        if (item.id === 'estado_negocio') {
-                            const val = String(item.valor).toLowerCase();
-                            if (val === 'cerrado' || val === 'false' || val === '0') estaAbierto = false;
-                        }
-                        if (item.id === 'hora_vitrina') {
-                            const span = document.getElementById('texto-horario-vitrina');
-                            if (span) span.textContent = item.valor;
-                        }
-                    });
-                }
-            } catch (err) {}
-            actualizarInterfazEstadoTienda(estaAbierto);
-        }
-
-        function actualizarInterfazEstadoTienda(estaAbierto) {
-            const puntoHeader = document.getElementById('punto-estado-header');
-            const textoHeader = document.getElementById('texto-estado-header');
-            const tituloVitrina = document.getElementById('titulo-estado-vitrina');
-            if (estaAbierto) {
-                if (puntoHeader) puntoHeader.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
-                if (textoHeader) { textoHeader.className = "text-emerald-600 uppercase font-bold"; textoHeader.textContent = "Abierto"; }
-                if (tituloVitrina) tituloVitrina.textContent = "ESTADO: ABIERTOS (Envíos Nacionales)";
-            } else {
-                if (puntoHeader) puntoHeader.className = "w-2 h-2 rounded-full bg-red-500";
-                if (textoHeader) { textoHeader.className = "text-red-600 uppercase font-bold"; textoHeader.textContent = "Cerrado"; }
-                if (tituloVitrina) tituloVitrina.textContent = "ESTADO: CERRADOS";
-            }
-        }
-
         async function cambiarPantalla(nombre) {
             if (!localStorage.getItem('dunig_cliente_registrado')) { verificarClienteRegistrado(); return; }
             ['vitrina', 'detalle', 'carrito'].forEach(v => {
@@ -558,7 +589,6 @@
             const target = document.getElementById(`vista-${nombre}`);
             if(target) target.classList.remove('hidden');
 
-            if (nombre === 'vitrina') await verificarEstadoTienda();
             if (nombre === 'carrito') renderizarCarrito();
             window.scrollTo({ top: 0, behavior: 'smooth' });
             setTimeout(() => lucide.createIcons(), 50);
@@ -647,13 +677,13 @@
         }
 
         function actualizarVisorFoto(url) {
-            fotoSeleccionadaParaLightbox = url;
+            fotoSeleccionadaForLightbox = url;
             document.getElementById('detalle-visor-principal').src = url;
         }
 
         function amplificarFotoActual() {
-            if(!fotoSeleccionadaParaLightbox) return;
-            document.getElementById('lightbox-imagen-completa').src = fotoSeleccionadaParaLightbox;
+            if(!fotoSeleccionadaForLightbox) return;
+            document.getElementById('lightbox-imagen-completa').src = fotoSeleccionadaForLightbox;
             document.getElementById('modal-lightbox').classList.remove('hidden');
         }
 
@@ -742,6 +772,15 @@
             document.getElementById('carrito-monto-total').innerText = `$${subtotalProductos.toFixed(2)}`;
         }
 
+        function aplicarCodigoReferido() {
+            const inputVal = document.getElementById('input-codigo-referido').value.trim();
+            const msg = document.getElementById('mensaje-referido');
+            if(!inputVal) { alert("Ingresa un código válido."); return; }
+            codigoReferidoAplicado = inputVal;
+            msg.textContent = `¡Código "${inputVal}" aplicado con éxito!`;
+            msg.classList.remove('hidden');
+        }
+
         function gestionarCamposPagoCart() {
             const metodo = document.getElementById('tipoMetodoPago').value;
             const contenedorRef = document.getElementById('contenedorReferenciaCart');
@@ -769,9 +808,9 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             verificarClienteRegistrado();
+            iniciarCarrusel();
             await cargarEmpresasEncomiendaSupabase();
             await cargarCuentasPagoSupabase();
-            await verificarEstadoTienda();
             descargarCatalogoDeSupabase();
             descargarAdicionalesDeSupabase();
             lucide.createIcons();
@@ -802,7 +841,7 @@
                 if(data && data.valor) wsNum = data.valor.replace(/[^0-9]/g, "");
             } catch (err) {}
 
-            const mensaje = `📦 *PEDIDO - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp}\n\n${lista}\n\n💵 *TOTAL:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *ENCOMIENDA:* ${empresaEncomiendaSeleccionada}\n🏦 *PAGO:* ${metodo.toUpperCase()}\n🔢 *REF:* ${ref}`;
+            const mensaje = `📦 *PEDIDO - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp}\n\n${lista}\n\n💵 *TOTAL:* $${totalGeneral.toFixed(2)}\n🎟️ *CÓDIGO REFERIDO:* ${codigoReferidoAplicado || 'Ninguno'}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *ENCOMIENDA:* ${empresaEncomiendaSeleccionada}\n🏦 *PAGO:* ${metodo.toUpperCase()}\n🔢 *REF:* ${ref}`;
 
             await supabaseClient.from('ordenes_vip').insert([{
                 productos: carrito.map(i => i.titulo).join(', '),
@@ -811,7 +850,8 @@
                 referencia: ref,
                 estado: "Pendiente",
                 nombre_cliente: clienteLocal.nombre,
-                telefono: clienteLocal.whatsapp
+                telefono: clienteLocal.whatsapp,
+                codigo_referido: codigoReferidoAplicado
             }]); 
 
             await guardarOrdenEnCentral({
@@ -820,6 +860,7 @@
             });
 
             carrito = [];
+            codigoReferidoAplicado = "";
             document.getElementById('contador-carrito-badge').innerText = "0";
             cambiarPantalla('vitrina');
             window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
