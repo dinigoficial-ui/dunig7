@@ -805,93 +805,94 @@
         });
 
         async function enviarPedidoWhatsApp() {
-            const clienteRegistradoValidacion = localStorage.getItem('dunig_cliente_registrado');
-            if (!clienteRegistradoValidacion) {
-                verificarClienteRegistrado();
-                return;
-            }
+            const clienteRegistradoValidacion = localStorage.getItem('dunig_cliente_registrado');
+            if (!clienteRegistradoValidacion) {
+                verificarClienteRegistrado();
+                return;
+            }
 
-            if(carrito.length === 0) { alert("Agrega productos primero."); return; }
+            if(carrito.length === 0) { alert("Agrega productos primero."); return; }
 
-            const paisVal = document.getElementById('pais').value;
-            const ciudadVal = document.getElementById('ciudad').value;
-            const regionVal = document.getElementById('region').value.trim();
+            const paisVal = document.getElementById('pais').value;
+            const ciudadVal = document.getElementById('ciudad').value;
+            const regionVal = document.getElementById('region').value.trim();
 
-            if(!paisVal || !ciudadVal || !regionVal) {
-                alert("Por favor selecciona el país, la ciudad y escribe tu región o sector de destino.");
-                return;
-            }
+            if(!paisVal || !ciudadVal || !regionVal) {
+                alert("Por favor selecciona el país, la ciudad y escribe tu región o sector de destino.");
+                return;
+            }
 
-            const metodo = document.getElementById('tipoMetodoPago').value;
-            if(!metodo) { alert("Por favor selecciona un método de pago."); return; }
+            const metodo = document.getElementById('tipoMetodoPago').value;
+            if(!metodo) { alert("Por favor selecciona un método de pago."); return; }
 
-            let ref = "";
-            let numeroMesa = "";
+            let ref = "";
+            let numeroMesa = "";
 
-            if (metodo === 'efectivo') {
-                numeroMesa = document.getElementById('input-num-mesa').value.trim();
-                if(!numeroMesa) {
-                    alert("Por favor ingresa el número de mesa u observación.");
-                    document.getElementById('input-num-mesa').focus();
-                    return;
-                }
-                ref = `Efectivo / Local (Mesa/Nota: ${numeroMesa})`;
-            } else {
-                ref = document.getElementById('input-ref-pago').value.trim();
-                if(!ref) { alert("Por favor ingresa el número o código de referencia."); return; }
-            }
+            if (metodo === 'efectivo') {
+                numeroMesa = document.getElementById('input-num-mesa').value.trim();
+                if(!numeroMesa) {
+                    alert("Por favor ingresa el número de mesa u observación.");
+                    document.getElementById('input-num-mesa').focus();
+                    return;
+                }
+                ref = `Efectivo / Local (Mesa/Nota: ${numeroMesa})`;
+            } else {
+                ref = document.getElementById('input-ref-pago').value.trim();
+                if(!ref) { alert("Por favor ingresa el número o código de referencia."); return; }
+            }
 
-            const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || 'SISTEMA_INTERNO';
-            const clienteLocal = JSON.parse(clienteRegistradoValidacion);
-            
-            let totalGeneral = carrito.reduce((a, b) => a + b.precio, 0);
-            let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
+            const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || 'NINGUNO';
+            const clienteLocal = JSON.parse(clienteRegistradoValidacion);
+            
+            let totalGeneral = carrito.reduce((a, b) => a + b.precio, 0);
+            let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
 
-            let wsNum = "584120000000"; 
-            try {
-                const { data, error } = await supabaseClient.from('ajustes_sistema').select('valor').eq('id', 'whatsapp_notificaciones').single();
-                if(!error && data && data.valor) {
-                    wsNum = data.valor.replace(/[^0-9]/g, "");
-                }
-            } catch (err) {
-                console.log("Usando WhatsApp predeterminado", err);
-            }
+            let wsNum = "584120000000"; 
+            try {
+                const { data, error } = await supabaseClient.from('ajustes_sistema').select('valor').eq('id', 'whatsapp_notificaciones').single();
+                if(!error && data && data.valor) {
+                    wsNum = data.valor.replace(/[^0-9]/g, "");
+                }
+            } catch (err) {
+                console.log("Usando WhatsApp predeterminado", err);
+            }
 
-            let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *OBSERVACIÓN / MESA:* ${numeroMesa}\n` : '';
-            const mensaje = `📦 *PEDIDO NACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}`;
+            let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *OBSERVACIÓN / MESA:* ${numeroMesa}\n` : '';
+            const mensaje = `📦 *PEDIDO NACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
 
-            const datosOrdenPendiente = {
-                productos: carrito.map(i => i.titulo).join(', '),
-                total: totalGeneral,
-                monto_total: totalGeneral,
-                referencia: ref,
-                referencia_bancaria: ref,
-                estado: "Pendiente",
-                codigo_referido: codigoReferidoCliente,
-                coordenadas_gps: "N/A",
-                costo_delivery: 0.00,
-                nombre_cliente: clienteLocal.nombre || null,
-                telefono: clienteLocal.whatsapp || null
-            };
+            const datosOrdenPendiente = {
+                productos: carrito.map(i => i.titulo).join(', '),
+                total: totalGeneral,
+                monto_total: totalGeneral,
+                referencia: ref,
+                referencia_bancaria: ref,
+                estado: "Pendiente",
+                codigo_referido: codigoReferidoCliente,
+                coordenadas_gps: "N/A",
+                costo_delivery: 0.00,
+                nombre_cliente: clienteLocal.nombre || null,
+                telefono: clienteLocal.whatsapp || null
+            };
 
-            await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
+            await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
 
-            await guardarOrdenEnCentral({
-                nombre: `Casa de las Papas - Envío por ${empresaEncomiendaSeleccionada}`,
-                detalles: carrito.map(i => i.titulo).join(', ')
-            });
+            await guardarOrdenEnCentral({
+                nombre: `Casa de las Papas - Envío por ${empresaEncomiendaSeleccionada}`,
+                detalles: carrito.map(i => i.titulo).join(', ')
+            });
 
-            carrito = [];
-            document.getElementById('contador-carrito-badge').innerText = "0";
-            document.getElementById('tipoMetodoPago').value = "";
-            document.getElementById('input-ref-pago').value = "";
-            document.getElementById('input-num-mesa').value = "";
-            document.getElementById('contenedorReferenciaCart').classList.add('hidden');
-            document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
-            document.getElementById('info-metodo-pago').classList.add('hidden');
-            cambiarPantalla('vitrina');
-            window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
-        }
-    </script>
-</body> 
+            carrito = [];
+            document.getElementById('contador-carrito-badge').innerText = "0";
+            document.getElementById('tipoMetodoPago').value = "";
+            document.getElementById('input-ref-pago').value = "";
+            document.getElementById('input-num-mesa').value = "";
+            document.getElementById('contenedorReferenciaCart').classList.add('hidden');
+            document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
+            document.getElementById('info-metodo-pago').classList.add('hidden');
+            localStorage.removeItem('dunig_ref_code');
+            cambiarPantalla('vitrina');
+            window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
+        }
+    </script>
+</body> 
 </html>
