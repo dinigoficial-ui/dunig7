@@ -155,9 +155,9 @@
                     <div class="carrusel-slide relative h-full flex-shrink-0">
                         <img src="https://images.unsplash.com/photo-1585109649139-366815a0d713?q=80&w=1200" alt="Banner 3" class="w-full h-full object-cover opacity-60">
                         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
-                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Cupones Activos</span>
-                            <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">¡AHORRA MÁS!</h2>
-                            <p class="text-[11px] text-gray-300">Utiliza tus códigos de referido y obtén grandes descuentos.</p>
+                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Calidad Garantizada</span>
+                            <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">¡SABOR INCOMPARABLE!</h2>
+                            <p class="text-[11px] text-gray-300">Disfruta de nuestros platos únicos preparados al momento.</p>
                         </div>
                     </div>
                 </div>
@@ -286,16 +286,6 @@
                     <div id="detalle-datos-pago" class="text-gray-300 space-y-0.5"></div>
                 </div>
 
-                <!-- CAMPO CÓDIGO DE REFERIDO -->
-                <div class="space-y-1">
-                    <label class="text-[9px] uppercase text-white font-bold block">Código de Referido / Promoción</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="input-codigo-referido" placeholder="Ej. VIP2026" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3 rounded-xl font-mono uppercase">
-                        <button type="button" onclick="aplicarCodigoReferido()" class="bg-white hover:bg-gray-200 text-black px-4 rounded-xl text-xs font-bold cursor-pointer">Aplicar</button>
-                    </div>
-                    <span id="mensaje-referido" class="text-[10px] font-mono text-emerald-400 hidden"></span>
-                </div>
-
                 <div id="contenedorNumeroMesaCart" class="space-y-1 hidden">
                     <label class="text-[9px] uppercase text-white font-bold block">Número de Mesa</label>
                     <input type="text" id="input-num-mesa" placeholder="Ej. Mesa 04" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3 rounded-xl font-mono">
@@ -348,7 +338,6 @@
         let fotoSeleccionadaForLightbox = "";
         let empresaEncomiendaSeleccionada = "MRW (Por Defecto)";
         let datosDePago = {};
-        let codigoReferidoAplicado = "";
 
         // Control del Carrusel en movimiento rápido (cada 2.5 segundos)
         let slideActual = 0;
@@ -780,15 +769,6 @@
             document.getElementById('carrito-monto-total').innerText = `$${subtotalProductos.toFixed(2)}`;
         }
 
-        function aplicarCodigoReferido() {
-            const inputVal = document.getElementById('input-codigo-referido').value.trim();
-            const msg = document.getElementById('mensaje-referido');
-            if(!inputVal) { alert("Ingresa un código válido."); return; }
-            codigoReferidoAplicado = inputVal;
-            msg.textContent = `¡Código "${inputVal}" aplicado con éxito!`;
-            msg.classList.remove('hidden');
-        }
-
         function gestionarCamposPagoCart() {
             const metodo = document.getElementById('tipoMetodoPago').value;
             const contenedorRef = document.getElementById('contenedorReferenciaCart');
@@ -861,7 +841,7 @@
                 if(!ref) { alert("Por favor ingresa el número o código de referencia."); return; }
             }
 
-            const codigoReferidoCliente = codigoReferidoAplicado || localStorage.getItem('dunig_ref_code') || 'NINGUNO';
+            const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || 'SISTEMA_INTERNO';
             const clienteLocal = JSON.parse(clienteRegistradoValidacion);
             
             let totalGeneral = carrito.reduce((a, b) => a + b.precio, 0);
@@ -878,7 +858,7 @@
             }
 
             let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *OBSERVACIÓN / MESA:* ${numeroMesa}\n` : '';
-            const mensaje = `📦 *PEDIDO NACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
+            const mensaje = `📦 *PEDIDO NACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}`;
 
             const datosOrdenPendiente = {
                 productos: carrito.map(i => i.titulo).join(', '),
@@ -902,17 +882,13 @@
             });
 
             carrito = [];
-            codigoReferidoAplicado = "";
             document.getElementById('contador-carrito-badge').innerText = "0";
             document.getElementById('tipoMetodoPago').value = "";
             document.getElementById('input-ref-pago').value = "";
             document.getElementById('input-num-mesa').value = "";
-            document.getElementById('input-codigo-referido').value = "";
-            document.getElementById('mensaje-referido').classList.add('hidden');
             document.getElementById('contenedorReferenciaCart').classList.add('hidden');
             document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
             document.getElementById('info-metodo-pago').classList.add('hidden');
-            localStorage.removeItem('dunig_ref_code');
             cambiarPantalla('vitrina');
             window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
