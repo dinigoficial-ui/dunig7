@@ -3,12 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>D'UNIG SHOPPING- Ecosistema Studio 3D <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>D'UNIG SHOPPING- Ecosistema Studio 3D & VIP</title>
+    <title>D'UNIG SHOPPING - Ecosistema Studio 3D & VIP</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -17,7 +12,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #0b0b0b; /* Negro mate profundo */
+            background-color: #0b0b0b; 
             color: #f3f4f6; 
             overflow-x: hidden; 
             padding-bottom: 70px; 
@@ -37,7 +32,6 @@
         .category-pill { transition: all 0.2s ease; }
         .category-pill:hover { transform: translateY(-2px); }
         
-        /* Estilos para el carrusel en movimiento */
         .carrusel-contenedor {
             display: flex;
             transition: transform 0.5s ease-in-out;
@@ -93,8 +87,8 @@
                     <input type="email" id="reg-correo" required placeholder="tucorreo@dominio.com" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-white font-mono">
                 </div>
 
-                <!-- Input oculto o visible para el referido en caso de requerirse en formulario -->
-                <div class="space-y-1 hidden">
+                <!-- Campo de referido corregido (sin interferir en la validación) -->
+                <div style="display:none;">
                     <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Código de Referido</label>
                     <input type="text" id="input-referido" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl">
                 </div>
@@ -158,7 +152,6 @@
         <div class="w-full rounded-2xl overflow-hidden shadow-sm relative bg-black text-white border border-[#262626]">
             <div class="w-full h-48 sm:h-64 relative overflow-hidden">
                 <div id="carrusel-slider-track" class="carrusel-contenedor h-full">
-                    <!-- Slide 1 -->
                     <div class="carrusel-slide relative h-full flex-shrink-0">
                         <img src="https://www.marketingdirecto.com/wp-content/uploads/2019/07/shopping.jpg" alt="Banner 1" class="w-full h-full object-cover opacity-60">
                         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
@@ -167,7 +160,6 @@
                             <p class="text-[11px] text-gray-300">tu tienda preferida.</p>
                         </div>
                     </div>
-                    <!-- Slide 2 -->
                     <div class="carrusel-slide relative h-full flex-shrink-0">
                         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTQ6amcvkRsCTkLxPewgywpbhAKo5i-opK5zp8DsYXng&s=10" alt="Banner 2" class="w-full h-full object-cover opacity-60">
                         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
@@ -176,7 +168,6 @@
                             <p class="text-[11px] text-gray-300">Despachos seguros a nivel nacional con cobro a destino.</p>
                         </div>
                     </div>
-                    <!-- Slide 3 -->
                     <div class="carrusel-slide relative h-full flex-shrink-0">
                         <img src="https://elpremiodetuvida.es/wp-content/uploads/2023/07/El-Premio-de-Tu-Vida-Sorteo-Rifas.webp" alt="Banner 3" class="w-full h-full object-cover opacity-60">
                         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
@@ -186,7 +177,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Controles indicadores de puntos -->
                 <div class="absolute bottom-3 right-4 flex gap-1.5 z-10" id="carrusel-puntos">
                     <button onclick="irASlide(0)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
                     <button onclick="irASlide(1)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
@@ -195,7 +185,6 @@
             </div>
         </div>
 
-        <!-- GRID DE PRODUCTOS -->
         <div id="grid-productos-vitrina" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"></div>
     </main>
 
@@ -273,7 +262,6 @@
                 </div>
             </div>
 
-            <!-- EMPRESAS DE ENCOMIENDA -->
             <div class="space-y-2 pt-2">
                 <label class="text-[10px] uppercase text-white font-bold tracking-wider block">Selecciona Empresa de Encomiendas</label>
                 <div id="grid-empresas-encomienda" class="grid grid-cols-3 gap-2"></div>
@@ -283,7 +271,6 @@
             </div>
         </section>
 
-        <!-- RESUMEN Y PAGO -->
         <section class="bg-[#141414] border border-[#262626] p-5 rounded-2xl shadow-xs space-y-4">
             <h3 class="text-sm font-extrabold text-white uppercase border-b border-[#262626] pb-2">Resumen de Orden</h3>
             
@@ -364,7 +351,6 @@
         let empresaEncomiendaSeleccionada = "MRW (Por Defecto)";
         let datosDePago = {};
 
-        // Control del Carrusel en movimiento rápido (cada 2.5 segundos)
         let slideActual = 0;
         const totalSlides = 3;
         let intervaloCarrusel = null;
@@ -522,7 +508,7 @@
             const whatsapp = document.getElementById('reg-whatsapp').value.trim();
             const correo = document.getElementById('reg-correo').value.trim();
 
-            if (!nombre || !whatsapp || !correo) { alert("Completa todos los campos."); return; }
+            if (!nombre || !whatsapp || !correo) { alert("Completa todos los campos obligatorios."); return; }
             const datosCliente = { nombre, whatsapp, correo };
 
             try {
@@ -565,7 +551,7 @@
         }
 
         function cerrarModalRegistroSiEsValido() {
-            if (!localStorage.getItem('dunig_cliente_registrado')) { alert("Obligatorio."); return; }
+            if (!localStorage.getItem('dunig_cliente_registrado')) { alert("Debes registrarte para continuar."); return; }
             document.getElementById('modal-registro-cliente').style.display = 'none';
         }
 
@@ -819,14 +805,8 @@
             }
         }
 
-        // ==========================================
-        // LÓGICA DE REFERIDOS Y SOPORTE DE APP / WEB
-        // ==========================================
         function aplicarCodigoEnFormulario(codigo) {
-            console.log("Código de referido listo para la orden:", codigo);
-            // Guardar en el storage principal esperado por el carrito (dunig_ref_code)
             localStorage.setItem('dunig_ref_code', codigo);
-            
             const inputRef = document.getElementById('input-referido');
             if (inputRef) {
                 inputRef.value = codigo;
@@ -842,23 +822,19 @@
             descargarAdicionalesDeSupabase();
             lucide.createIcons();
 
-            // 1. Capturar código de referido de la URL actual si existe
             const urlParams = new URLSearchParams(window.location.search);
             const codigoRefUrl = urlParams.get('ref');
 
             if (codigoRefUrl) {
                 localStorage.setItem('codigo_referido_pendiente', codigoRefUrl);
                 aplicarCodigoEnFormulario(codigoRefUrl);
-                console.log("Código de referido guardado temporalmente:", codigoRefUrl);
             }
 
-            // 2. Opción B: Si el usuario ya tenía el código guardado previamente
             const codigoGuardado = localStorage.getItem('codigo_referido_pendiente') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('dunig_ref_code');
             if (codigoGuardado) {
                 aplicarCodigoEnFormulario(codigoGuardado);
             }
 
-            // 3. Detección de dispositivo móvil para mostrar banner de descarga APK
             const esDispositivoMobil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             if (esDispositivoMobil) {
                 const banner = document.getElementById('banner-descarga-app');
@@ -867,23 +843,6 @@
                 }
             }
         });
-
-        // Opción A: Soporte para Capacitor si la app se abrió mediante un enlace externo (Deep Linking)
-        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
-            window.Capacitor.Plugins.App.addListener('appOpenUrl', (event) => {
-                try {
-                    const url = new URL(event.url);
-                    const codigoRefApp = url.searchParams.get('ref');
-                    
-                    if (codigoRefApp) {
-                        localStorage.setItem('codigo_referido_activo', codigoRefApp);
-                        aplicarCodigoEnFormulario(codigoRefApp);
-                    }
-                } catch (e) {
-                    console.error("Error al procesar appOpenUrl", e);
-                }
-            });
-        }
 
         async function enviarPedidoWhatsApp() {
             const clienteRegistradoValidacion = localStorage.getItem('dunig_cliente_registrado');
@@ -934,977 +893,7 @@
                 if(!error && data && data.valor) {
                     wsNum = data.valor.replace(/[^0-9]/g, "");
                 }
-            } catch (err) {
-                console.log("Usando WhatsApp predeterminado", err);
-            }
-
-            let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *OBSERVACIÓN / MESA:* ${numeroMesa}\n` : '';
-            const mensaje = `📦 *PEDIDO NACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
-
-            const datosOrdenPendiente = {
-                productos: carrito.map(i => i.titulo).join(', '),
-                total: totalGeneral,
-                monto_total: totalGeneral,
-                referencia: ref,
-                referencia_bancaria: ref,
-                estado: "Pendiente",
-                codigo_referido: codigoReferidoCliente,
-                coordenadas_gps: "N/A",
-                costo_delivery: 0.00,
-                nombre_cliente: clienteLocal.nombre || null,
-                telefono: clienteLocal.whatsapp || null
-            };
-
-            await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
-
-            await guardarOrdenEnCentral({
-                nombre: `Casa de las Papas - Envío por ${empresaEncomiendaSeleccionada}`,
-                detalles: carrito.map(i => i.titulo).join(', ')
-            });
-
-            carrito = [];
-            document.getElementById('contador-carrito-badge').innerText = "0";
-            document.getElementById('tipoMetodoPago').value = "";
-            document.getElementById('input-ref-pago').value = "";
-            document.getElementById('input-num-mesa').value = "";
-            document.getElementById('contenedorReferenciaCart').classList.add('hidden');
-            document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
-            document.getElementById('info-metodo-pago').classList.add('hidden');
-            localStorage.removeItem('dunig_ref_code');
-            cambiarPantalla('vitrina');
-            window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
-        }
-    </script>
-</body> 
-</html>& VIP</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #0b0b0b; /* Negro mate profundo */
-            color: #f3f4f6; 
-            overflow-x: hidden; 
-            padding-bottom: 70px; 
-        }
-        .glass-panel { 
-            background: #141414; 
-            border: 1px solid #262626; 
-        }
-        .btn-oro-flotante {
-            background: linear-gradient(135deg, #1f1f1f 0%, #2f2f2f 100%);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
-        }
-        .btn-oro-flotante:hover { transform: scale(1.05); }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #333333; border-radius: 10px; }
-        .category-pill { transition: all 0.2s ease; }
-        .category-pill:hover { transform: translateY(-2px); }
-        
-        /* Estilos para el carrusel en movimiento */
-        .carrusel-contenedor {
-            display: flex;
-            transition: transform 0.5s ease-in-out;
-            width: 100%;
-        }
-        .carrusel-slide {
-            min-width: 100%;
-            box-sizing: border-box;
-        }
-    </style>
-</head>
-<body class="antialiased min-h-screen flex flex-col justify-between relative">
-
-    <!-- BANNER / BOTÓN FLOTANTE DE DESCARGA APK -->
-    <div id="banner-descarga-app" style="display: none; position: fixed; bottom: 75px; left: 16px; right: 16px; background: #1f1f1f; color: #fff; padding: 12px 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 9998; align-items: center; justify-content: space-between; font-family: sans-serif; border: 1px solid #333;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 26px;">📱</span>
-            <div>
-                <h4 style="margin: 0; font-size: 14px; font-weight: bold;">¡Instala nuestra App!</h4>
-                <p style="margin: 2px 0 0 0; font-size: 12px; color: #bbb;">Obtén una experiencia más rápida.</p>
-            </div>
-        </div>
-        <a id="btn-descargar-apk" href="ruta-de-tu-apk/tu-app.apk" style="background: #25D366; color: white; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px; white-space: nowrap;">
-            Descargar
-        </a>
-    </div>
-
-    <!-- MODAL / PANTALLA DE REGISTRO INICIAL Y EDICIÓN OBLIGATORIOS -->
-    <div id="modal-registro-cliente" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
-        <div class="bg-[#141414] w-full max-w-md p-8 rounded-3xl shadow-2xl space-y-6 relative border border-[#262626]">
-            <button type="button" onclick="cerrarModalRegistroSiEsValido()" id="btn-cerrar-modal" class="hidden absolute top-4 right-4 text-gray-400 hover:text-white cursor-pointer">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-            <div class="text-center space-y-2">
-                <div class="w-12 h-12 bg-white text-black rounded-2xl flex items-center justify-center mx-auto shadow-md">
-                    <i data-lucide="user-check" class="w-6 h-6"></i>
-                </div>
-                <h2 class="text-xl font-extrabold text-white tracking-tight">¡REGISTRO OBLIGATORIO VIP!</h2>
-                <p class="text-xs text-gray-400">Debes ingresar tus datos obligatoriamente para poder continuar y guardar tu progreso.</p>
-            </div>
-
-            <form id="form-registro-cliente" onsubmit="registrarClienteUnico(event)" class="space-y-4">
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Nombre y Apellido *</label>
-                    <input type="text" id="reg-nombre" required placeholder="Ej. Carlos Pérez" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-white">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Número de WhatsApp *</label>
-                    <input type="tel" id="reg-whatsapp" required placeholder="Ej. +584120000000" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-white font-mono">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Correo Electrónico *</label>
-                    <input type="email" id="reg-correo" required placeholder="tucorreo@dominio.com" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-white font-mono">
-                </div>
-
-                <!-- Input oculto o visible para el referido en caso de requerirse en formulario -->
-                <div class="space-y-1 hidden">
-                    <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Código de Referido</label>
-                    <input type="text" id="input-referido" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl">
-                </div>
-
-                <button type="submit" class="w-full bg-white hover:bg-gray-200 text-black font-bold py-4 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg transition-all">
-                    GUARDAR Y CONTINUAR 🚀
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- HEADER ESTILO APP MODERNA -->
-    <header class="bg-[#121212] border-b border-[#222222] sticky top-0 z-50 px-4 shadow-md">
-        <div class="max-w-7xl mx-auto h-16 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 cursor-pointer" onclick="cambiarPantalla('vitrina')">
-                <div class="bg-white p-2 rounded-xl text-black shadow-sm">
-                    <i data-lucide="store" class="w-5 h-5"></i>
-                </div>
-                <div>
-                    <h1 class="text-sm font-black tracking-tight text-white">
-                       D'UNIG<span class="text-amber-500">SHOPPING</span>
-                    </h1>
-                    <p class="text-[8px] text-gray-400 uppercase tracking-widest font-semibold">VENEZUELA</p>
-                </div>
-            </div>
-
-            <!-- BUSCADOR SUPERIOR COMPACTO -->
-            <div class="flex-1 max-w-md mx-2 hidden md:flex items-center bg-[#1b1b1b] rounded-full px-3 py-1.5 border border-[#333333] focus-within:border-white transition-all">
-                <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i>
-                <input type="text" id="input-buscador-vitrina-desktop" placeholder="Buscar productos..." oninput="document.getElementById('input-buscador-vitrina').value=this.value;filtrarProductosVitrina();" class="w-full bg-transparent text-xs text-white focus:outline-none">
-            </div>
-
-            <div class="flex items-center gap-2">
-                <button onclick="abrirModalEdicionDatos()" class="bg-[#1b1b1b] border border-[#333333] hover:border-white p-2 rounded-full flex items-center justify-center cursor-pointer transition-all text-gray-300" title="Editar mis datos">
-                    <i data-lucide="settings" class="w-4 h-4"></i>
-                </button>
-
-                <button onclick="cambiarPantalla('carrito')" class="relative bg-[#1b1b1b] border border-[#333333] p-2 rounded-full flex items-center justify-center hover:border-white cursor-pointer">
-                    <i data-lucide="shopping-bag" class="w-4 h-4 text-gray-200"></i>
-                    <span id="contador-carrito-badge" class="absolute -top-1 -right-1 bg-white text-black font-mono text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- VISTA VITRINA -->
-    <main id="vista-vitrina" class="max-w-7xl w-full mx-auto px-4 py-4 flex-grow space-y-6 relative z-10">
-        
-        <!-- BARRA DE BÚSQUEDA MÓVIL -->
-        <div class="w-full md:hidden">
-            <div class="relative flex items-center bg-[#141414] border border-[#262626] rounded-full px-4 py-2 shadow-xs">
-                <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i>
-                <input type="text" id="input-buscador-vitrina" placeholder="Buscar especialidades o categorías..." oninput="filtrarProductosVitrina()" class="w-full bg-transparent text-xs text-white focus:outline-none">
-                <button onclick="limpiarBuscadorVitrina()" class="text-gray-400 hover:text-white">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- CARRUSEL DE IMÁGENES EN MOVIMIENTO -->
-        <div class="w-full rounded-2xl overflow-hidden shadow-sm relative bg-black text-white border border-[#262626]">
-            <div class="w-full h-48 sm:h-64 relative overflow-hidden">
-                <div id="carrusel-slider-track" class="carrusel-contenedor h-full">
-                    <!-- Slide 1 -->
-                    <div class="carrusel-slide relative h-full flex-shrink-0">
-                        <img src="https://www.marketingdirecto.com/wp-content/uploads/2019/07/shopping.jpg" alt="Banner 1" class="w-full h-full object-cover opacity-60">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
-                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Exclusivo VIP</span>
-                            <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">D'UNIG SHOPPING</h2>
-                            <p class="text-[11px] text-gray-300">tu tienda preferida.</p>
-                        </div>
-                    </div>
-                    <!-- Slide 2 -->
-                    <div class="carrusel-slide relative h-full flex-shrink-0">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTQ6amcvkRsCTkLxPewgywpbhAKo5i-opK5zp8DsYXng&s=10" alt="Banner 2" class="w-full h-full object-cover opacity-60">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
-                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Envíos Nacionales</span>
-                            <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">MRW, ZOOM Y TEALCA</h2>
-                            <p class="text-[11px] text-gray-300">Despachos seguros a nivel nacional con cobro a destino.</p>
-                        </div>
-                    </div>
-                    <!-- Slide 3 -->
-                    <div class="carrusel-slide relative h-full flex-shrink-0">
-                        <img src="https://elpremiodetuvida.es/wp-content/uploads/2023/07/El-Premio-de-Tu-Vida-Sorteo-Rifas.webp" alt="Banner 3" class="w-full h-full object-cover opacity-60">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
-                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Calidad Garantizada</span>
-                            <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">¡PREMIAMOS TU COMPRA!</h2>
-                            <p class="text-[11px] text-gray-300">Por cada compra mínima participas por premios reales.</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Controles indicadores de puntos -->
-                <div class="absolute bottom-3 right-4 flex gap-1.5 z-10" id="carrusel-puntos">
-                    <button onclick="irASlide(0)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
-                    <button onclick="irASlide(1)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
-                    <button onclick="irASlide(2)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
-                </div>
-            </div>
-        </div>
-
-        <!-- GRID DE PRODUCTOS -->
-        <div id="grid-productos-vitrina" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"></div>
-    </main>
-
-    <!-- VISTA DETALLE -->
-    <main id="vista-detalle" class="hidden max-w-5xl w-full mx-auto px-4 py-6 flex-grow relative z-10">
-        <button onclick="cambiarPantalla('vitrina')" class="mb-4 flex items-center gap-1 text-xs font-bold text-gray-400 hover:text-white cursor-pointer transition-colors">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver
-        </button>
-
-        <div class="bg-[#141414] border border-[#262626] rounded-2xl overflow-hidden shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6 p-4 sm:p-6">
-            <div class="space-y-3">
-                <div class="relative rounded-xl overflow-hidden bg-[#1f1f1f] aspect-square flex items-center justify-center border border-[#262626]">
-                    <div id="contenedor-media-principal" class="w-full h-full flex items-center justify-center bg-[#1a1a1a] cursor-zoom-in" onclick="amplificarFotoActual()">
-                        <img id="detalle-visor-principal" src="" alt="Visor Principal" class="w-full h-full object-cover">
-                    </div>
-                    <button onclick="amplificarFotoActual()" class="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md text-white p-2 rounded-full text-xs shadow-md cursor-pointer hover:bg-black">
-                        <i data-lucide="maximize-2" class="w-4 h-4"></i>
-                    </button>
-                </div>
-                <div id="detalle-contenedor-miniaturas" class="grid grid-cols-5 gap-2"></div>
-            </div>
-
-            <div class="space-y-4 flex flex-col justify-between">
-                <div class="space-y-3">
-                    <span id="detalle-categoria" class="text-[9px] uppercase tracking-wider font-bold bg-[#222222] text-gray-300 px-2.5 py-1 rounded-md">CATEGORÍA</span>
-                    <h2 id="detalle-titulo" class="text-xl sm:text-2xl font-black text-white tracking-tight">Título del Producto</h2>
-                    <p id="detalle-precio" class="text-xl font-mono text-white font-extrabold">$0.00</p>
-                    
-                    <div class="border-t border-[#262626] pt-3 space-y-1">
-                        <h4 class="text-[9px] uppercase tracking-wider text-gray-400 font-bold">Descripción:</h4>
-                        <p id="detalle-descripcion" class="text-xs text-gray-400 leading-relaxed">Cargando...</p>
-                    </div>
-
-                    <div id="contenedor-adicionales" class="w-full pt-2"></div>
-                </div>
-
-                <button onclick="agregarDetalleAlCarritoYVolver()" class="w-full bg-white hover:bg-gray-200 text-black font-bold py-3.5 px-6 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all">
-                    <i data-lucide="shopping-bag" class="w-4 h-4"></i> AÑADIR A LA BOLSA VIP
-                </button>
-            </div>
-        </div>
-    </main>
-
-    <!-- VISTA CARRITO -->
-    <main id="vista-carrito" class="hidden max-w-5xl w-full mx-auto px-4 py-6 flex-grow relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        <section class="lg:col-span-2 bg-[#141414] border border-[#262626] p-5 rounded-2xl space-y-4 shadow-xs">
-            <h2 class="text-base font-extrabold text-white uppercase tracking-tight flex items-center gap-2 border-b border-[#262626] pb-3">
-                <i data-lucide="shopping-basket" class="w-5 h-5 text-amber-500"></i> Bolsa de Pedidos VIP
-            </h2>
-            <div id="lista-items-carrito" class="divide-y divide-[#262626]"></div>
-            
-            <div class="space-y-3 pt-4 border-t border-[#262626] bg-[#1a1a1a] p-4 rounded-xl">
-                <h3 class="text-xs font-bold text-white uppercase flex items-center gap-1.5">
-                    <i data-lucide="map-pin" class="w-4 h-4 text-amber-500"></i> Destino y Logística de Encomienda
-                </h3>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    <div class="space-y-1">
-                        <label class="text-[9px] font-bold uppercase text-gray-400">País</label>
-                        <select id="pais" name="pais" onchange="actualizarCiudades()" required class="w-full bg-[#141414] border border-[#333333] text-xs text-white p-2.5 rounded-lg focus:outline-none focus:border-white">
-                            <option value="">Seleccione...</option>
-                            <option value="venezuela">Venezuela</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[9px] font-bold uppercase text-gray-400">Ciudad</label>
-                        <select id="ciudad" name="ciudad" onchange="actualizarRegiones()" required class="w-full bg-[#141414] border border-[#333333] text-xs text-white p-2.5 rounded-lg focus:outline-none focus:border-white">
-                            <option value="">Seleccione país...</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[9px] font-bold uppercase text-gray-400">Región / Sector</label>
-                        <input type="text" id="region" name="region" placeholder="Urbanización / Av..." required class="w-full bg-[#141414] border border-[#333333] text-xs text-white p-2.5 rounded-lg focus:outline-none focus:border-white">
-                    </div>
-                </div>
-            </div>
-
-            <!-- EMPRESAS DE ENCOMIENDA -->
-            <div class="space-y-2 pt-2">
-                <label class="text-[10px] uppercase text-white font-bold tracking-wider block">Selecciona Empresa de Encomiendas</label>
-                <div id="grid-empresas-encomienda" class="grid grid-cols-3 gap-2"></div>
-                <div id="badge-empresa-seleccionada" class="text-xs font-mono text-amber-400 bg-amber-500/10 p-2 rounded-lg border border-amber-500/20 hidden">
-                    Agencia: <span id="texto-agencia-activa" class="font-bold">Ninguna</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- RESUMEN Y PAGO -->
-        <section class="bg-[#141414] border border-[#262626] p-5 rounded-2xl shadow-xs space-y-4">
-            <h3 class="text-sm font-extrabold text-white uppercase border-b border-[#262626] pb-2">Resumen de Orden</h3>
-            
-            <div class="flex justify-between items-center text-xs text-gray-400">
-                <span>Total Productos (<span id="cantidad-items-abajo" class="font-bold font-mono">0</span>):</span>
-                <span class="text-white font-extrabold font-mono text-base" id="carrito-monto-total">$0.00</span>
-            </div>
-            
-            <div class="space-y-3 pt-2 border-t border-[#262626]">
-                <div class="space-y-1">
-                    <label class="text-[9px] uppercase text-gray-400 font-bold block">Método de Pago</label>
-                    <select id="tipoMetodoPago" onchange="gestionarCamposPagoCart()" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3 rounded-xl focus:outline-none focus:border-white">
-                        <option value="">Seleccione...</option>
-                        <option value="zelle">Zelle</option>
-                        <option value="nequi">Nequi</option>
-                        <option value="pago_movil">Pago Móvil</option>
-                        <option value="efectivo">Efectivo</option>
-                    </select>
-                </div>
-
-                <div id="info-metodo-pago" class="hidden p-3 bg-[#1a1a1a] border border-[#262626] rounded-xl space-y-1 text-xs font-mono">
-                    <div class="flex items-center justify-between font-bold text-white border-b border-[#333333] pb-1 mb-1">
-                        <span id="titulo-metodo-pago">Datos</span>
-                    </div>
-                    <div id="detalle-datos-pago" class="text-gray-300 space-y-0.5"></div>
-                </div>
-
-                <div id="contenedorNumeroMesaCart" class="space-y-1 hidden">
-                    <label class="text-[9px] uppercase text-white font-bold block">Número de Mesa</label>
-                    <input type="text" id="input-num-mesa" placeholder="Ej. Mesa 04" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3 rounded-xl font-mono">
-                </div>
-
-                <div id="contenedorReferenciaCart" class="space-y-1 hidden">
-                    <label class="text-[9px] uppercase text-white font-bold block">Número de Referencia</label>
-                    <input type="text" id="input-ref-pago" placeholder="Código de referencia" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3 rounded-xl font-mono">
-                </div>
-
-                <button onclick="enviarPedidoWhatsApp()" class="w-full bg-white hover:bg-gray-200 text-black font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer shadow-md flex items-center justify-center gap-2 transition-all">
-                    <i data-lucide="send" class="w-4 h-4"></i> Enviar por WhatsApp
-                </button>
-            </div>
-        </section>
-    </main>
-
-    <!-- NAVEGACIÓN INFERIOR FIJA -->
-    <nav aria-label="Navegación inferior" class="fixed bottom-0 left-0 right-0 bg-[#121212] border-t border-[#222222] z-40 px-6 py-2 flex items-center justify-around shadow-lg">
-        <button onclick="cambiarPantalla('vitrina')" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white cursor-pointer">
-            <i data-lucide="home" class="w-5 h-5"></i>
-            <span class="text-[10px] font-bold uppercase tracking-wide">Comprar</span>
-        </button>
-        <button onclick="cambiarPantalla('carrito')" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white cursor-pointer relative">
-            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-            <span class="text-[10px] font-bold uppercase tracking-wide">Cesta</span>
-        </button>
-        <a href="cuponera.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white cursor-pointer">
-            <i data-lucide="ticket" class="w-5 h-5"></i>
-            <span class="text-[10px] font-bold uppercase tracking-wide">Cupones</span>
-        </a>
-    </nav>
-
-    <!-- LIGHTBOX -->
-    <div id="modal-lightbox" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 cursor-zoom-out" onclick="cerrarAmplificacion()">
-        <button class="absolute top-4 right-4 text-white p-2">
-            <i data-lucide="x" class="w-6 h-6"></i>
-        </button>
-        <img id="lightbox-imagen-completa" src="" class="max-w-full max-h-full object-contain rounded-lg">
-    </div>
-
-    <script>
-        const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co";  
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        let carrito = [];
-        let baseProductos = [];
-        let productoSeleccionado = null;
-        let fotoSeleccionadaForLightbox = "";
-        let empresaEncomiendaSeleccionada = "MRW (Por Defecto)";
-        let datosDePago = {};
-
-        // Control del Carrusel en movimiento rápido (cada 2.5 segundos)
-        let slideActual = 0;
-        const totalSlides = 3;
-        let intervaloCarrusel = null;
-
-        function iniciarCarrusel() {
-            intervaloCarrusel = setInterval(() => {
-                slideActual = (slideActual + 1) % totalSlides;
-                actualizarPosicionCarrusel();
-            }, 2500);
-        }
-
-        function irASlide(indice) {
-            slideActual = indice;
-            actualizarPosicionCarrusel();
-            clearInterval(intervaloCarrusel);
-            iniciarCarrusel();
-        }
-
-        function actualizarPosicionCarrusel() {
-            const track = document.getElementById('carrusel-slider-track');
-            const puntos = document.getElementById('carrusel-puntos');
-            if (!track || !puntos) return;
-            track.style.transform = `translateX(-${slideActual * 100}%)`;
-            
-            const botones = puntos.getElementsByTagName('button');
-            for (let i = 0; i < botones.length; i++) {
-                if (i === slideActual) {
-                    botones[i].className = "w-4 h-2 rounded-full bg-white cursor-pointer transition-all";
-                } else {
-                    botones[i].className = "w-2 h-2 rounded-full bg-white/40 cursor-pointer transition-all";
-                }
-            }
-        }
-
-        const datosUbicaciones = {
-            venezuela: {
-                "Amazonas": ["Puerto Ayacucho"],
-                "Anzoátegui": ["Barcelona", "Puerto La Cruz", "El Tigre", "Anaco"],
-                "Apure": ["San Fernando de Apure", "Guasdualito"],
-                "Aragua": ["Maracay", "Turmero", "La Victoria", "Cagua"],
-                "Barinas": ["Barinas", "Barinitas"],
-                "Bolívar": ["Ciudad Bolívar", "Puerto Ordaz", "San Félix", "Upata"],
-                "Carabobo": ["Valencia", "Puerto Cabello", "Guacara", "Naguanagua", "San Diego"],
-                "Cojedes": ["San Carlos", "Tinaquillo"],
-                "Delta Amacuro": ["Tucupita"],
-                "Distrito Capital": ["Caracas"],
-                "Falcón": ["Coro", "Punto Fijo", "Tucacas"],
-                "Guárico": ["San Juan de los Morros", "Calabozo", "Altagracia de Orituco", "Valle de la Pascua"],
-                "Lara": ["Barquisimeto", "Carora", "El Tocuyo", "Cabudare"],
-                "Mérida": ["Mérida", "Ejido", "El Vigía", "Tabay", "Tovar"],
-                "Miranda": ["Los Teques", "Guarenas", "Guatire", "Petare", "Baruta", "Chacao"],
-                "Monagas": ["Maturín", "Punta de Mata"],
-                "Nueva Esparta": ["La Asunción", "Porlamar", "Pampatar", "Juan Griego"],
-                "Portuguesa": ["Guanare", "Acarigua", "Araure"],
-                "Sucre": ["Cumaná", "Carúpano"],
-                "Táchira": ["San Cristóbal", "Táriba", "Rubio", "San Antonio del Táchira"],
-                "Trujillo": ["Trujillo", "Valera", "Boconó"],
-                "Vargas (La Guaira)": ["La Guaira", "Maiquetía", "Catia La Mar"],
-                "Yaracuy": ["San Felipe", "Yaritagua"],
-                "Zulia": ["Maracaibo", "Cabimas", "Ciudad Ojeda", "San Francisco", "Machiques"]
-            }
-        };
-
-        function actualizarCiudades() {
-            const paisSelect = document.getElementById('pais').value;
-            const ciudadSelect = document.getElementById('ciudad');
-            const regionInput = document.getElementById('region');
-            
-            if (regionInput) regionInput.value = '';
-            ciudadSelect.innerHTML = '<option value="">Seleccione una ciudad...</option>';
-
-            if (paisSelect && datosUbicaciones[paisSelect]) {
-                let listaCiudades = [];
-                for (let estado in datosUbicaciones[paisSelect]) {
-                    listaCiudades = listaCiudades.concat(datosUbicaciones[paisSelect][estado]);
-                }
-                listaCiudades.sort().forEach(c => {
-                    ciudadSelect.innerHTML += `<option value="${c}">${c}</option>`;
-                });
-            } else {
-                ciudadSelect.innerHTML = '<option value="">Seleccione primero un país...</option>';
-            }
-        }
-
-        function actualizarRegiones() {
-            const regionInput = document.getElementById('region');
-            if (regionInput) regionInput.value = '';
-        }
-
-        async function cargarEmpresasEncomiendaSupabase() {
-            const grid = document.getElementById('grid-empresas-encomienda');
-            if (!grid) return;
-
-            try {
-                const { data, error } = await supabaseClient.from('empresas_encomienda').select('*').eq('activo', true);
-                if (!error && data && data.length > 0) {
-                    grid.innerHTML = "";
-                    data.forEach(emp => {
-                        grid.innerHTML += `
-                            <div onclick="seleccionarEmpresaEncomienda('${emp.codigo}', '${emp.nombre_largo}')" id="encomienda-${emp.codigo.toLowerCase()}" class="encomienda-card cursor-pointer bg-[#1a1a1a] border border-[#262626] hover:border-white p-2 rounded-xl flex flex-col items-center text-center transition-all">
-                                <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]">
-                                    <img src="${emp.imagen_url}" alt="${emp.codigo}" class="w-full h-full object-cover">
-                                </div>
-                                <span class="text-[10px] font-bold text-white uppercase">${emp.codigo}</span>
-                            </div>`;
-                    });
-                } else {
-                    renderizarEmpresasFallback(grid);
-                }
-            } catch (err) {
-                renderizarEmpresasFallback(grid);
-            }
-            seleccionarEmpresaEncomienda('MRW', '📦 MRW (Cobro a Destino)');
-        }
-
-        function renderizarEmpresasFallback(grid) {
-            grid.innerHTML = `
-                <div onclick="seleccionarEmpresaEncomienda('MRW', '📦 MRW (Cobro a Destino)')" id="encomienda-mrw" class="encomienda-card cursor-pointer bg-[#1a1a1a] border border-[#262626] hover:border-white p-2 rounded-xl flex flex-col items-center text-center transition-all">
-                    <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="descarga (1).png" alt="MRW" class="w-full h-full object-cover"></div>
-                    <span class="text-[10px] font-bold text-white uppercase">MRW</span>
-                </div>
-                <div onclick="seleccionarEmpresaEncomienda('DOMESA', '🏢 Grupo ZOOM / DOMESA')" id="encomienda-domesa" class="encomienda-card cursor-pointer bg-[#1a1a1a] border border-[#262626] hover:border-white p-2 rounded-xl flex flex-col items-center text-center transition-all">
-                    <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="images (8).jpg" alt="DOMESA" class="w-full h-full object-cover"></div>
-                    <span class="text-[10px] font-bold text-white uppercase">DOMESA</span>
-                </div>
-                <div onclick="seleccionarEmpresaEncomienda('TEALCA', '🚚 Tealca Express')" id="encomienda-tealca" class="encomienda-card cursor-pointer bg-[#1a1a1a] border border-[#262626] hover:border-white p-2 rounded-xl flex flex-col items-center text-center transition-all">
-                    <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="images (9).jpg" alt="TEALCA" class="w-full h-full object-cover"></div>
-                    <span class="text-[10px] font-bold text-white uppercase">TEALCA</span>
-                </div>
-            `;
-        }
-
-        function seleccionarEmpresaEncomienda(codigo, nombreLargo) {
-            empresaEncomiendaSeleccionada = nombreLargo;
-            document.querySelectorAll('.encomienda-card').forEach(el => {
-                el.classList.remove('border-white', 'bg-white/10');
-                el.classList.add('border-[#262626]', 'bg-[#1a1a1a]');
-            });
-            const cardActiva = document.getElementById(`encomienda-${codigo.toLowerCase()}`);
-            if (cardActiva) {
-                cardActiva.classList.remove('border-[#262626]', 'bg-[#1a1a1a]');
-                cardActiva.classList.add('border-white', 'bg-white/10');
-            }
-            const badge = document.getElementById('badge-empresa-seleccionada');
-            const textoAgencia = document.getElementById('texto-agencia-activa');
-            if (badge && textoAgencia) {
-                textoAgencia.textContent = nombreLargo;
-                badge.classList.remove('hidden');
-            }
-        }
-
-        async function registrarClienteUnico(event) {
-            event.preventDefault();
-            const nombre = document.getElementById('reg-nombre').value.trim();
-            const whatsapp = document.getElementById('reg-whatsapp').value.trim();
-            const correo = document.getElementById('reg-correo').value.trim();
-
-            if (!nombre || !whatsapp || !correo) { alert("Completa todos los campos."); return; }
-            const datosCliente = { nombre, whatsapp, correo };
-
-            try {
-                const clienteAnterior = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
-                if (clienteAnterior.correo) {
-                    const { error: updateError } = await supabaseClient.from('clientes_vip').update({ nombre, whatsapp, correo }).eq('correo', clienteAnterior.correo);
-                    if (updateError) await supabaseClient.from('clientes_vip').insert([datosCliente]);
-                } else {
-                    await supabaseClient.from('clientes_vip').insert([datosCliente]);
-                }
             } catch (err) {}
-
-            localStorage.setItem('dunig_cliente_registrado', JSON.stringify(datosCliente));
-            document.getElementById('modal-registro-cliente').style.display = 'none';
-        }
-
-        function verificarClienteRegistrado() {
-            const clienteGuardado = localStorage.getItem('dunig_cliente_registrado');
-            const modal = document.getElementById('modal-registro-cliente');
-            const btnCerrar = document.getElementById('btn-cerrar-modal');
-            if (clienteGuardado) {
-                if (modal) modal.style.display = 'none';
-            } else {
-                if (modal) modal.style.display = 'flex';
-                if (btnCerrar) btnCerrar.classList.add('hidden');
-            }
-        }
-
-        function abrirModalEdicionDatos() {
-            const clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
-            if (clienteGuardado.nombre) {
-                document.getElementById('reg-nombre').value = clienteGuardado.nombre;
-                document.getElementById('reg-whatsapp').value = clienteGuardado.whatsapp || '';
-                document.getElementById('reg-correo').value = clienteGuardado.correo || '';
-            }
-            const modal = document.getElementById('modal-registro-cliente');
-            const btnCerrar = document.getElementById('btn-cerrar-modal');
-            if (modal) modal.style.display = 'flex';
-            if (btnCerrar) btnCerrar.classList.remove('hidden');
-        }
-
-        function cerrarModalRegistroSiEsValido() {
-            if (!localStorage.getItem('dunig_cliente_registrado')) { alert("Obligatorio."); return; }
-            document.getElementById('modal-registro-cliente').style.display = 'none';
-        }
-
-        async function guardarOrdenEnCentral(nuevaOrden) {
-            const SUPABASE_CENTRAL_URL = "https://cmaishgahyzlhszwaozg.supabase.co/rest/v1/ordenes_central";
-            const SUPABASE_CENTRAL_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtYWlzaGdhaHl6bGhzendhb3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5MjMxMzEsImV4cCI6MjEwMDQ5OTEzMX0.8JVrpQKocnyZa3qLxsX9ZxjygYy4QY3kp_VSvrL1qNQ";
-            try {
-                await fetch(SUPABASE_CENTRAL_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "apikey": SUPABASE_CENTRAL_KEY, "Authorization": `Bearer ${SUPABASE_CENTRAL_KEY}`, "Prefer": "return=representation" },
-                    body: JSON.stringify({ comercio: nuevaOrden.nombre || "Casa de las Papas", comercio_nombre: nuevaOrden.nombre || "Casa de las Papas", comercio_direccion: "HVX5+G5H, Mérida", productos: nuevaOrden.detalles || "Pedido", costo_delivery: 0.00, coordenadas_gps: "N/A", estado: "Pendiente" })
-                });
-            } catch (error) {}
-        }
-
-        async function cargarCuentasPagoSupabase() {
-            try {
-                const { data, error } = await supabaseClient.from('cuentas_pago').select('*');
-                if (!error && data) {
-                    data.forEach(cuenta => {
-                        let htmlDetalle = '';
-                        if (cuenta.plataforma === 'efectivo') {
-                            htmlDetalle = `<p class="text-white font-bold">💵 Efectivo en tienda física.</p>`;
-                        } else {
-                            if (cuenta.banco) htmlDetalle += `<p><strong>Banco:</strong> ${cuenta.banco}</p>`;
-                            if (cuenta.telefono) htmlDetalle += `<p><strong>Teléfono:</strong> ${cuenta.telefono}</p>`;
-                            if (cuenta.ci) htmlDetalle += `<p><strong>Cédula:</strong> ${cuenta.ci}</p>`;
-                            if (cuenta.titular) htmlDetalle += `<p><strong>Titular:</strong> ${cuenta.titular}</p>`;
-                        }
-                        datosDePago[cuenta.plataforma] = htmlDetalle;
-                    });
-                }
-            } catch (err) {}
-            if (!datosDePago['efectivo']) datosDePago['efectivo'] = `<p class="text-white font-bold">💵 Efectivo en tienda.</p>`;
-        }
-
-        async function cambiarPantalla(nombre) {
-            if (!localStorage.getItem('dunig_cliente_registrado')) { verificarClienteRegistrado(); return; }
-            ['vitrina', 'detalle', 'carrito'].forEach(v => {
-                const el = document.getElementById(`vista-${v}`);
-                if(el) el.classList.add('hidden');
-            });
-            const target = document.getElementById(`vista-${nombre}`);
-            if(target) target.classList.remove('hidden');
-
-            if (nombre === 'carrito') renderizarCarrito();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            setTimeout(() => lucide.createIcons(), 50);
-        }
-
-        async function descargarCatalogoDeSupabase() {
-            const grid = document.getElementById('grid-productos-vitrina');
-            if(!grid) return;
-            const { data, error } = await supabaseClient.from('productos').select('*');
-            if (error) { grid.innerHTML = `<div class="col-span-2 text-center text-xs text-red-400">Error al conectar con base de datos.</div>`; return; }
-
-            if (data && data.length > 0) {
-                baseProductos = data;
-                grid.innerHTML = "";
-                data.forEach(p => {
-                    const titulo = p.titulo || p.nombre || "Producto";
-                    const precio = parseFloat(p.precio || p.valor || 0);
-                    const imagen = p.imagen_url || p.imagen || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600';
-                    const categoria = p.categoria || 'ESPECIALIDAD';
-
-                    grid.innerHTML += `
-                        <div onclick="verDetalleDeProducto(${p.id})" class="bg-[#141414] rounded-2xl overflow-hidden border border-[#262626] flex flex-col justify-between shadow-xs cursor-pointer hover:border-white transition-all group">
-                            <div class="aspect-square bg-[#1a1a1a] overflow-hidden relative">
-                                <img src="${imagen}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                                <span class="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-[8px] font-bold uppercase text-white px-2 py-0.5 rounded">${categoria}</span>
-                            </div>
-                            <div class="p-3 space-y-1.5">
-                                <h3 class="font-bold text-xs text-white uppercase truncate">${titulo}</h3>
-                                <div class="flex justify-between items-center">
-                                    <span class="font-mono text-xs text-white font-extrabold">$${precio.toFixed(2)}</span>
-                                    <span class="text-[10px] text-amber-400 font-bold underline">Ver</span>
-                                </div>
-                            </div>
-                        </div>`;
-                });
-            } else {
-                grid.innerHTML = `<div class="col-span-2 text-center text-xs text-gray-400">Sin productos disponibles.</div>`;
-            }
-            lucide.createIcons();
-        }
-
-        function filtrarProductosVitrina() {
-            const textoBusqueda = document.getElementById('input-buscador-vitrina').value.toLowerCase();
-            document.querySelectorAll('#grid-productos-vitrina > div').forEach(tarjeta => {
-                tarjeta.style.display = tarjeta.innerText.toLowerCase().includes(textoBusqueda) ? 'flex' : 'none';
-            });
-        }
-
-        function limpiarBuscadorVitrina() {
-            const input = document.getElementById('input-buscador-vitrina');
-            if (input) { input.value = ''; filtrarProductosVitrina(); }
-        }
-
-        function verDetalleDeProducto(idProducto) {
-            if (!localStorage.getItem('dunig_cliente_registrado')) { verificarClienteRegistrado(); return; }
-            productoSeleccionado = baseProductos.find(p => p.id === idProducto); 
-            if (!productoSeleccionado) return;
-
-            document.getElementById('detalle-titulo').innerText = productoSeleccionado.titulo || productoSeleccionado.nombre;
-            document.getElementById('detalle-categoria').innerText = productoSeleccionado.categoria || 'ESPECIALIDAD';
-            document.getElementById('detalle-precio').innerText = `$${parseFloat(productoSeleccionado.precio || 0).toFixed(2)}`;
-            document.getElementById('detalle-descripcion').innerText = productoSeleccionado.descripcion || "Sin descripción.";
-
-            const imgInicial = productoSeleccionado.imagen_url || productoSeleccionado.imagen || "";
-            actualizarVisorFoto(imgInicial);
-
-            let fotosSlider = [];
-            try { fotosSlider = JSON.parse(productoSeleccionado.imagenes_slider) || []; } catch(e){}
-            if (fotosSlider.length === 0 && imgInicial) fotosSlider.push(imgInicial);
-
-            const containerMiniaturas = document.getElementById('detalle-contenedor-miniaturas'); 
-            containerMiniaturas.innerHTML = "";
-            fotosSlider.forEach(img => {
-                if(img) containerMiniaturas.innerHTML += `<div onclick="actualizarVisorFoto('${img}')" class="aspect-square rounded-lg bg-[#1a1a1a] border border-[#262626] overflow-hidden cursor-pointer"><img src="${img}" class="w-full h-full object-cover"></div>`;
-            });
-
-            renderizarAdicionales();
-            cambiarPantallaDetalleDirecto();
-        }
-
-        function cambiarPantallaDetalleDirecto() {
-            ['vitrina', 'carrito'].forEach(v => document.getElementById(`vista-${v}`).classList.add('hidden'));
-            document.getElementById('vista-detalle').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            setTimeout(() => lucide.createIcons(), 50);
-        }
-
-        function actualizarVisorFoto(url) {
-            fotoSeleccionadaForLightbox = url;
-            document.getElementById('detalle-visor-principal').src = url;
-        }
-
-        function amplificarFotoActual() {
-            if(!fotoSeleccionadaForLightbox) return;
-            document.getElementById('lightbox-imagen-completa').src = fotoSeleccionadaForLightbox;
-            document.getElementById('modal-lightbox').classList.remove('hidden');
-        }
-
-        function cerrarAmplificacion() {
-            document.getElementById('modal-lightbox').classList.add('hidden');
-        }
-
-        async function descargarAdicionalesDeSupabase() {
-            const { data, error } = await supabaseClient.from('adicionales').select('*');
-            if (!error && data) window.listaAdicionales = data;
-        }
-
-        function renderizarAdicionales() {
-            const contenedor = document.getElementById('contenedor-adicionales');
-            if (!contenedor || !window.listaAdicionales || window.listaAdicionales.length === 0) {
-                if(contenedor) contenedor.innerHTML = "";
-                return;
-            }
-            contenedor.innerHTML = `
-                <details class="group bg-[#1a1a1a] border border-[#262626] rounded-xl overflow-hidden">
-                    <summary class="list-none p-3 text-[10px] font-bold text-gray-300 cursor-pointer flex justify-between items-center">
-                        <span>SELECCIONAR ADICIONALES / EXTRAS</span>
-                        <i data-lucide="chevron-down" class="w-4 h-4 group-open:rotate-180 transition-transform"></i>
-                    </summary>
-                    <div class="p-2 border-t border-[#262626] space-y-1">
-                        ${window.listaAdicionales.map(ad => `
-                            <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-[#222222] rounded-lg">
-                                <input type="checkbox" class="check-adicional w-4 h-4 accent-white" data-nombre="${ad.nombre}" data-precio="${ad.precio}">
-                                <span class="text-xs text-white font-medium">${ad.nombre}</span>                                 <span class="text-xs text-gray-400 font-mono ml-auto">+$${parseFloat(ad.precio).toFixed(2)}</span>
-                            </label>
-                        `).join('')}
-                    </div>
-                </details>`;
-            lucide.createIcons();
-        }
-
-        function agregarDetalleAlCarritoYVolver() {
-            if (!localStorage.getItem('dunig_cliente_registrado')) { verificarClienteRegistrado(); return; }
-            if (!productoSeleccionado) return;
-
-            let adicionalesSeleccionados = [];
-            let extraTotal = 0;
-            document.querySelectorAll('.check-adicional:checked').forEach(cb => {
-                adicionalesSeleccionados.push(cb.getAttribute('data-nombre'));
-                extraTotal += parseFloat(cb.getAttribute('data-precio') || 0);
-            });
-
-            const tituloBase = productoSeleccionado.titulo || productoSeleccionado.nombre;
-            const tituloFinal = `${tituloBase} ${adicionalesSeleccionados.length > 0 ? '(+ ' + adicionalesSeleccionados.join(', ') + ')' : ''}`;
-            const precioFinal = parseFloat(productoSeleccionado.precio || 0) + extraTotal;
-            const imagenFinal = productoSeleccionado.imagen_url || productoSeleccionado.imagen || '';
-
-            carrito.push({ titulo: tituloFinal, precio: precioFinal, imagen_url: imagenFinal });
-            document.getElementById('contador-carrito-badge').innerText = carrito.length;
-            cambiarPantalla('vitrina');
-        }
-
-        function renderizarCarrito() {
-            const cont = document.getElementById('lista-items-carrito');
-            const contAbajo = document.getElementById('cantidad-items-abajo');
-            if(!cont) return;
-            cont.innerHTML = "";
-            let subtotalProductos = 0;
-            if(contAbajo) contAbajo.innerText = carrito.length;
-
-            if(carrito.length === 0) {
-                cont.innerHTML = `<div class="p-6 text-center text-gray-500 text-xs">Tu bolsa está vacía.</div>`;
-                document.getElementById('carrito-monto-total').innerText = "$0.00";
-                return;
-            }
-
-            carrito.forEach((item, idx) => {
-                subtotalProductos += item.precio;
-                cont.innerHTML += `
-                    <div class="flex justify-between items-center py-3">
-                        <div class="flex items-center gap-3">
-                            <img src="${item.imagen_url}" class="w-10 h-10 object-cover rounded-lg border border-[#262626]">
-                            <div>
-                                <h4 class="text-xs font-bold text-white uppercase">${item.titulo}</h4>
-                                <button onclick="carrito.splice(${idx},1);renderizarCarrito();document.getElementById('contador-carrito-badge').innerText=carrito.length;" class="text-[10px] text-red-400 hover:underline">Eliminar</button>
-                            </div>
-                        </div>
-                        <span class="font-mono text-white font-bold text-xs">$${item.precio.toFixed(2)}</span>
-                    </div>`;
-            });
-            document.getElementById('carrito-monto-total').innerText = `$${subtotalProductos.toFixed(2)}`;
-        }
-
-        function gestionarCamposPagoCart() {
-            const metodo = document.getElementById('tipoMetodoPago').value;
-            const contenedorRef = document.getElementById('contenedorReferenciaCart');
-            const contenedorMesa = document.getElementById('contenedorNumeroMesaCart');
-            const contenedorInfoPago = document.getElementById('info-metodo-pago');
-            const detalleDatosPago = document.getElementById('detalle-datos-pago');
-
-            if (datosDePago[metodo]) {
-                detalleDatosPago.innerHTML = datosDePago[metodo];
-                contenedorInfoPago.classList.remove('hidden');
-            } else { contenedorInfoPago.classList.add('hidden'); }
-
-            if (metodo === 'efectivo') {
-                contenedorRef.classList.add('hidden');
-                contenedorMesa.classList.remove('hidden');
-                document.getElementById('input-ref-pago').value = 'EFECTIVO';
-            } else if (metodo !== '') {
-                contenedorRef.classList.remove('hidden');
-                contenedorMesa.classList.add('hidden');
-            } else {
-                contenedorRef.classList.add('hidden');
-                contenedorMesa.classList.add('hidden');
-            }
-        }
-
-        // ==========================================
-        // LÓGICA DE REFERIDOS Y SOPORTE DE APP / WEB
-        // ==========================================
-        function aplicarCodigoEnFormulario(codigo) {
-            console.log("Código de referido listo para la orden:", codigo);
-            // Guardar en el storage principal esperado por el carrito (dunig_ref_code)
-            localStorage.setItem('dunig_ref_code', codigo);
-            
-            const inputRef = document.getElementById('input-referido');
-            if (inputRef) {
-                inputRef.value = codigo;
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            verificarClienteRegistrado();
-            iniciarCarrusel();
-            await cargarEmpresasEncomiendaSupabase();
-            await cargarCuentasPagoSupabase();
-            descargarCatalogoDeSupabase();
-            descargarAdicionalesDeSupabase();
-            lucide.createIcons();
-
-            // 1. Capturar código de referido de la URL actual si existe
-            const urlParams = new URLSearchParams(window.location.search);
-            const codigoRefUrl = urlParams.get('ref');
-
-            if (codigoRefUrl) {
-                localStorage.setItem('codigo_referido_pendiente', codigoRefUrl);
-                aplicarCodigoEnFormulario(codigoRefUrl);
-                console.log("Código de referido guardado temporalmente:", codigoRefUrl);
-            }
-
-            // 2. Opción B: Si el usuario ya tenía el código guardado previamente
-            const codigoGuardado = localStorage.getItem('codigo_referido_pendiente') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('dunig_ref_code');
-            if (codigoGuardado) {
-                aplicarCodigoEnFormulario(codigoGuardado);
-            }
-
-            // 3. Detección de dispositivo móvil para mostrar banner de descarga APK
-            const esDispositivoMobil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            if (esDispositivoMobil) {
-                const banner = document.getElementById('banner-descarga-app');
-                if (banner) {
-                    banner.style.display = 'flex';
-                }
-            }
-        });
-
-        // Opción A: Soporte para Capacitor si la app se abrió mediante un enlace externo (Deep Linking)
-        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
-            window.Capacitor.Plugins.App.addListener('appOpenUrl', (event) => {
-                try {
-                    const url = new URL(event.url);
-                    const codigoRefApp = url.searchParams.get('ref');
-                    
-                    if (codigoRefApp) {
-                        localStorage.setItem('codigo_referido_activo', codigoRefApp);
-                        aplicarCodigoEnFormulario(codigoRefApp);
-                    }
-                } catch (e) {
-                    console.error("Error al procesar appOpenUrl", e);
-                }
-            });
-        }
-
-        async function enviarPedidoWhatsApp() {
-            const clienteRegistradoValidacion = localStorage.getItem('dunig_cliente_registrado');
-            if (!clienteRegistradoValidacion) {
-                verificarClienteRegistrado();
-                return;
-            }
-
-            if(carrito.length === 0) { alert("Agrega productos primero."); return; }
-
-            const paisVal = document.getElementById('pais').value;
-            const ciudadVal = document.getElementById('ciudad').value;
-            const regionVal = document.getElementById('region').value.trim();
-
-            if(!paisVal || !ciudadVal || !regionVal) {
-                alert("Por favor selecciona el país, la ciudad y escribe tu región o sector de destino.");
-                return;
-            }
-
-            const metodo = document.getElementById('tipoMetodoPago').value;
-            if(!metodo) { alert("Por favor selecciona un método de pago."); return; }
-
-            let ref = "";
-            let numeroMesa = "";
-
-            if (metodo === 'efectivo') {
-                numeroMesa = document.getElementById('input-num-mesa').value.trim();
-                if(!numeroMesa) {
-                    alert("Por favor ingresa el número de mesa u observación.");
-                    document.getElementById('input-num-mesa').focus();
-                    return;
-                }
-                ref = `Efectivo / Local (Mesa/Nota: ${numeroMesa})`;
-            } else {
-                ref = document.getElementById('input-ref-pago').value.trim();
-                if(!ref) { alert("Por favor ingresa el número o código de referencia."); return; }
-            }
-
-            const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('codigo_referido_pendiente') || 'NINGUNO';
-            const clienteLocal = JSON.parse(clienteRegistradoValidacion);
-            
-            let totalGeneral = carrito.reduce((a, b) => a + b.precio, 0);
-            let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
-
-            let wsNum = "584120000000"; 
-            try {
-                const { data, error } = await supabaseClient.from('ajustes_sistema').select('valor').eq('id', 'whatsapp_notificaciones').single();
-                if(!error && data && data.valor) {
-                    wsNum = data.valor.replace(/[^0-9]/g, "");
-                }
-            } catch (err) {
-                console.log("Usando WhatsApp predeterminado", err);
-            }
 
             let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *OBSERVACIÓN / MESA:* ${numeroMesa}\n` : '';
             const mensaje = `📦 *PEDIDO NACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
