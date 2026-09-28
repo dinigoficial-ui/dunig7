@@ -511,6 +511,13 @@
             const nombre = document.getElementById('reg-nombre').value.trim();
             const whatsapp = document.getElementById('reg-whatsapp').value.trim();
             const correo = document.getElementById('reg-correo').value.trim();
+            
+            // Capturar también el referido si el usuario lo modificó en el input
+            const inputRefVal = document.getElementById('input-referido').value.trim();
+            if (inputRefVal) {
+                localStorage.setItem('dunig_ref_code', inputRefVal);
+                localStorage.setItem('codigo_referido_activo', inputRefVal);
+            }
 
             if (!nombre || !whatsapp || !correo) { alert("Completa todos los campos obligatorios."); return; }
             const datosCliente = { nombre, whatsapp, correo };
@@ -548,6 +555,12 @@
                 document.getElementById('reg-whatsapp').value = clienteGuardado.whatsapp || '';
                 document.getElementById('reg-correo').value = clienteGuardado.correo || '';
             }
+            
+            // Mostrar el código de referido actual en el input del modal por si se desea ver o editar
+            const codigoActual = localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('codigo_referido_pendiente') || '';
+            const inputRef = document.getElementById('input-referido');
+            if (inputRef) inputRef.value = codigoActual;
+
             const modal = document.getElementById('modal-registro-cliente');
             const btnCerrar = document.getElementById('btn-cerrar-modal');
             if (modal) modal.style.display = 'flex';
@@ -810,7 +823,9 @@
         }
 
         function aplicarCodigoEnFormulario(codigo) {
+            if (!codigo) return;
             localStorage.setItem('dunig_ref_code', codigo);
+            localStorage.setItem('codigo_referido_activo', codigo);
             const inputRef = document.getElementById('input-referido');
             if (inputRef) {
                 inputRef.value = codigo;
@@ -826,17 +841,17 @@
             descargarAdicionalesDeSupabase();
             lucide.createIcons();
 
+            // CAPTURA ROBUSTA DE REFERIDO POR URL Y LOCALSTORAGE
             const urlParams = new URLSearchParams(window.location.search);
             const codigoRefUrl = urlParams.get('ref');
 
             if (codigoRefUrl) {
-                localStorage.setItem('codigo_referido_pendiente', codigoRefUrl);
                 aplicarCodigoEnFormulario(codigoRefUrl);
-            }
-
-            const codigoGuardado = localStorage.getItem('codigo_referido_pendiente') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('dunig_ref_code');
-            if (codigoGuardado) {
-                aplicarCodigoEnFormulario(codigoGuardado);
+            } else {
+                const codigoGuardado = localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('codigo_referido_pendiente');
+                if (codigoGuardado) {
+                    aplicarCodigoEnFormulario(codigoGuardado);
+                }
             }
 
             const esDispositivoMobil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -885,6 +900,7 @@
                 if(!ref) { alert("Por favor ingresa el número o código de referencia."); return; }
             }
 
+            // OBTENCIÓN SEGURA DEL CÓDIGO DE REFERIDO PARA EL PEDIDO
             const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('codigo_referido_pendiente') || 'NINGUNO';
             const clienteLocal = JSON.parse(clienteRegistradoValidacion);
             
@@ -931,7 +947,8 @@
             document.getElementById('contenedorReferenciaCart').classList.add('hidden');
             document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
             document.getElementById('info-metodo-pago').classList.add('hidden');
-            localStorage.removeItem('dunig_ref_code');
+            
+            // NOTA: No borramos 'dunig_ref_code' aquí para que si el cliente hace otro pedido en la misma sesión, siga conservando su referido.
             cambiarPantalla('vitrina');
             window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
