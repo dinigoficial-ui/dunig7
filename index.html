@@ -346,7 +346,9 @@
         <img id="lightbox-imagen-completa" src="" class="max-w-full max-h-full object-contain rounded-lg">
     </div>
 
-    <script>
+    <script type="module">
+        import { App } from '@capacitor/app';
+
         const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co";  
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -421,7 +423,7 @@
             }
         };
 
-        function actualizarCiudades() {
+        window.actualizarCiudades = function() {
             const paisSelect = document.getElementById('pais').value;
             const ciudadSelect = document.getElementById('ciudad');
             const regionInput = document.getElementById('region');
@@ -442,7 +444,7 @@
             }
         }
 
-        function actualizarRegiones() {
+        window.actualizarRegiones = function() {
             const regionInput = document.getElementById('region');
             if (regionInput) regionInput.value = '';
         }
@@ -490,7 +492,7 @@
             `;
         }
 
-        function seleccionarEmpresaEncomienda(codigo, nombreLargo) {
+        window.seleccionarEmpresaEncomienda = function(codigo, nombreLargo) {
             empresaEncomiendaSeleccionada = nombreLargo;
             document.querySelectorAll('.encomienda-card').forEach(el => {
                 el.classList.remove('border-white', 'bg-white/10');
@@ -509,7 +511,7 @@
             }
         }
 
-        async function registrarClienteUnico(event) {
+        window.registrarClienteUnico = async function(event) {
             event.preventDefault();
             const nombre = document.getElementById('reg-nombre').value.trim();
             const whatsapp = document.getElementById('reg-whatsapp').value.trim();
@@ -553,7 +555,7 @@
             }
         }
 
-        function abrirModalEdicionDatos() {
+        window.abrirModalEdicionDatos = function() {
             const clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
             if (clienteGuardado.nombre) {
                 document.getElementById('reg-nombre').value = clienteGuardado.nombre;
@@ -574,7 +576,7 @@
             if (btnCerrar) btnCerrar.classList.remove('hidden');
         }
 
-        function cerrarModalRegistroSiEsValido() {
+        window.cerrarModalRegistroSiEsValido = function() {
             if (!localStorage.getItem('dunig_cliente_registrado')) { alert("Debes registrarte para continuar."); return; }
             document.getElementById('modal-registro-cliente').style.display = 'none';
         }
@@ -612,7 +614,7 @@
             if (!datosDePago['efectivo']) datosDePago['efectivo'] = `<p class="text-white font-bold">💵 Efectivo en tienda.</p>`;
         }
 
-        async function cambiarPantalla(nombre) {
+        window.cambiarPantalla = async function(nombre) {
             if (!localStorage.getItem('dunig_cliente_registrado')) { verificarClienteRegistrado(); return; }
             ['vitrina', 'detalle', 'carrito'].forEach(v => {
                 const el = document.getElementById(`vista-${v}`);
@@ -662,19 +664,19 @@
             lucide.createIcons();
         }
 
-        function filtrarProductosVitrina() {
+        window.filtrarProductosVitrina = function() {
             const textoBusqueda = document.getElementById('input-buscador-vitrina').value.toLowerCase();
             document.querySelectorAll('#grid-productos-vitrina > div').forEach(tarjeta => {
                 tarjeta.style.display = tarjeta.innerText.toLowerCase().includes(textoBusqueda) ? 'flex' : 'none';
             });
         }
 
-        function limpiarBuscadorVitrina() {
+        window.limpiarBuscadorVitrina = function() {
             const input = document.getElementById('input-buscador-vitrina');
             if (input) { input.value = ''; filtrarProductosVitrina(); }
         }
 
-        function verDetalleDeProducto(idProducto) {
+        window.verDetalleDeProducto = function(idProducto) {
             if (!localStorage.getItem('dunig_cliente_registrado')) { verificarClienteRegistrado(); return; }
             productoSeleccionado = baseProductos.find(p => p.id === idProducto); 
             if (!productoSeleccionado) return;
@@ -708,18 +710,18 @@
             setTimeout(() => lucide.createIcons(), 50);
         }
 
-        function actualizarVisorFoto(url) {
+        window.actualizarVisorFoto = function(url) {
             fotoSeleccionadaForLightbox = url;
             document.getElementById('detalle-visor-principal').src = url;
         }
 
-        function amplificarFotoActual() {
+        window.amplificarFotoActual = function() {
             if(!fotoSeleccionadaForLightbox) return;
             document.getElementById('lightbox-imagen-completa').src = fotoSeleccionadaForLightbox;
             document.getElementById('modal-lightbox').classList.remove('hidden');
         }
 
-        function cerrarAmplificacion() {
+        window.cerrarAmplificacion = function() {
             document.getElementById('modal-lightbox').classList.add('hidden');
         }
 
@@ -752,7 +754,7 @@
             lucide.createIcons();
         }
 
-        function agregarDetalleAlCarritoYVolver() {
+        window.agregarDetalleAlCarritoYVolver = function() {
             if (!localStorage.getItem('dunig_cliente_registrado')) { verificarClienteRegistrado(); return; }
             if (!productoSeleccionado) return;
 
@@ -804,7 +806,7 @@
             document.getElementById('carrito-monto-total').innerText = `$${subtotalProductos.toFixed(2)}`;
         }
 
-        function gestionarCamposPagoCart() {
+        window.gestionarCamposPagoCart = function() {
             const metodo = document.getElementById('tipoMetodoPago').value;
             const contenedorRef = document.getElementById('contenedorReferenciaCart');
             const contenedorMesa = document.getElementById('contenedorNumeroMesaCart');
@@ -829,6 +831,57 @@
             }
         }
 
+        // ==========================================
+        // CAPTURA Y GESTIÓN DE DEEP LINKS (CAPACITOR)
+        // ==========================================
+        async function detectarReferidoPorDeepLink() {
+            try {
+                // 1. Escuchar si la app se abre mediante un enlace mientras está abierta o en segundo plano
+                App.addListener('appUrlOpen', (data) => {
+                    procesarUrlReferido(data.url);
+                });
+
+                // 2. Verificar si la app se abrió inicialmente desde un enlace cerrado
+                const launchUrl = await App.getLaunchUrl();
+                if (launchUrl && launchUrl.url) {
+                    procesarUrlReferido(launchUrl.url);
+                }
+            } catch (e) {
+                console.log('Deep links no disponibles en este entorno web puro', e);
+            }
+        }
+
+        function procesarUrlReferido(urlCompleta) {
+            try {
+                const url = new URL(urlCompleta);
+                const refCode = url.searchParams.get('ref');
+
+                if (refCode) {
+                    const codigoLimpio = refCode.trim().toUpperCase();
+                    
+                    // Guardado persistente
+                    localStorage.setItem('dunig_ref_code', codigoLimpio);
+                    localStorage.setItem('codigo_referido_activo', codigoLimpio);
+                    
+                    // Rellenar automáticamente el input en tu modal si ya existe en pantalla
+                    const inputRef = document.getElementById('input-referido');
+                    if (inputRef) {
+                        inputRef.value = codigoLimpio;
+                        inputRef.readOnly = true; // Para que el usuario no lo modifique
+                    }
+
+                    // Sincronizar con los datos guardados del cliente si ya existe registro previo
+                    let clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
+                    if (clienteGuardado.nombre) {
+                        clienteGuardado.codigo_referido = codigoLimpio;
+                        localStorage.setItem('dunig_cliente_registrado', JSON.stringify(clienteGuardado));
+                    }
+                }
+            } catch (err) {
+                console.error('Error procesando URL:', err);
+            }
+        }
+
         function aplicarYFijarCodigoReferido() {
             // 1. Verificar si el usuario ya tiene un código propio generado
             let miCodigoPropio = localStorage.getItem("mi_codigo_propio");
@@ -837,14 +890,14 @@
                 localStorage.setItem("mi_codigo_propio", miCodigoPropio);
             }
 
-            // 2. Revisar si entró mediante enlace con ?ref=...
+            // 2. Revisar si entró mediante enlace web tradicional con ?ref=...
             const urlParams = new URLSearchParams(window.location.search);
             const codigoRefUrl = urlParams.get('ref');
 
             let codigoFinal = miCodigoPropio; // Por defecto usa el suyo
 
             if (codigoRefUrl) {
-                codigoFinal = codigoRefUrl.trim();
+                codigoFinal = codigoRefUrl.trim().toUpperCase();
                 localStorage.setItem('dunig_ref_code', codigoFinal);
                 localStorage.setItem('codigo_referido_activo', codigoFinal);
             } else {
@@ -860,7 +913,6 @@
                 inputRef.value = codigoFinal;
             }
 
-            // Sincronizar con el objeto del cliente guardado si existe
             let clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
             if (clienteGuardado.nombre) {
                 clienteGuardado.codigo_referido = codigoFinal;
@@ -870,6 +922,7 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             aplicarYFijarCodigoReferido();
+            await detectarReferidoPorDeepLink(); // Inicializa la escucha nativa de Capacitor
             verificarClienteRegistrado();
             iniciarCarrusel();
             await cargarEmpresasEncomiendaSupabase();
@@ -887,7 +940,7 @@
             }
         });
 
-        async function enviarPedidoWhatsApp() {
+        window.enviarPedidoWhatsApp = async function() {
             const clienteRegistradoValidacion = localStorage.getItem('dunig_cliente_registrado');
             if (!clienteRegistradoValidacion) {
                 verificarClienteRegistrado();
@@ -926,7 +979,7 @@
 
             const clienteLocal = JSON.parse(clienteRegistradoValidacion);
             
-            // OBTENCIÓN ROBUSTA DEL CÓDIGO DE REFERIDO PARA EL PEDIDO (Prioriza invitado -> propio)
+            // OBTENCIÓN ROBUSTA DEL CÓDIGO DE REFERIDO PARA EL PEDIDO
             const codigoReferidoCliente = clienteLocal.codigo_referido || document.getElementById('input-referido').value || localStorage.getItem('dunig_ref_code') || localStorage.getItem('mi_codigo_propio') || 'NINGUNO';
             
             let totalGeneral = carrito.reduce((a, b) => a + b.precio, 0);
@@ -942,7 +995,6 @@
 
             let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *OBSERVACIÓN / MESA:* ${numeroMesa}\n` : '';
             
-            // MENSAJE DE WHATSAPP CON EL CÓDIGO DE REFERIDO FIJO
             const mensaje = `📦 *PEDIDO NACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}`;
 
             const datosOrdenPendiente = {
