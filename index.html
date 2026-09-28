@@ -87,7 +87,7 @@
                     <input type="email" id="reg-correo" required placeholder="tucorreo@dominio.com" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-white font-mono">
                 </div>
 
-                <!-- CAMPO DE REFERIDO FIJO (NO EDITABLE) -->
+                <!-- CAMPO DE REFERIDO FIJO (CORREGIDO Y GARANTIZADO) -->
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
                         <i data-lucide="gift" class="w-3.5 h-3.5"></i> Código de Referido (Asignado por enlace)
@@ -151,12 +151,12 @@
                 </div>
             </div>
 
-            <!-- CARRUSEL DE IMÁGENES EN MOVIMIENTO (PORTADA) -->
+            <!-- CARRUSEL DE IMÁGENES EN MOVIMIENTO (PORTADA CORREGIDA) -->
             <div class="w-full rounded-2xl overflow-hidden shadow-sm relative bg-black text-white border border-[#262626]">
                 <div class="w-full h-40 sm:h-56 relative overflow-hidden">
                     <div id="carrusel-slider-track" class="carrusel-contenedor h-full">
                         <div class="carrusel-slide relative h-full flex-shrink-0">
-                            <img src="https://www.marketingdirecto.com/wp-content/uploads/2019/07/shopping.jpg" alt="Banner 1" class="w-full h-full object-cover opacity-60">
+                            <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1000&auto=format&fit=crop" alt="Banner 1" class="w-full h-full object-cover opacity-75">
                             <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-4 space-y-1">
                                 <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Exclusivo VIP</span>
                                 <h2 class="text-lg sm:text-2xl font-extrabold tracking-tight uppercase">D'UNIG SHOPPING</h2>
@@ -164,7 +164,7 @@
                             </div>
                         </div>
                         <div class="carrusel-slide relative h-full flex-shrink-0">
-                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTQ6amcvkRsCTkLxPewgywpbhAKo5i-opK5zp8DsYXng&s=10" alt="Banner 2" class="w-full h-full object-cover opacity-60">
+                            <img src="https://images.unsplash.com/photo-1526738549149-8e07eca6c147?q=80&w=1000&auto=format&fit=crop" alt="Banner 2" class="w-full h-full object-cover opacity-75">
                             <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-4 space-y-1">
                                 <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Envíos Nacionales</span>
                                 <h2 class="text-lg sm:text-2xl font-extrabold tracking-tight uppercase">MRW, ZOOM Y TEALCA</h2>
@@ -172,7 +172,7 @@
                             </div>
                         </div>
                         <div class="carrusel-slide relative h-full flex-shrink-0">
-                            <img src="https://elpremiodetuvida.es/wp-content/uploads/2023/07/El-Premio-de-Tu-Vida-Sorteo-Rifas.webp" alt="Banner 3" class="w-full h-full object-cover opacity-60">
+                            <img src="https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1000&auto=format&fit=crop" alt="Banner 3" class="w-full h-full object-cover opacity-75">
                             <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-4 space-y-1">
                                 <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Calidad Garantizada</span>
                                 <h2 class="text-lg sm:text-2xl font-extrabold tracking-tight uppercase">¡PREMIAMOS TU COMPRA!</h2>
@@ -374,7 +374,7 @@
             intervaloCarrusel = setInterval(() => {
                 slideActual = (slideActual + 1) % totalSlides;
                 actualizarPosicionCarrusel();
-            }, 2500);
+            }, 3000);
         }
 
         function irASlide(indice) {
@@ -484,15 +484,15 @@
         function renderizarEmpresasFallback(grid) {
             grid.innerHTML = `
                 <div onclick="seleccionarEmpresaEncomienda('MRW', '📦 MRW (Cobro a Destino)')" id="encomienda-mrw" class="encomienda-card cursor-pointer bg-[#1a1a1a] border border-[#262626] hover:border-white p-2 rounded-xl flex flex-col items-center text-center transition-all">
-                    <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="descarga (1).png" alt="MRW" class="w-full h-full object-cover"></div>
+                    <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=200&auto=format&fit=crop" alt="MRW" class="w-full h-full object-cover"></div>
                     <span class="text-[10px] font-bold text-white uppercase">MRW</span>
                 </div>
                 <div onclick="seleccionarEmpresaEncomienda('DOMESA', '🏢 Grupo ZOOM / DOMESA')" id="encomienda-domesa" class="encomienda-card cursor-pointer bg-[#1a1a1a] border border-[#262626] hover:border-white p-2 rounded-xl flex flex-col items-center text-center transition-all">
-                    <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="images (8).jpg" alt="DOMESA" class="w-full h-full object-cover"></div>
+                    <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=200&auto=format&fit=crop" alt="DOMESA" class="w-full h-full object-cover"></div>
                     <span class="text-[10px] font-bold text-white uppercase">DOMESA</span>
                 </div>
                 <div onclick="seleccionarEmpresaEncomienda('TEALCA', '🚚 Tealca Express')" id="encomienda-tealca" class="encomienda-card cursor-pointer bg-[#1a1a1a] border border-[#262626] hover:border-white p-2 rounded-xl flex flex-col items-center text-center transition-all">
-                    <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="images (9).jpg" alt="TEALCA" class="w-full h-full object-cover"></div>
+                    <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="https://images.unsplash.com/photo-1616401784845-180882ba9ba8?q=80&w=200&auto=format&fit=crop" alt="TEALCA" class="w-full h-full object-cover"></div>
                     <span class="text-[10px] font-bold text-white uppercase">TEALCA</span>
                 </div>
             `;
@@ -538,10 +538,10 @@
             try {
                 const clienteAnterior = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
                 if (clienteAnterior.correo) {
-                    const { error: updateError } = await supabaseClient.from('clientes_vip').update({ nombre, whatsapp, correo }).eq('correo', clienteAnterior.correo);
-                    if (updateError) await supabaseClient.from('clientes_vip').insert([{ nombre, whatsapp, correo }]);
+                    const { error: updateError } = await supabaseClient.from('clientes_vip').update({ nombre, whatsapp, correo, codigo_referido: codigoReferido }).eq('correo', clienteAnterior.correo);
+                    if (updateError) await supabaseClient.from('clientes_vip').insert([{ nombre, whatsapp, correo, codigo_referido: codigoReferido }]);
                 } else {
-                    await supabaseClient.from('clientes_vip').insert([{ nombre, whatsapp, correo }]);
+                    await supabaseClient.from('clientes_vip').insert([{ nombre, whatsapp, correo, codigo_referido: codigoReferido }]);
                 }
             } catch (err) {}
 
@@ -552,6 +552,7 @@
         }
 
         function verificarClienteRegistrado() {
+            aplicarYFijarCodigoReferido();
             const clienteGuardado = localStorage.getItem('dunig_cliente_registrado');
             const modal = document.getElementById('modal-registro-cliente');
             const btnCerrar = document.getElementById('btn-cerrar-modal');
@@ -836,66 +837,73 @@
         }
 
         // ==========================================
-        // CAPTURA Y GESTIÓN DE DEEP LINKS (CAPACITOR)
+        // GESTIÓN ROBUSTA DE DEEP LINKS Y REFERIDOS
         // ==========================================
         async function detectarReferidoPorDeepLink() {
-            if (!App) return;
-            try {
-                App.addListener('appUrlOpen', (data) => {
-                    procesarUrlReferido(data.url);
-                });
+            if (App) {
+                try {
+                    App.addListener('appUrlOpen', (data) => {
+                        procesarUrlReferido(data.url);
+                    });
 
-                const launchUrl = await App.getLaunchUrl();
-                if (launchUrl && launchUrl.url) {
-                    procesarUrlReferido(launchUrl.url);
+                    const launchUrl = await App.getLaunchUrl();
+                    if (launchUrl && launchUrl.url) {
+                        procesarUrlReferido(launchUrl.url);
+                    }
+                } catch (e) {
+                    console.log('Entorno web puro o Capacitor App sin soporte activo');
                 }
-            } catch (e) {
-                console.log('Deep links no disponibles en este entorno web puro', e);
             }
+            // Soporte universal para URL web normal con ?ref=CODIGO
+            procesarUrlReferido(window.location.href);
         }
 
         function procesarUrlReferido(urlCompleta) {
             try {
-                const url = new URL(urlCompleta);
-                const refCode = url.searchParams.get('ref');
+                let refCode = null;
+                if (urlCompleta.includes('?')) {
+                    const queryString = urlCompleta.split('?')[1];
+                    const urlParams = new URLSearchParams(queryString);
+                    refCode = urlParams.get('ref') || urlParams.get('referido');
+                }
 
                 if (refCode) {
                     const codigoLimpio = refCode.trim().toUpperCase();
-                    
-                    localStorage.setItem('dunig_ref_code', codigoLimpio);
-                    localStorage.setItem('codigo_referido_activo', codigoLimpio);
-                    
-                    const inputRef = document.getElementById('input-referido');
-                    if (inputRef) {
-                        inputRef.value = codigoLimpio;
-                    }
+                    if (codigoLimpio && codigoLimpio !== 'NULL' && codigoLimpio !== 'UNDEFINED') {
+                        localStorage.setItem('dunig_ref_code', codigoLimpio);
+                        localStorage.setItem('codigo_referido_activo', codigoLimpio);
+                        
+                        const inputRef = document.getElementById('input-referido');
+                        if (inputRef) {
+                            inputRef.value = codigoLimpio;
+                        }
 
-                    let clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
-                    if (clienteGuardado.nombre) {
-                        clienteGuardado.codigo_referido = codigoLimpio;
-                        localStorage.setItem('dunig_cliente_registrado', JSON.stringify(clienteGuardado));
+                        let clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
+                        if (clienteGuardado.nombre) {
+                            clienteGuardado.codigo_referido = codigoLimpio;
+                            localStorage.setItem('dunig_cliente_registrado', JSON.stringify(clienteGuardado));
+                        }
                     }
                 }
             } catch (err) {
-                console.error('Error procesando URL:', err);
+                console.error('Error procesando referido:', err);
             }
         }
 
         function aplicarYFijarCodigoReferido() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const codigoRefUrl = urlParams.get('ref');
-
-            const clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
-            
             let codigoFinal = 'NINGUNO';
 
-            if (codigoRefUrl) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const codigoRefUrl = urlParams.get('ref') || urlParams.get('referido');
+            const clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
+            
+            if (codigoRefUrl && codigoRefUrl.trim() !== '') {
                 codigoFinal = codigoRefUrl.trim().toUpperCase();
             } else if (clienteGuardado.codigo_referido && clienteGuardado.codigo_referido !== 'NINGUNO') {
                 codigoFinal = clienteGuardado.codigo_referido;
-            } else if (localStorage.getItem('dunig_ref_code')) {
+            } else if (localStorage.getItem('dunig_ref_code') && localStorage.getItem('dunig_ref_code') !== 'NINGUNO') {
                 codigoFinal = localStorage.getItem('dunig_ref_code');
-            } else if (localStorage.getItem('codigo_referido_activo')) {
+            } else if (localStorage.getItem('codigo_referido_activo') && localStorage.getItem('codigo_referido_activo') !== 'NINGUNO') {
                 codigoFinal = localStorage.getItem('codigo_referido_activo');
             }
 
@@ -991,7 +999,6 @@
             
             const mensaje = `📦 *PEDIDO NACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}`;
 
-            // CORRECCIÓN: Se envían todas las columnas requeridas por tu esquema de base de datos en ordenes_vip (nombre_cliente, telefono)
             const datosOrdenPendiente = {
                 productos: carrito.map(i => i.titulo).join(', '),
                 total: totalGeneral,
