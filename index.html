@@ -347,7 +347,6 @@
     </div>
 
     <script type="module">
-        // Importación segura con manejo de entorno por si Capacitor no está cargado globalmente en web pura
         let App = null;
         try {
             const capacitorApp = await import('@capacitor/app');
@@ -548,7 +547,6 @@
 
             localStorage.setItem('dunig_cliente_registrado', JSON.stringify(datosCliente));
             
-            // CERRAR MODAL CORRECTAMENTE Y ABRIR VITRINA
             document.getElementById('modal-registro-cliente').style.display = 'none';
             cambiarPantalla('vitrina');
         }
@@ -889,11 +887,19 @@
 
             const clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
             
-            let codigoFinal = codigoRefUrl 
-                ? codigoRefUrl.trim().toUpperCase() 
-                : (clienteGuardado.codigo_referido || localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || 'NINGUNO');
+            let codigoFinal = 'NINGUNO';
 
             if (codigoRefUrl) {
+                codigoFinal = codigoRefUrl.trim().toUpperCase();
+            } else if (clienteGuardado.codigo_referido && clienteGuardado.codigo_referido !== 'NINGUNO') {
+                codigoFinal = clienteGuardado.codigo_referido;
+            } else if (localStorage.getItem('dunig_ref_code')) {
+                codigoFinal = localStorage.getItem('dunig_ref_code');
+            } else if (localStorage.getItem('codigo_referido_activo')) {
+                codigoFinal = localStorage.getItem('codigo_referido_activo');
+            }
+
+            if (codigoFinal !== 'NINGUNO') {
                 localStorage.setItem('dunig_ref_code', codigoFinal);
                 localStorage.setItem('codigo_referido_activo', codigoFinal);
             }
