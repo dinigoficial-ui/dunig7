@@ -515,7 +515,6 @@
             const whatsapp = document.getElementById('reg-whatsapp').value.trim();
             const correo = document.getElementById('reg-correo').value.trim();
             
-            // Extracción fija del código de referido desde el campo de solo lectura
             const inputRef = document.getElementById('input-referido');
             const codigoReferido = inputRef ? inputRef.value.trim() : 'NINGUNO';
 
@@ -562,10 +561,9 @@
                 document.getElementById('reg-correo').value = clienteGuardado.correo || '';
             }
             
-            // Mantener el código de referido fijo y no editable al abrir edición
             const urlParams = new URLSearchParams(window.location.search);
             const codigoRefUrl = urlParams.get('ref');
-            const codigoActual = codigoRefUrl || clienteGuardado.codigo_referido || localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || 'NINGUNO';
+            const codigoActual = codigoRefUrl || clienteGuardado.codigo_referido || localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('mi_codigo_propio') || 'NINGUNO';
             
             const inputRef = document.getElementById('input-referido');
             if (inputRef) inputRef.value = codigoActual;
@@ -832,10 +830,18 @@
         }
 
         function aplicarYFijarCodigoReferido() {
+            // 1. Verificar si el usuario ya tiene un código propio generado
+            let miCodigoPropio = localStorage.getItem("mi_codigo_propio");
+            if (!miCodigoPropio) {
+                miCodigoPropio = Math.random().toString(36).substring(2, 8).toUpperCase();
+                localStorage.setItem("mi_codigo_propio", miCodigoPropio);
+            }
+
+            // 2. Revisar si entró mediante enlace con ?ref=...
             const urlParams = new URLSearchParams(window.location.search);
             const codigoRefUrl = urlParams.get('ref');
 
-            let codigoFinal = 'NINGUNO';
+            let codigoFinal = miCodigoPropio; // Por defecto usa el suyo
 
             if (codigoRefUrl) {
                 codigoFinal = codigoRefUrl.trim();
@@ -920,8 +926,8 @@
 
             const clienteLocal = JSON.parse(clienteRegistradoValidacion);
             
-            // OBTENCIÓN ROBUSTA DEL CÓDIGO DE REFERIDO PARA EL PEDIDO
-            const codigoReferidoCliente = clienteLocal.codigo_referido || document.getElementById('input-referido').value || localStorage.getItem('dunig_ref_code') || 'NINGUNO';
+            // OBTENCIÓN ROBUSTA DEL CÓDIGO DE REFERIDO PARA EL PEDIDO (Prioriza invitado -> propio)
+            const codigoReferidoCliente = clienteLocal.codigo_referido || document.getElementById('input-referido').value || localStorage.getItem('dunig_ref_code') || localStorage.getItem('mi_codigo_propio') || 'NINGUNO';
             
             let totalGeneral = carrito.reduce((a, b) => a + b.precio, 0);
             let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
