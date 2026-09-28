@@ -347,7 +347,14 @@
     </div>
 
     <script type="module">
-        import { App } from '@capacitor/app';
+        // Importación segura con manejo de entorno por si Capacitor no está cargado globalmente en web pura
+        let App = null;
+        try {
+            const capacitorApp = await import('@capacitor/app');
+            App = capacitorApp.App;
+        } catch (e) {
+            console.log("Capacitor App module not found, running in standard web mode.");
+        }
 
         const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co";  
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
@@ -566,7 +573,6 @@
                 document.getElementById('reg-correo').value = clienteGuardado.correo || '';
             }
             
-            // Mantener el código actual asignado sin perderlo
             aplicarYFijarCodigoReferido();
 
             const modal = document.getElementById('modal-registro-cliente');
@@ -835,6 +841,7 @@
         // CAPTURA Y GESTIÓN DE DEEP LINKS (CAPACITOR)
         // ==========================================
         async function detectarReferidoPorDeepLink() {
+            if (!App) return;
             try {
                 App.addListener('appUrlOpen', (data) => {
                     procesarUrlReferido(data.url);
