@@ -540,7 +540,10 @@
             } catch (err) {}
 
             localStorage.setItem('dunig_cliente_registrado', JSON.stringify(datosCliente));
+            
+            // CERRAR MODAL CORRECTAMENTE Y ABRIR VITRINA
             document.getElementById('modal-registro-cliente').style.display = 'none';
+            cambiarPantalla('vitrina');
         }
 
         function verificarClienteRegistrado() {
@@ -563,12 +566,8 @@
                 document.getElementById('reg-correo').value = clienteGuardado.correo || '';
             }
             
-            const urlParams = new URLSearchParams(window.location.search);
-            const codigoRefUrl = urlParams.get('ref');
-            const codigoActual = codigoRefUrl || clienteGuardado.codigo_referido || localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('mi_codigo_propio') || 'NINGUNO';
-            
-            const inputRef = document.getElementById('input-referido');
-            if (inputRef) inputRef.value = codigoActual;
+            // Mantener el código actual asignado sin perderlo
+            aplicarYFijarCodigoReferido();
 
             const modal = document.getElementById('modal-registro-cliente');
             const btnCerrar = document.getElementById('btn-cerrar-modal');
@@ -579,6 +578,7 @@
         window.cerrarModalRegistroSiEsValido = function() {
             if (!localStorage.getItem('dunig_cliente_registrado')) { alert("Debes registrarte para continuar."); return; }
             document.getElementById('modal-registro-cliente').style.display = 'none';
+            cambiarPantalla('vitrina');
         }
 
         async function guardarOrdenEnCentral(nuevaOrden) {
@@ -836,12 +836,10 @@
         // ==========================================
         async function detectarReferidoPorDeepLink() {
             try {
-                // 1. Escuchar si la app se abre mediante un enlace mientras está abierta o en segundo plano
                 App.addListener('appUrlOpen', (data) => {
                     procesarUrlReferido(data.url);
                 });
 
-                // 2. Verificar si la app se abrió inicialmente desde un enlace cerrado
                 const launchUrl = await App.getLaunchUrl();
                 if (launchUrl && launchUrl.url) {
                     procesarUrlReferido(launchUrl.url);
@@ -859,18 +857,14 @@
                 if (refCode) {
                     const codigoLimpio = refCode.trim().toUpperCase();
                     
-                    // Guardado persistente
                     localStorage.setItem('dunig_ref_code', codigoLimpio);
                     localStorage.setItem('codigo_referido_activo', codigoLimpio);
                     
-                    // Rellenar automáticamente el input en tu modal si ya existe en pantalla
                     const inputRef = document.getElementById('input-referido');
                     if (inputRef) {
                         inputRef.value = codigoLimpio;
-                        inputRef.readOnly = true; // Para que el usuario no lo modifique
                     }
 
-                    // Sincronizar con los datos guardados del cliente si ya existe registro previo
                     let clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
                     if (clienteGuardado.nombre) {
                         clienteGuardado.codigo_referido = codigoLimpio;
@@ -883,29 +877,18 @@
         }
 
         function aplicarYFijarCodigoReferido() {
-            // 1. Verificar si el usuario ya tiene un código propio generado
-            let miCodigoPropio = localStorage.getItem("mi_codigo_propio");
-            if (!miCodigoPropio) {
-                miCodigoPropio = Math.random().toString(36).substring(2, 8).toUpperCase();
-                localStorage.setItem("mi_codigo_propio", miCodigoPropio);
-            }
-
-            // 2. Revisar si entró mediante enlace web tradicional con ?ref=...
             const urlParams = new URLSearchParams(window.location.search);
             const codigoRefUrl = urlParams.get('ref');
 
-            let codigoFinal = miCodigoPropio; // Por defecto usa el suyo
+            const clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
+            
+            let codigoFinal = codigoRefUrl 
+                ? codigoRefUrl.trim().toUpperCase() 
+                : (clienteGuardado.codigo_referido || localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || 'NINGUNO');
 
             if (codigoRefUrl) {
-                codigoFinal = codigoRefUrl.trim().toUpperCase();
                 localStorage.setItem('dunig_ref_code', codigoFinal);
                 localStorage.setItem('codigo_referido_activo', codigoFinal);
-            } else {
-                const clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
-                const codigoGuardado = clienteGuardado.codigo_referido || localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo');
-                if (codigoGuardado) {
-                    codigoFinal = codigoGuardado;
-                }
             }
 
             const inputRef = document.getElementById('input-referido');
@@ -913,8 +896,7 @@
                 inputRef.value = codigoFinal;
             }
 
-            let clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
-            if (clienteGuardado.nombre) {
+            if (clienteGuardado.nombre && codigoFinal !== 'NINGUNO') {
                 clienteGuardado.codigo_referido = codigoFinal;
                 localStorage.setItem('dunig_cliente_registrado', JSON.stringify(clienteGuardado));
             }
@@ -922,7 +904,7 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             aplicarYFijarCodigoReferido();
-            await detectarReferidoPorDeepLink(); // Inicializa la escucha nativa de Capacitor
+            await detectarReferidoPorDeepLink(); 
             verificarClienteRegistrado();
             iniciarCarrusel();
             await cargarEmpresasEncomiendaSupabase();
@@ -979,8 +961,7 @@
 
             const clienteLocal = JSON.parse(clienteRegistradoValidacion);
             
-            // OBTENCIÓN ROBUSTA DEL CÓDIGO DE REFERIDO PARA EL PEDIDO
-            const codigoReferidoCliente = clienteLocal.codigo_referido || document.getElementById('input-referido').value || localStorage.getItem('dunig_ref_code') || localStorage.getItem('mi_codigo_propio') || 'NINGUNO';
+            const codigoReferidoCliente = clienteLocal.codigo_referido || document.getElementById('input-referido').value || localStorage.getItem('dunig_ref_code') || 'NINGUNO';
             
             let totalGeneral = carrito.reduce((a, b) => a + b.precio, 0);
             let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
