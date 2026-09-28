@@ -45,7 +45,7 @@
 </head>
 <body class="antialiased min-h-screen flex flex-col justify-between relative">
 
-    <!-- BANNER / BOTÓN FLOTANTE DE DESCARGA APK (Ubicado más arriba para no chocar con la nav inferior) -->
+    <!-- BANNER / BOTÓN FLOTANTE DE DESCARGA APK -->
     <div id="banner-descarga-app" style="display: none; position: fixed; bottom: 85px; left: 16px; right: 16px; background: #1f1f1f; color: #fff; padding: 12px 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 9998; align-items: center; justify-content: space-between; font-family: sans-serif; border: 1px solid #333;">
         <div style="display: flex; align-items: center; gap: 12px;">
             <span style="font-size: 26px;">📱</span>
@@ -87,9 +87,12 @@
                     <input type="email" id="reg-correo" required placeholder="tucorreo@dominio.com" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-white font-mono">
                 </div>
 
-                <div style="display:none;">
-                    <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Código de Referido</label>
-                    <input type="text" id="input-referido" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl">
+                <!-- CAMPO DE REFERIDO FIJO (NO EDITABLE) -->
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
+                        <i data-lucide="gift" class="w-3.5 h-3.5"></i> Código de Referido (Asignado por enlace)
+                    </label>
+                    <input type="text" id="input-referido" readonly value="NINGUNO" class="w-full bg-[#111111] border border-[#222222] text-xs text-amber-400/80 p-3.5 rounded-xl font-mono cursor-not-allowed select-none" title="Este código viene fijado desde tu enlace de invitado">
                 </div>
 
                 <button type="submit" class="w-full bg-white hover:bg-gray-200 text-black font-bold py-4 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg transition-all">
@@ -187,7 +190,7 @@
         </div>
     </div>
 
-    <!-- VISTA VITRINA (SOLO EL GRID DE PRODUCTOS HACE SCROLL DEBAJO DE LA PORTADA) -->
+    <!-- VISTA VITRINA -->
     <main id="vista-vitrina" class="max-w-7xl w-full mx-auto px-4 py-4 flex-grow space-y-4 relative z-10">
         <div id="grid-productos-vitrina" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"></div>
     </main>
@@ -512,23 +515,26 @@
             const whatsapp = document.getElementById('reg-whatsapp').value.trim();
             const correo = document.getElementById('reg-correo').value.trim();
             
-            // Capturar también el referido si el usuario lo modificó en el input
-            const inputRefVal = document.getElementById('input-referido').value.trim();
-            if (inputRefVal) {
-                localStorage.setItem('dunig_ref_code', inputRefVal);
-                localStorage.setItem('codigo_referido_activo', inputRefVal);
-            }
+            // Extracción fija del código de referido desde el campo de solo lectura
+            const inputRef = document.getElementById('input-referido');
+            const codigoReferido = inputRef ? inputRef.value.trim() : 'NINGUNO';
 
             if (!nombre || !whatsapp || !correo) { alert("Completa todos los campos obligatorios."); return; }
-            const datosCliente = { nombre, whatsapp, correo };
+            
+            const datosCliente = { nombre, whatsapp, correo, codigo_referido: codigoReferido };
+
+            if (codigoReferido && codigoReferido !== 'NINGUNO') {
+                localStorage.setItem('dunig_ref_code', codigoReferido);
+                localStorage.setItem('codigo_referido_activo', codigoReferido);
+            }
 
             try {
                 const clienteAnterior = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
                 if (clienteAnterior.correo) {
                     const { error: updateError } = await supabaseClient.from('clientes_vip').update({ nombre, whatsapp, correo }).eq('correo', clienteAnterior.correo);
-                    if (updateError) await supabaseClient.from('clientes_vip').insert([datosCliente]);
+                    if (updateError) await supabaseClient.from('clientes_vip').insert([{ nombre, whatsapp, correo }]);
                 } else {
-                    await supabaseClient.from('clientes_vip').insert([datosCliente]);
+                    await supabaseClient.from('clientes_vip').insert([{ nombre, whatsapp, correo }]);
                 }
             } catch (err) {}
 
@@ -556,8 +562,11 @@
                 document.getElementById('reg-correo').value = clienteGuardado.correo || '';
             }
             
-            // Mostrar el código de referido actual en el input del modal por si se desea ver o editar
-            const codigoActual = localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('codigo_referido_pendiente') || '';
+            // Mantener el código de referido fijo y no editable al abrir edición
+            const urlParams = new URLSearchParams(window.location.search);
+            const codigoRefUrl = urlParams.get('ref');
+            const codigoActual = codigoRefUrl || clienteGuardado.codigo_referido || localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || 'NINGUNO';
+            
             const inputRef = document.getElementById('input-referido');
             if (inputRef) inputRef.value = codigoActual;
 
@@ -822,17 +831,39 @@
             }
         }
 
-        function aplicarCodigoEnFormulario(codigo) {
-            if (!codigo) return;
-            localStorage.setItem('dunig_ref_code', codigo);
-            localStorage.setItem('codigo_referido_activo', codigo);
+        function aplicarYFijarCodigoReferido() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const codigoRefUrl = urlParams.get('ref');
+
+            let codigoFinal = 'NINGUNO';
+
+            if (codigoRefUrl) {
+                codigoFinal = codigoRefUrl.trim();
+                localStorage.setItem('dunig_ref_code', codigoFinal);
+                localStorage.setItem('codigo_referido_activo', codigoFinal);
+            } else {
+                const clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
+                const codigoGuardado = clienteGuardado.codigo_referido || localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo');
+                if (codigoGuardado) {
+                    codigoFinal = codigoGuardado;
+                }
+            }
+
             const inputRef = document.getElementById('input-referido');
             if (inputRef) {
-                inputRef.value = codigo;
+                inputRef.value = codigoFinal;
+            }
+
+            // Sincronizar con el objeto del cliente guardado si existe
+            let clienteGuardado = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
+            if (clienteGuardado.nombre) {
+                clienteGuardado.codigo_referido = codigoFinal;
+                localStorage.setItem('dunig_cliente_registrado', JSON.stringify(clienteGuardado));
             }
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
+            aplicarYFijarCodigoReferido();
             verificarClienteRegistrado();
             iniciarCarrusel();
             await cargarEmpresasEncomiendaSupabase();
@@ -840,19 +871,6 @@
             descargarCatalogoDeSupabase();
             descargarAdicionalesDeSupabase();
             lucide.createIcons();
-
-            // CAPTURA ROBUSTA DE REFERIDO POR URL Y LOCALSTORAGE
-            const urlParams = new URLSearchParams(window.location.search);
-            const codigoRefUrl = urlParams.get('ref');
-
-            if (codigoRefUrl) {
-                aplicarCodigoEnFormulario(codigoRefUrl);
-            } else {
-                const codigoGuardado = localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('codigo_referido_pendiente');
-                if (codigoGuardado) {
-                    aplicarCodigoEnFormulario(codigoGuardado);
-                }
-            }
 
             const esDispositivoMobil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             if (esDispositivoMobil) {
@@ -900,9 +918,10 @@
                 if(!ref) { alert("Por favor ingresa el número o código de referencia."); return; }
             }
 
-            // OBTENCIÓN SEGURA DEL CÓDIGO DE REFERIDO PARA EL PEDIDO
-            const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('codigo_referido_pendiente') || 'NINGUNO';
             const clienteLocal = JSON.parse(clienteRegistradoValidacion);
+            
+            // OBTENCIÓN ROBUSTA DEL CÓDIGO DE REFERIDO PARA EL PEDIDO
+            const codigoReferidoCliente = clienteLocal.codigo_referido || document.getElementById('input-referido').value || localStorage.getItem('dunig_ref_code') || 'NINGUNO';
             
             let totalGeneral = carrito.reduce((a, b) => a + b.precio, 0);
             let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
@@ -916,7 +935,9 @@
             } catch (err) {}
 
             let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *OBSERVACIÓN / MESA:* ${numeroMesa}\n` : '';
-            const mensaje = `📦 *PEDIDO NACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}`;
+            
+            // MENSAJE DE WHATSAPP CON EL CÓDIGO DE REFERIDO FIJO
+            const mensaje = `📦 *PEDIDO NACIONAL - Casa de las Papas* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}`;
 
             const datosOrdenPendiente = {
                 productos: carrito.map(i => i.titulo).join(', '),
@@ -948,7 +969,6 @@
             document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
             document.getElementById('info-metodo-pago').classList.add('hidden');
             
-            // NOTA: No borramos 'dunig_ref_code' aquí para que si el cliente hace otro pedido en la misma sesión, siga conservando su referido.
             cambiarPantalla('vitrina');
             window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
