@@ -45,8 +45,8 @@
 </head>
 <body class="antialiased min-h-screen flex flex-col justify-between relative">
 
-    <!-- BANNER / BOTÓN FLOTANTE DE DESCARGA APK -->
-    <div id="banner-descarga-app" style="display: none; position: fixed; bottom: 75px; left: 16px; right: 16px; background: #1f1f1f; color: #fff; padding: 12px 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 9998; align-items: center; justify-content: space-between; font-family: sans-serif; border: 1px solid #333;">
+    <!-- BANNER / BOTÓN FLOTANTE DE DESCARGA APK (Ubicado más arriba para no chocar con la nav inferior) -->
+    <div id="banner-descarga-app" style="display: none; position: fixed; bottom: 85px; left: 16px; right: 16px; background: #1f1f1f; color: #fff; padding: 12px 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 9998; align-items: center; justify-content: space-between; font-family: sans-serif; border: 1px solid #333;">
         <div style="display: flex; align-items: center; gap: 12px;">
             <span style="font-size: 26px;">📱</span>
             <div>
@@ -87,10 +87,9 @@
                     <input type="email" id="reg-correo" required placeholder="tucorreo@dominio.com" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-white font-mono">
                 </div>
 
-                <!-- Campo de referido visible o informativo opcional -->
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Código de Referido VIP Aplicado</label>
-                    <input type="text" id="input-referido" readonly placeholder="Ninguno" class="w-full bg-[#1a1a1a] border border-[#333333] text-xs text-amber-300 font-mono p-3 rounded-xl">
+                <div style="display:none;">
+                    <label class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Código de Referido</label>
+                    <input type="text" id="input-referido" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl">
                 </div>
 
                 <button type="submit" class="w-full bg-white hover:bg-gray-200 text-black font-bold py-4 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg transition-all">
@@ -100,91 +99,96 @@
         </div>
     </div>
 
-    <!-- HEADER ESTILO APP MODERNA -->
-    <header class="bg-[#121212] border-b border-[#222222] sticky top-0 z-50 px-4 shadow-md">
-        <div class="max-w-7xl mx-auto h-16 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 cursor-pointer" onclick="cambiarPantalla('vitrina')">
-                <div class="bg-white p-2 rounded-xl text-black shadow-sm">
-                    <i data-lucide="store" class="w-5 h-5"></i>
-                </div>
-                <div>
-                    <h1 class="text-sm font-black tracking-tight text-white">
-                       D'UNIG<span class="text-amber-500">SHOPPING</span>
-                    </h1>
-                    <p class="text-[8px] text-gray-400 uppercase tracking-widest font-semibold">VENEZUELA</p>
-                </div>
-            </div>
-
-            <!-- BUSCADOR SUPERIOR COMPACTO -->
-            <div class="flex-1 max-w-md mx-2 hidden md:flex items-center bg-[#1b1b1b] rounded-full px-3 py-1.5 border border-[#333333] focus-within:border-white transition-all">
-                <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i>
-                <input type="text" id="input-buscador-vitrina-desktop" placeholder="Buscar productos..." oninput="document.getElementById('input-buscador-vitrina').value=this.value;filtrarProductosVitrina();" class="w-full bg-transparent text-xs text-white focus:outline-none">
-            </div>
-
-            <div class="flex items-center gap-2">
-                <button onclick="abrirModalEdicionDatos()" class="bg-[#1b1b1b] border border-[#333333] hover:border-white p-2 rounded-full flex items-center justify-center cursor-pointer transition-all text-gray-300" title="Editar mis datos">
-                    <i data-lucide="settings" class="w-4 h-4"></i>
-                </button>
-
-                <button onclick="cambiarPantalla('carrito')" class="relative bg-[#1b1b1b] border border-[#333333] p-2 rounded-full flex items-center justify-center hover:border-white cursor-pointer">
-                    <i data-lucide="shopping-bag" class="w-4 h-4 text-gray-200"></i>
-                    <span id="contador-carrito-badge" class="absolute -top-1 -right-1 bg-white text-black font-mono text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- VISTA VITRINA -->
-    <main id="vista-vitrina" class="max-w-7xl w-full mx-auto px-4 py-4 flex-grow space-y-6 relative z-10">
-        
-        <!-- BARRA DE BÚSQUEDA MÓVIL -->
-        <div class="w-full md:hidden">
-            <div class="relative flex items-center bg-[#141414] border border-[#262626] rounded-full px-4 py-2 shadow-xs">
-                <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i>
-                <input type="text" id="input-buscador-vitrina" placeholder="Buscar especialidades o categorías..." oninput="filtrarProductosVitrina()" class="w-full bg-transparent text-xs text-white focus:outline-none">
-                <button onclick="limpiarBuscadorVitrina()" class="text-gray-400 hover:text-white">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- CARRUSEL DE IMÁGENES EN MOVIMIENTO -->
-        <div class="w-full rounded-2xl overflow-hidden shadow-sm relative bg-black text-white border border-[#262626]">
-            <div class="w-full h-48 sm:h-64 relative overflow-hidden">
-                <div id="carrusel-slider-track" class="carrusel-contenedor h-full">
-                    <div class="carrusel-slide relative h-full flex-shrink-0">
-                        <img src="https://www.marketingdirecto.com/wp-content/uploads/2019/07/shopping.jpg" alt="Banner 1" class="w-full h-full object-cover opacity-60">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
-                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Exclusivo VIP</span>
-                            <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">D'UNIG SHOPPING</h2>
-                            <p class="text-[11px] text-gray-300">tu tienda preferida.</p>
-                        </div>
+    <!-- CONTENEDOR FIJO AL ESCROLEAR (HEADER + BUSCADOR MÓVIL + PORTADA) -->
+    <div class="sticky top-0 z-50 bg-[#0b0b0b] shadow-md">
+        <!-- HEADER ESTILO APP MODERNA -->
+        <header class="bg-[#121212] border-b border-[#222222] px-4">
+            <div class="max-w-7xl mx-auto h-16 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="cambiarPantalla('vitrina')">
+                    <div class="bg-white p-2 rounded-xl text-black shadow-sm">
+                        <i data-lucide="store" class="w-5 h-5"></i>
                     </div>
-                    <div class="carrusel-slide relative h-full flex-shrink-0">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTQ6amcvkRsCTkLxPewgywpbhAKo5i-opK5zp8DsYXng&s=10" alt="Banner 2" class="w-full h-full object-cover opacity-60">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
-                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Envíos Nacionales</span>
-                            <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">MRW, ZOOM Y TEALCA</h2>
-                            <p class="text-[11px] text-gray-300">Despachos seguros a nivel nacional con cobro a destino.</p>
-                        </div>
-                    </div>
-                    <div class="carrusel-slide relative h-full flex-shrink-0">
-                        <img src="https://elpremiodetuvida.es/wp-content/uploads/2023/07/El-Premio-de-Tu-Vida-Sorteo-Rifas.webp" alt="Banner 3" class="w-full h-full object-cover opacity-60">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-5 space-y-1">
-                            <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Calidad Garantizada</span>
-                            <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight uppercase">¡PREMIAMOS TU COMPRA!</h2>
-                            <p class="text-[11px] text-gray-300">Por cada compra mínima participas por premios reales.</p>
-                        </div>
+                    <div>
+                        <h1 class="text-sm font-black tracking-tight text-white">
+                           D'UNIG<span class="text-amber-500">SHOPPING</span>
+                        </h1>
+                        <p class="text-[8px] text-gray-400 uppercase tracking-widest font-semibold">VENEZUELA</p>
                     </div>
                 </div>
-                <div class="absolute bottom-3 right-4 flex gap-1.5 z-10" id="carrusel-puntos">
-                    <button onclick="irASlide(0)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
-                    <button onclick="irASlide(1)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
-                    <button onclick="irASlide(2)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
+
+                <!-- BUSCADOR SUPERIOR COMPACTO (DESKTOP) -->
+                <div class="flex-1 max-w-md mx-2 hidden md:flex items-center bg-[#1b1b1b] rounded-full px-3 py-1.5 border border-[#333333] focus-within:border-white transition-all">
+                    <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i>
+                    <input type="text" id="input-buscador-vitrina-desktop" placeholder="Buscar productos..." oninput="document.getElementById('input-buscador-vitrina').value=this.value;filtrarProductosVitrina();" class="w-full bg-transparent text-xs text-white focus:outline-none">
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="abrirModalEdicionDatos()" class="bg-[#1b1b1b] border border-[#333333] hover:border-white p-2 rounded-full flex items-center justify-center cursor-pointer transition-all text-gray-300" title="Editar mis datos">
+                        <i data-lucide="settings" class="w-4 h-4"></i>
+                    </button>
+
+                    <button onclick="cambiarPantalla('carrito')" class="relative bg-[#1b1b1b] border border-[#333333] p-2 rounded-full flex items-center justify-center hover:border-white cursor-pointer">
+                        <i data-lucide="shopping-bag" class="w-4 h-4 text-gray-200"></i>
+                        <span id="contador-carrito-badge" class="absolute -top-1 -right-1 bg-white text-black font-mono text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ZONA FIJA SUPERIOR: BUSCADOR MÓVIL Y CARRUSEL / PORTADA -->
+        <div class="max-w-7xl w-full mx-auto px-4 py-3 space-y-3 bg-[#0b0b0b] border-b border-[#222222]">
+            <!-- BARRA DE BÚSQUEDA MÓVIL -->
+            <div class="w-full md:hidden">
+                <div class="relative flex items-center bg-[#141414] border border-[#262626] rounded-full px-4 py-2 shadow-xs">
+                    <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i>
+                    <input type="text" id="input-buscador-vitrina" placeholder="Buscar especialidades o categorías..." oninput="filtrarProductosVitrina()" class="w-full bg-transparent text-xs text-white focus:outline-none">
+                    <button onclick="limpiarBuscadorVitrina()" class="text-gray-400 hover:text-white">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CARRUSEL DE IMÁGENES EN MOVIMIENTO (PORTADA) -->
+            <div class="w-full rounded-2xl overflow-hidden shadow-sm relative bg-black text-white border border-[#262626]">
+                <div class="w-full h-40 sm:h-56 relative overflow-hidden">
+                    <div id="carrusel-slider-track" class="carrusel-contenedor h-full">
+                        <div class="carrusel-slide relative h-full flex-shrink-0">
+                            <img src="https://www.marketingdirecto.com/wp-content/uploads/2019/07/shopping.jpg" alt="Banner 1" class="w-full h-full object-cover opacity-60">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-4 space-y-1">
+                                <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Exclusivo VIP</span>
+                                <h2 class="text-lg sm:text-2xl font-extrabold tracking-tight uppercase">D'UNIG SHOPPING</h2>
+                                <p class="text-[11px] text-gray-300">tu tienda preferida.</p>
+                            </div>
+                        </div>
+                        <div class="carrusel-slide relative h-full flex-shrink-0">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTQ6amcvkRsCTkLxPewgywpbhAKo5i-opK5zp8DsYXng&s=10" alt="Banner 2" class="w-full h-full object-cover opacity-60">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-4 space-y-1">
+                                <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Envíos Nacionales</span>
+                                <h2 class="text-lg sm:text-2xl font-extrabold tracking-tight uppercase">MRW, ZOOM Y TEALCA</h2>
+                                <p class="text-[11px] text-gray-300">Despachos seguros a nivel nacional con cobro a destino.</p>
+                            </div>
+                        </div>
+                        <div class="carrusel-slide relative h-full flex-shrink-0">
+                            <img src="https://elpremiodetuvida.es/wp-content/uploads/2023/07/El-Premio-de-Tu-Vida-Sorteo-Rifas.webp" alt="Banner 3" class="w-full h-full object-cover opacity-60">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-4 space-y-1">
+                                <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Calidad Garantizada</span>
+                                <h2 class="text-lg sm:text-2xl font-extrabold tracking-tight uppercase">¡PREMIAMOS TU COMPRA!</h2>
+                                <p class="text-[11px] text-gray-300">Por cada compra mínima participas por premios reales.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-3 right-4 flex gap-1.5 z-10" id="carrusel-puntos">
+                        <button onclick="irASlide(0)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
+                        <button onclick="irASlide(1)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
+                        <button onclick="irASlide(2)" class="w-2 h-2 rounded-full bg-white/50 cursor-pointer transition-all"></button>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
+    <!-- VISTA VITRINA (SOLO EL GRID DE PRODUCTOS HACE SCROLL DEBAJO DE LA PORTADA) -->
+    <main id="vista-vitrina" class="max-w-7xl w-full mx-auto px-4 py-4 flex-grow space-y-4 relative z-10">
         <div id="grid-productos-vitrina" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"></div>
     </main>
 
@@ -806,11 +810,7 @@
         }
 
         function aplicarCodigoEnFormulario(codigo) {
-            if (!codigo) return;
-            // Guardar de manera persistente en todas las llaves posibles para evitar pérdidas
             localStorage.setItem('dunig_ref_code', codigo);
-            localStorage.setItem('codigo_referido_activo', codigo);
-            
             const inputRef = document.getElementById('input-referido');
             if (inputRef) {
                 inputRef.value = codigo;
@@ -818,20 +818,6 @@
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
-            // Capturar inmediatamente el parámetro 'ref' desde la URL actual
-            const urlParams = new URLSearchParams(window.location.search);
-            const codigoRefUrl = urlParams.get('ref');
-
-            if (codigoRefUrl) {
-                aplicarCodigoEnFormulario(codigoRefUrl);
-            } else {
-                // Si no viene en la URL, intentar recuperarlo de memoria previa
-                const codigoGuardado = localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('codigo_referido_pendiente');
-                if (codigoGuardado) {
-                    aplicarCodigoEnFormulario(codigoGuardado);
-                }
-            }
-
             verificarClienteRegistrado();
             iniciarCarrusel();
             await cargarEmpresasEncomiendaSupabase();
@@ -839,6 +825,19 @@
             descargarCatalogoDeSupabase();
             descargarAdicionalesDeSupabase();
             lucide.createIcons();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const codigoRefUrl = urlParams.get('ref');
+
+            if (codigoRefUrl) {
+                localStorage.setItem('codigo_referido_pendiente', codigoRefUrl);
+                aplicarCodigoEnFormulario(codigoRefUrl);
+            }
+
+            const codigoGuardado = localStorage.getItem('codigo_referido_pendiente') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('dunig_ref_code');
+            if (codigoGuardado) {
+                aplicarCodigoEnFormulario(codigoGuardado);
+            }
 
             const esDispositivoMobil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             if (esDispositivoMobil) {
@@ -886,7 +885,6 @@
                 if(!ref) { alert("Por favor ingresa el número o código de referencia."); return; }
             }
 
-            // Consolidar la lectura del código de referido de cualquier almacenamiento activo
             const codigoReferidoCliente = localStorage.getItem('dunig_ref_code') || localStorage.getItem('codigo_referido_activo') || localStorage.getItem('codigo_referido_pendiente') || 'NINGUNO';
             const clienteLocal = JSON.parse(clienteRegistradoValidacion);
             
@@ -933,8 +931,7 @@
             document.getElementById('contenedorReferenciaCart').classList.add('hidden');
             document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
             document.getElementById('info-metodo-pago').classList.add('hidden');
-            
-            // Opcional: conservar el referido en memoria para compras futuras o limpiarlo si se desea
+            localStorage.removeItem('dunig_ref_code');
             cambiarPantalla('vitrina');
             window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
