@@ -112,10 +112,10 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <!-- BOTÓN PEQUEÑO DE COMPARTIR APP EN LA PARTE SUPERIOR -->
-                    <button onclick="compartirAplicacion()" class="bg-[#1b1b1b] border border-[#333333] hover:border-white px-2.5 py-1.5 rounded-full flex items-center gap-1.5 cursor-pointer transition-all text-emerald-400" title="Compartir App">
+                    <!-- BOTÓN DE COMPARTIR EL APK -->
+                    <button onclick="compartirAplicacion()" class="bg-[#1b1b1b] border border-[#333333] hover:border-white px-2.5 py-1.5 rounded-full flex items-center gap-1.5 cursor-pointer transition-all text-emerald-400" title="Compartir Aplicación APK">
                         <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                        <span class="text-[10px] font-bold uppercase hidden sm:inline">Compartir</span>
+                        <span class="text-[10px] font-bold uppercase hidden sm:inline">Compartir APK</span>
                     </button>
 
                     <button onclick="abrirModalEdicionDatos()" class="bg-[#1b1b1b] border border-[#333333] hover:border-white p-2 rounded-full flex items-center justify-center cursor-pointer transition-all text-gray-300" title="Editar mis datos">
@@ -828,9 +828,6 @@
             }
         }
 
-        // ==========================================
-        // GESTIÓN ROBUSTA DE DEEP LINKS Y REFERIDOS
-        // ==========================================
         async function detectarReferidoPorDeepLink() {
             if (App) {
                 try {
@@ -914,20 +911,28 @@
             }
         }
 
-        window.compartirAplicacion = function() {
-            const urlActual = window.location.href.split('?')[0];
-            const codigoActual = document.getElementById('input-referido').value || localStorage.getItem('dunig_ref_code') || 'VIP';
-            const linkCompartir = `${urlActual}?ref=${codigoActual}`;
-            
+        // ==========================================================
+        // CORRECCIÓN: FUNCIÓN PARA COMPARTIR EL ARCHIVO .APK DE LA APP
+        // ==========================================================
+        window.compartirAplicacion = async function() {
+            // Reemplaza esta URL con el enlace directo real donde tus usuarios puedan descargar el APK (ej. enlace de GitHub Releases, Firebase Hosting, o tu servidor)
+            const urlApk = "https://dunig3.github.io/dunig3/app-release.apk"; 
+            const mensaje = "¡Descarga la aplicación oficial de D'UNIG SHOPPING en tu dispositivo Android! 📱🚀\n\nInstálala aquí:\n" + urlApk;
+
             if (navigator.share) {
-                navigator.share({
-                    title: "D'UNIG SHOPPING",
-                    text: "¡Visita la tienda oficial y haz tus pedidos VIP!",
-                    url: linkCompartir
-                }).catch(() => {});
+                try {
+                    // Intentamos compartir como archivo o enlace directo según soporte del dispositivo
+                    await navigator.share({
+                        title: "D'UNIG SHOPPING APK",
+                        text: mensaje,
+                        url: urlApk
+                    });
+                } catch (err) {
+                    console.log("Error al compartir nativamente:", err);
+                }
             } else {
-                navigator.clipboard.writeText(linkCompartir);
-                alert("¡Enlace de referido copiado al portapapeles!\n" + linkCompartir);
+                navigator.clipboard.writeText(urlApk);
+                alert("¡Enlace de descarga del APK copiado al portapapeles!\n\n" + urlApk);
             }
         }
 
