@@ -912,29 +912,28 @@
         }
 
         // ==========================================================
-        // CORRECCIÓN: FUNCIÓN PARA COMPARTIR EL ARCHIVO .APK DE LA APP
-        // ==========================================================
-        window.compartirAplicacion = async function() {
-            // Reemplaza esta URL con el enlace directo real donde tus usuarios puedan descargar el APK (ej. enlace de GitHub Releases, Firebase Hosting, o tu servidor)
-            const urlApk = "https://dunig3.github.io/dunig3/app-release.apk"; 
-            const mensaje = "¡Descarga la aplicación oficial de D'UNIG SHOPPING en tu dispositivo Android! 📱🚀\n\nInstálala aquí:\n" + urlApk;
+// FUNCIÓN CORREGIDA PARA COMPARTIR EL APK DEL REPOSITORIO
+// ==========================================================
+window.compartirAplicacion = async function() {
+    // Como está en el mismo repositorio, puedes usar la ruta relativa o la URL completa de tu GitHub Pages:
+    const urlApk = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/') + "app-debug.apk";
+    const mensaje = "¡Descarga la aplicación oficial de D'UNIG SHOPPING en tu dispositivo Android! 📱🚀\n\nInstálala aquí:\n" + urlApk;
 
-            if (navigator.share) {
-                try {
-                    // Intentamos compartir como archivo o enlace directo según soporte del dispositivo
-                    await navigator.share({
-                        title: "D'UNIG SHOPPING APK",
-                        text: mensaje,
-                        url: urlApk
-                    });
-                } catch (err) {
-                    console.log("Error al compartir nativamente:", err);
-                }
-            } else {
-                navigator.clipboard.writeText(urlApk);
-                alert("¡Enlace de descarga del APK copiado al portapapeles!\n\n" + urlApk);
-            }
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: "D'UNIG SHOPPING APK",
+                text: mensaje,
+                url: urlApk
+            });
+        } catch (err) {
+            console.log("Error al compartir nativamente:", err);
         }
+    } else {
+        navigator.clipboard.writeText(urlApk);
+        alert("¡Enlace directo al APK copiado al portapapeles!\n\n" + urlApk);
+    }
+}
 
         window.addEventListener('DOMContentLoaded', async () => {
             aplicarYFijarCodigoReferido();
