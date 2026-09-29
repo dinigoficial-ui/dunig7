@@ -45,20 +45,6 @@
 </head>
 <body class="antialiased min-h-screen flex flex-col justify-between relative">
 
-    <!-- BANNER / BOTÓN FLOTANTE DE DESCARGA APK -->
-    <div id="banner-descarga-app" style="display: none; position: fixed; bottom: 85px; left: 16px; right: 16px; background: #1f1f1f; color: #fff; padding: 12px 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 9998; align-items: center; justify-content: space-between; font-family: sans-serif; border: 1px solid #333;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 26px;">📱</span>
-            <div>
-                <h4 style="margin: 0; font-size: 14px; font-weight: bold;">¡Instala nuestra App!</h4>
-                <p style="margin: 2px 0 0 0; font-size: 12px; color: #bbb;">Obtén una experiencia más rápida.</p>
-            </div>
-        </div>
-        <a id="btn-descargar-apk" href="https://github.com/dinigoficial-ui/dunig7/raw/main/app-debug.apk" download style="background: #25D366; color: white; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px; white-space: nowrap;">
-            Descargar
-        </a>
-    </div>
-
     <!-- MODAL / PANTALLA DE REGISTRO INICIAL Y EDICIÓN OBLIGATORIOS -->
     <div id="modal-registro-cliente" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
         <div class="bg-[#141414] w-full max-w-md p-8 rounded-3xl shadow-2xl space-y-6 relative border border-[#262626]">
@@ -87,12 +73,12 @@
                     <input type="email" id="reg-correo" required placeholder="tucorreo@dominio.com" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-white font-mono">
                 </div>
 
-                <!-- CAMPO DE REFERIDO FIJO (CORREGIDO Y GARANTIZADO) -->
+                <!-- CAMPO DE REFERIDO EDITABLE -->
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
-                        <i data-lucide="gift" class="w-3.5 h-3.5"></i> Código de Referido (Asignado por enlace)
+                        <i data-lucide="gift" class="w-3.5 h-3.5"></i> Código de Referido (Editable)
                     </label>
-                    <input type="text" id="input-referido" readonly value="NINGUNO" class="w-full bg-[#111111] border border-[#222222] text-xs text-amber-400/80 p-3.5 rounded-xl font-mono cursor-not-allowed select-none" title="Este código viene fijado desde tu enlace de invitado">
+                    <input type="text" id="input-referido" placeholder="Ej. REF-123456 o NINGUNO" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-amber-400 p-3.5 rounded-xl font-mono focus:outline-none focus:border-white">
                 </div>
 
                 <button type="submit" class="w-full bg-white hover:bg-gray-200 text-black font-bold py-4 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg transition-all">
@@ -126,6 +112,12 @@
                 </div>
 
                 <div class="flex items-center gap-2">
+                    <!-- BOTÓN PEQUEÑO DE COMPARTIR APP EN LA PARTE SUPERIOR -->
+                    <button onclick="compartirAplicacion()" class="bg-[#1b1b1b] border border-[#333333] hover:border-white px-2.5 py-1.5 rounded-full flex items-center gap-1.5 cursor-pointer transition-all text-emerald-400" title="Compartir App">
+                        <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                        <span class="text-[10px] font-bold uppercase hidden sm:inline">Compartir</span>
+                    </button>
+
                     <button onclick="abrirModalEdicionDatos()" class="bg-[#1b1b1b] border border-[#333333] hover:border-white p-2 rounded-full flex items-center justify-center cursor-pointer transition-all text-gray-300" title="Editar mis datos">
                         <i data-lucide="settings" class="w-4 h-4"></i>
                     </button>
@@ -524,11 +516,11 @@
             const correo = document.getElementById('reg-correo').value.trim();
             
             const inputRef = document.getElementById('input-referido');
-            const codigoReferido = inputRef ? inputRef.value.trim() : 'NINGUNO';
+            const codigoReferido = inputRef ? inputRef.value.trim().toUpperCase() : 'NINGUNO';
 
             if (!nombre || !whatsapp || !correo) { alert("Completa todos los campos obligatorios."); return; }
             
-            const datosCliente = { nombre, whatsapp, correo, codigo_referido: codigoReferido };
+            const datosCliente = { nombre, whatsapp, correo, codigo_referido: codigoReferido || 'NINGUNO' };
 
             if (codigoReferido && codigoReferido !== 'NINGUNO') {
                 localStorage.setItem('dunig_ref_code', codigoReferido);
@@ -538,10 +530,10 @@
             try {
                 const clienteAnterior = JSON.parse(localStorage.getItem('dunig_cliente_registrado') || '{}');
                 if (clienteAnterior.correo) {
-                    const { error: updateError } = await supabaseClient.from('clientes_vip').update({ nombre, whatsapp, correo, codigo_referido: codigoReferido }).eq('correo', clienteAnterior.correo);
-                    if (updateError) await supabaseClient.from('clientes_vip').insert([{ nombre, whatsapp, correo, codigo_referido: codigoReferido }]);
+                    const { error: updateError } = await supabaseClient.from('clientes_vip').update({ nombre, whatsapp, correo, codigo_referido: codigoReferido || 'NINGUNO' }).eq('correo', clienteAnterior.correo);
+                    if (updateError) await supabaseClient.from('clientes_vip').insert([{ nombre, whatsapp, correo, codigo_referido: codigoReferido || 'NINGUNO' }]);
                 } else {
-                    await supabaseClient.from('clientes_vip').insert([{ nombre, whatsapp, correo, codigo_referido: codigoReferido }]);
+                    await supabaseClient.from('clientes_vip').insert([{ nombre, whatsapp, correo, codigo_referido: codigoReferido || 'NINGUNO' }]);
                 }
             } catch (err) {}
 
@@ -854,7 +846,6 @@
                     console.log('Entorno web puro o Capacitor App sin soporte activo');
                 }
             }
-            // Soporte universal para URL web normal con ?ref=CODIGO
             procesarUrlReferido(window.location.href);
         }
 
@@ -891,7 +882,7 @@
         }
 
         function aplicarYFijarCodigoReferido() {
-            let codigoFinal = 'NINGUNO';
+            let codigoFinal = '';
 
             const urlParams = new URLSearchParams(window.location.search);
             const codigoRefUrl = urlParams.get('ref') || urlParams.get('referido');
@@ -899,7 +890,7 @@
             
             if (codigoRefUrl && codigoRefUrl.trim() !== '') {
                 codigoFinal = codigoRefUrl.trim().toUpperCase();
-            } else if (clienteGuardado.codigo_referido && clienteGuardado.codigo_referido !== 'NINGUNO') {
+            } else if (clienteGuardado.codigo_referido && clienteGuardado.codigo_referido !== 'NINGUNO' && clienteGuardado.codigo_referido !== '') {
                 codigoFinal = clienteGuardado.codigo_referido;
             } else if (localStorage.getItem('dunig_ref_code') && localStorage.getItem('dunig_ref_code') !== 'NINGUNO') {
                 codigoFinal = localStorage.getItem('dunig_ref_code');
@@ -907,7 +898,7 @@
                 codigoFinal = localStorage.getItem('codigo_referido_activo');
             }
 
-            if (codigoFinal !== 'NINGUNO') {
+            if (codigoFinal) {
                 localStorage.setItem('dunig_ref_code', codigoFinal);
                 localStorage.setItem('codigo_referido_activo', codigoFinal);
             }
@@ -917,9 +908,26 @@
                 inputRef.value = codigoFinal;
             }
 
-            if (clienteGuardado.nombre && codigoFinal !== 'NINGUNO') {
+            if (clienteGuardado.nombre && codigoFinal) {
                 clienteGuardado.codigo_referido = codigoFinal;
                 localStorage.setItem('dunig_cliente_registrado', JSON.stringify(clienteGuardado));
+            }
+        }
+
+        window.compartirAplicacion = function() {
+            const urlActual = window.location.href.split('?')[0];
+            const codigoActual = document.getElementById('input-referido').value || localStorage.getItem('dunig_ref_code') || 'VIP';
+            const linkCompartir = `${urlActual}?ref=${codigoActual}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: "D'UNIG SHOPPING",
+                    text: "¡Visita la tienda oficial y haz tus pedidos VIP!",
+                    url: linkCompartir
+                }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(linkCompartir);
+                alert("¡Enlace de referido copiado al portapapeles!\n" + linkCompartir);
             }
         }
 
@@ -933,14 +941,6 @@
             descargarCatalogoDeSupabase();
             descargarAdicionalesDeSupabase();
             lucide.createIcons();
-
-            const esDispositivoMobil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            if (esDispositivoMobil) {
-                const banner = document.getElementById('banner-descarga-app');
-                if (banner) {
-                    banner.style.display = 'flex';
-                }
-            }
         });
 
         window.enviarPedidoWhatsApp = async function() {
@@ -982,7 +982,8 @@
 
             const clienteLocal = JSON.parse(clienteRegistradoValidacion);
             
-            const codigoReferidoCliente = clienteLocal.codigo_referido || document.getElementById('input-referido').value || localStorage.getItem('dunig_ref_code') || 'NINGUNO';
+            const inputRefElem = document.getElementById('input-referido');
+            const codigoReferidoCliente = inputRefElem ? inputRefElem.value.trim().toUpperCase() : (clienteLocal.codigo_referido || localStorage.getItem('dunig_ref_code') || 'NINGUNO');
             
             let totalGeneral = carrito.reduce((a, b) => a + b.precio, 0);
             let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
