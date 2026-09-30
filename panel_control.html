@@ -910,47 +910,38 @@
         if (!tbody) return;
         
         tbody.innerHTML = "";
-        
         data.forEach(o => {
-            // Imprimimos la orden completa en la consola del navegador (F12) 
-            // para ver exactamente cómo se llaman las propiedades de tus productos
-            console.log("Objeto Orden completo:", o);
-
             const fechaFormateada = new Date(o.created_at).toLocaleDateString();
             const telefonoCliente = o.cliente_telefono || o.telefono || o.whatsapp || o.whatsapp_cliente || "";
             const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
 
             let productosHTML = "";
-            
-            // Buscamos dinámicamente cualquier propiedad que pueda contener los productos
-            const rawDetalles = o.detalles_pedido || o.productos || o.items || o.carrito || o.pedido;
-
             try {
-                let detalles = rawDetalles;
-                
+                let detalles = o.detalles_pedido;
                 if (typeof detalles === 'string') {
                     try {
                         detalles = JSON.parse(detalles);
                     } catch (e) {
-                        detalles = rawDetalles;
+                        detalles = o.detalles_pedido;
                     }
                 }
 
                 if (Array.isArray(detalles)) {
                     productosHTML = detalles.map(item => {
                         const cant = item.cantidad || item.qty || item.amount || 1;
-                        const nombrePlato = item.titulo || item.nombre || item.producto || item.name || item. plato || 'Producto sin nombre';
+                        // Buscamos todas las variantes posibles de la propiedad del nombre
+                        const nombrePlato = item.nombre_producto || item.nombre || item.titulo || item.producto || item.name || item.title || item.articulo || (typeof item === 'string' ? item : 'Producto');
                         return `<div class="text-stone-200">▪ ${cant}x <b>${nombrePlato}</b></div>`;
                     }).join('');
                 } else if (typeof detalles === 'object' && detalles !== null) {
                     const cant = detalles.cantidad || detalles.qty || 1;
-                    const nombrePlato = detalles.titulo || detalles.nombre || detalles.producto || detalles.name || 'Producto sin nombre';
+                    const nombrePlato = detalles.nombre_producto || detalles.nombre || detalles.titulo || detalles.producto || detalles.name || detalles.title || 'Producto';
                     productosHTML = `<div class="text-stone-200">▪ ${cant}x <b>${nombrePlato}</b></div>`;
                 } else {
-                    productosHTML = `<span class="text-stone-200">${detalles || 'No hay productos registrados'}</span>`;
+                    productosHTML = `<span class="text-stone-200">${detalles || 'Sin detalles especificados'}</span>`;
                 }
             } catch (err) {
-                productosHTML = `<span class="text-red-400">Error al leer productos</span>`;
+                productosHTML = `<span class="text-red-400">Error al procesar productos</span>`;
             }
 
             let estadoHtml = "";
