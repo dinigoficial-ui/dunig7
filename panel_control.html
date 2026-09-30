@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAC DONALS- Panel de Control Interno</title>
+    <title>D'UNIG SHOPPING- Panel de Control Interno</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -49,7 +49,7 @@
             <div class="flex items-center space-x-4">
                 <div class="border border-amber-500/30 p-3 rounded-xl bg-stone-950/80 glow-gold"><i data-lucide="terminal" class="w-7 h-7 text-amber-400"></i></div>
                 <div>
-                    <h1 class="text-2xl font-black tracking-[0.2em] text-white font-futurista">MAC<span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-500">DONALS</span></h1>
+                    <h1 class="text-2xl font-black tracking-[0.2em] text-white font-futurista">D'UNIG<span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-500">SHOPPING</span></h1>
                     <p class="text-[9px] text-amber-500/70 uppercase tracking-[0.3em] font-bold font-futurista">PANEL DE CONTROL</p>
                 </div>
             </div>
@@ -912,11 +912,39 @@
                 tbody.innerHTML = "";
                 data.forEach(o => {
                     const fechaFormateada = new Date(o.created_at).toLocaleDateString();
-                    
-                    // Se extrae directamente de la columna cliente_telefono con respaldos por compatibilidad
                     const telefonoCliente = o.cliente_telefono || o.telefono || o.whatsapp_cliente || "";
-                    
                     const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
+
+                    // --- PROCESAMIENTO DE PRODUCTOS DESDE detalles_pedido ---
+                    let productosHTML = "";
+                    try {
+                        let parsedDetalles = o.detalles_pedido;
+                        
+                        // Si está como string JSON, lo convertimos a objeto/array
+                        if (typeof parsedDetalles === 'string') {
+                            parsedDetalles = JSON.parse(parsedDetalles);
+                        }
+
+                        // Si es un arreglo (el carrito clásico), lo recorremos
+                        if (Array.isArray(parsedDetalles)) {
+                            productosHTML = parsedDetalles.map(item => {
+                                const cantidad = item.cantidad || 1;
+                                const titulo = item.titulo || item.nombre || 'Producto';
+                                const precioItem = item.precio ? `($${(item.precio * cantidad).toFixed(2)})` : '';
+                                return `<div class="text-stone-200">▪ ${cantidad}x <b>${titulo}</b> ${precioItem}</div>`;
+                            }).join('');
+                        } else if (typeof parsedDetalles === 'object' && parsedDetalles !== null) {
+                            // Por si se guardó como un objeto individual
+                            productosHTML = `<div class="text-stone-200">▪ ${parsedDetalles.titulo || 'Producto'}</div>`;
+                        } else {
+                            // Respaldo por si acaso hay datos antiguos guardados como texto plano
+                            productosHTML = `<span class="text-stone-200">${o.detalles_pedido || o.productos || 'Sin detalles'}</span>`;
+                        }
+                    } catch (e) {
+                        // Si falla el parseo, mostramos el campo tradicional o un respaldo
+                        productosHTML = `<span class="text-stone-200">${o.detalles_pedido || o.productos || 'Sin detalles'}</span>`;
+                    }
+                    // ---------------------------------------------------------
 
                     let estadoHtml = "";
 
@@ -940,7 +968,7 @@
                     tbody.innerHTML += `<tr class="border-b border-stone-900/40 hover:bg-stone-900/10 transition-colors">
                         <td class="p-3 font-mono text-amber-400 font-bold">#${o.id}</td>
                         <td class="p-3 text-stone-400">${fechaFormateada}</td>
-                        <td class="p-3 text-white nombre-del-plato">${o.productos}</td>
+                        <td class="p-3 nombre-del-plato">${productosHTML}</td>
                         <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || 0).toFixed(2)}</td>
                         <td class="p-3 font-mono text-stone-400">
                             <div>Ref: ${o.referencia || 'N/A'}</div>
