@@ -903,6 +903,7 @@
             const { data, error } = await supabaseClient
                 .from('ordenes_vip')
                 .select('*')
+                .eq('instagram_dueno', filtroInstagram)
                 .order('created_at', { ascending: false });
 
             if (!error && data) {
@@ -951,7 +952,6 @@
                     } else if (o.estado === 'cancelado') {
                         estadoHtml = `<span class="text-red-500 font-bold uppercase text-[10px]">Cancelado</span>`;
                     } else {
-                        // AQUÍ ESTABA EL ERROR: Se agregó '${o.id}' con comillas simples
                         estadoHtml = `
                             <button onclick="confirmarYEnviarPedido('${o.id}', '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
                                 <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar Pedido
@@ -978,11 +978,9 @@
             }
         }
 
-        // Función integrada para confirmar la orden en Supabase y abrir WhatsApp con el código de sorteo y enlace a la cuponera
         async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
             if (!idOrden) return;
 
-            // 1. Actualizar el estado de la orden en Supabase a 'verificado'
             const { error } = await supabaseClient
                 .from('ordenes_vip')
                 .update({ estado: 'verificado' })
@@ -993,7 +991,6 @@
                 return;
             }
 
-            // 2. Si no hay teléfono registrado, advertir pero permitir continuar ingresándolo
             if (!telefonoCliente || telefonoCliente.trim() === "" || telefonoCliente === "No registrado") {
                 telefonoCliente = prompt("Esta orden no tiene un número de WhatsApp registrado. Por favor, ingresa el número del cliente (con código de país):");
                 if (!telefonoCliente) {
@@ -1003,19 +1000,12 @@
                 }
             }
 
-            // 3. Limpiar el formato del número (solo dígitos)
             const numeroLimpio = telefonoCliente.replace(/[^0-9]/g, "");
-
-            // 4. Definir link de la cuponera y construir el mensaje completo
-            const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/cuponera.html";
+            const linkCuponera = "https://dinigoficial-ui.github.io/dunig7/cuponera.html";
             const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigoPremio}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
-            
-            // 5. Abrir WhatsApp en una nueva pestaña
             window.open(urlWhatsApp, '_blank');
-
-            // 6. Recargar el historial de órdenes para reflejar el cambio de estado visualmente
             descargarHistorialDeOrdenes();
         }
 
@@ -1026,8 +1016,7 @@
             }
 
             const numeroLimpio = telefono.replace(/[^0-9]/g, "");
-            const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/cuponera.html";
-
+            const linkCuponera = "https://dinigoficial-ui.github.io/dunig7/cuponera.html";
             const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido verificada y confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigo}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
