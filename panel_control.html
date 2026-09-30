@@ -900,83 +900,92 @@
         }
 
         async function descargarHistorialDeOrdenes() {
-            const { data, error } = await supabaseClient
-                .from('ordenes_vip')
-                .select('*')
-                .order('created_at', { ascending: false });
+    const { data, error } = await supabaseClient
+        .from('ordenes_vip')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-            if (!error && data) {
-                const tbody = document.getElementById('tabla-ordenes-body'); 
-                if (!tbody) return;
+    if (!error && data) {
+        const tbody = document.getElementById('tabla-ordenes-body'); 
+        if (!tbody) return;
+        
+        tbody.innerHTML = "";
+        data.forEach(o => {
+            const fechaFormateada = new Date(o.created_at).toLocaleDateString();
+            const telefonoCliente = o.cliente_telefono || o.telefono || o.whatsapp_cliente || "";
+            const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
+
+            // Procesamiento seguro y robusto de detalles_pedido (JSONB o Texto)
+            let productosHTML = "";
+            try {
+                let parsedDetalles = o.detalles_pedido;
                 
-                tbody.innerHTML = "";
-                data.forEach(o => {
-                    const fechaFormateada = new Date(o.created_at).toLocaleDateString();
-                    const telefonoCliente = o.cliente_telefono || o.telefono || o.whatsapp_cliente || "";
-                    const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
-
-                    // Procesamiento de productos desde detalles_pedido
-                    let productosHTML = "";
+                // Si viene como texto plano JSON, lo parseamos
+                if (typeof parsedDetalles === 'string') {
                     try {
-                        let parsedDetalles = o.detalles_pedido;
-                        if (typeof parsedDetalles === 'string') {
-                            parsedDetalles = JSON.parse(parsedDetalles);
-                        }
-                        if (Array.isArray(parsedDetalles)) {
-                            productosHTML = parsedDetalles.map(item => {
-                                const cantidad = item.cantidad || 1;
-                                const titulo = item.titulo || item.nombre || 'Producto';
-                                const precioItem = item.precio ? `($${(item.precio * cantidad).toFixed(2)})` : '';
-                                return `<div class="text-stone-200">▪ ${cantidad}x <b>${titulo}</b> ${precioItem}</div>`;
-                            }).join('');
-                        } else if (typeof parsedDetalles === 'object' && parsedDetalles !== null) {
-                            productosHTML = `<div class="text-stone-200">▪ ${parsedDetalles.titulo || 'Producto'}</div>`;
-                        } else {
-                            productosHTML = `<span class="text-stone-200">${o.detalles_pedido || o.productos || 'Sin detalles'}</span>`;
-                        }
-                    } catch (e) {
-                        productosHTML = `<span class="text-stone-200">${o.detalles_pedido || o.productos || 'Sin detalles'}</span>`;
+                        parsedDetalles = JSON.parse(parsedDetalles);
+                    } catch (err) {
+                        // Si no es un JSON válido, se muestra como texto plano directamente
+                        parsedDetalles = o.detalles_pedido;
                     }
+                }
 
-                    let estadoHtml = "";
-
-                    if (o.estado === 'verificado') {
-                        estadoHtml = `
-                            <div class="flex items-center justify-end gap-2">
-                                <span class="text-green-400 font-bold uppercase text-[10px]">Verificado</span>
-                                <button onclick="enviarWhatsAppPremio('${telefonoCliente}', '${codigoPremio}', '${o.id}')" class="bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
-                                    <i data-lucide="send" class="w-3 h-3"></i> Reenviar WhatsApp
-                                </button>
-                            </div>`;
-                    } else if (o.estado === 'cancelado') {
-                        estadoHtml = `<span class="text-red-500 font-bold uppercase text-[10px]">Cancelado</span>`;
-                    } else {
-                        // AQUÍ ESTABA EL ERROR: Se agregó '${o.id}' con comillas simples
-                        estadoHtml = `
-                            <button onclick="confirmarYEnviarPedido('${o.id}', '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
-                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar Pedido
-                            </button>`;
-                    }
-                    
-                    tbody.innerHTML += `<tr class="border-b border-stone-900/40 hover:bg-stone-900/10 transition-colors">
-                        <td class="p-3 font-mono text-amber-400 font-bold">#${o.id}</td>
-                        <td class="p-3 text-stone-400">${fechaFormateada}</td>
-                        <td class="p-3 nombre-del-plato">${productosHTML}</td>
-                        <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || 0).toFixed(2)}</td>
-                        <td class="p-3 font-mono text-stone-400">
-                            <div>Ref: ${o.referencia || 'N/A'}</div>
-                            <div class="text-[10px] text-amber-500/80">Tlf: ${telefonoCliente || 'No registrado'}</div>
-                        </td>
-                        <td class="p-3 text-right">
-                            ${estadoHtml}
-                        </td>
-                    </tr>`;
-                });
-                lucide.createIcons();
-            } else if (error) {
-                console.error("Error al descargar órdenes:", error.message);
+                if (Array.isArray(parsedDetalles)) {
+                    productosHTML = parsedDetalles.map(item => {
+                        const cantidad = item.cantidad || 1;
+                        const titulo = item.titulo || item.nombre || item.producto || 'Producto';
+                        const precioItem = item.precio ? `($${(item.precio * cantidad).toFixed(2)})` : '';
+                        return `<div class="text-stone-200">▪ ${cantidad}x <b>${titulo}</b> ${precioItem}</div>`;
+                    }).join('');
+                } else if (typeof parsedDetalles === 'object' && parsedDetalles !== null) {
+                    const titulo = parsedDetalles.titulo || parsedDetalles.nombre || 'Producto';
+                    const cantidad = parsedDetalles.cantidad || 1;
+                    productosHTML = `<div class="text-stone-200">▪ ${cantidad}x <b>${titulo}</b></div>`;
+                } else {
+                    productosHTML = `<span class="text-stone-200">${parsedDetalles || 'Sin detalles'}</span>`;
+                }
+            } catch (e) {
+                productosHTML = `<span class="text-stone-200">Error al leer los detalles</span>`;
             }
-        }
+
+            let estadoHtml = "";
+
+            if (o.estado === 'verificado') {
+                estadoHtml = `
+                    <div class="flex items-center justify-end gap-2">
+                        <span class="text-green-400 font-bold uppercase text-[10px]">Verificado</span>
+                        <button onclick="enviarWhatsAppPremio('${telefonoCliente}', '${codigoPremio}', '${o.id}')" class="bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
+                            <i data-lucide="send" class="w-3 h-3"></i> Reenviar WhatsApp
+                        </button>
+                    </div>`;
+            } else if (o.estado === 'cancelado') {
+                estadoHtml = `<span class="text-red-500 font-bold uppercase text-[10px]">Cancelado</span>`;
+            } else {
+                estadoHtml = `
+                    <button onclick="confirmarYEnviarPedido('${o.id}', '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar Pedido
+                    </button>`;
+            }
+            
+            tbody.innerHTML += `<tr class="border-b border-stone-900/40 hover:bg-stone-900/10 transition-colors">
+                <td class="p-3 font-mono text-amber-400 font-bold">#${o.id}</td>
+                <td class="p-3 text-stone-400">${fechaFormateada}</td>
+                <td class="p-3 nombre-del-plato">${productosHTML}</td>
+                <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || 0).toFixed(2)}</td>
+                <td class="p-3 font-mono text-stone-400">
+                    <div>Ref: ${o.referencia || 'N/A'}</div>
+                    <div class="text-[10px] text-amber-500/80">Tlf: ${telefonoCliente || 'No registrado'}</div>
+                </td>
+                <td class="p-3 text-right">
+                    ${estadoHtml}
+                </td>
+            </tr>`;
+        });
+        lucide.createIcons();
+    } else if (error) {
+        console.error("Error al descargar órdenes:", error.message);
+    }
+}
 
         // Función integrada para confirmar la orden en Supabase y abrir WhatsApp con el código de sorteo y enlace a la cuponera
         async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
