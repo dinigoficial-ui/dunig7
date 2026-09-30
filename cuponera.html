@@ -63,14 +63,14 @@
                 <div class="inline-flex p-3 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-1">
                     <i data-lucide="shield-check" class="w-8 h-8"></i>
                 </div>
-                <h2 class="text-lg font-black font-futurista text-white uppercase tracking-wider">Validación de Código</h2>
-                <p class="text-xs text-stone-400 leading-relaxed">Ingresa tu código de sorteo asignado para verificar tu participación oficial.</p>
+                <h2 class="text-lg font-black font-futurista text-white uppercase tracking-wider">Validación de ID de Orden</h2>
+                <p class="text-xs text-stone-400 leading-relaxed">Ingresa el ID de tu orden (Ej: ABC-1234) para verificar tu participación oficial.</p>
             </div>
 
             <div class="space-y-4">
                 <div class="space-y-2">
-                    <label class="text-[10px] uppercase text-amber-400 font-bold tracking-[0.2em] block font-futurista text-center">Código de Sorteo Asignado</label>
-                    <input type="text" id="input-codigo-ingresado" placeholder="EJ: VIP-15" class="w-full bg-stone-950/80 border border-stone-800 text-base text-center text-amber-300 font-mono font-bold p-4 rounded-2xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 tracking-[0.25em] uppercase transition-all">
+                    <label class="text-[10px] uppercase text-amber-400 font-bold tracking-[0.2em] block font-futurista text-center">ID de Orden VIP</label>
+                    <input type="text" id="input-codigo-ingresado" placeholder="EJ: ABC-1234" class="w-full bg-stone-950/80 border border-stone-800 text-base text-center text-amber-300 font-mono font-bold p-4 rounded-2xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 tracking-[0.25em] uppercase transition-all">
                 </div>
 
                 <button onclick="desbloquearCuponVIP()" class="w-full btn-oro text-stone-950 font-futurista font-black py-4 px-6 rounded-2xl text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 cursor-pointer shadow-xl">
@@ -94,7 +94,7 @@
                 <h3 id="cupon-titulo-modal" class="text-xl font-black font-futurista text-white tracking-wide">Participante Oficial Verificado</h3>
             </div>
 
-            <!-- Contenedor de Video Dinámico (Configurado con Autoplay con Audio, sin mute) -->
+            <!-- Contenedor de Video Dinámico -->
             <div id="contenedor-video-modal" class="rounded-2xl overflow-hidden bg-black border border-amber-500/20 aspect-video flex items-center justify-center shadow-inner relative">
                 <video id="video-premio-oficial" class="w-full h-full object-cover" autoplay playsinline webkit-playsinline loop preload="auto"></video>
             </div>
@@ -148,7 +148,7 @@
         async function desbloquearCuponVIP() {
             const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
             if(!inputVal) {
-                alert("Por favor ingresa un código de sorteo válido.");
+                alert("Por favor ingresa un ID de orden válido.");
                 return;
             }
             await validarCodigoEnCuponera(inputVal);
@@ -158,45 +158,39 @@
             const codigoLimpio = codigoIngresado.trim();
             let data = null;
 
-            // 1. BUSQUEDA DIRECTA Y PRINCIPAL: En la columna codigo_sorteo_asignado de la tabla ordenes_vip
-            const { data: ordenesSorteo, error: errorSorteo } = await supabaseClient
+            // 1. BUSQUEDA PRINCIPAL: Buscar directamente por el ID alfanumérico en la tabla ordenes_vip
+            const { data: ordenesData, error: errorOrden } = await supabaseClient
                 .from('ordenes_vip')
                 .select('*')
-                .ilike('codigo_sorteo_asignado', codigoLimpio);
+                .ilike('id', codigoLimpio);
 
-            if (!errorSorteo && ordenesSorteo && ordenesSorteo.length > 0) {
-                const ordenData = ordenesSorteo[0];
-                const nombreTitular = ordenData.nombre_cliente || 'Participante VIP';
-                const codigoAsignado = ordenData.codigo_sorteo_asignado || `VIP-${ordenData.id}`;
+            if (!errorOrden && ordenesData && ordenesData.length > 0) {
+                const ordenData = ordenesData[0];
+                const nombreTitular = ordenData.cliente_nombre || 'Participante VIP';
+                const idOrden = ordenData.id;
                 
                 data = {
-                    codigo: codigoAsignado,
+                    codigo: idOrden,
                     titulo: "¡Participante Oficial del Sorteo de la Moto! 🏍️",
-                    descripcion: `¡Felicidades ${nombreTitular}! Tu código de sorteo (${codigoAsignado}) ha sido verificado correctamente en el sistema. Ya estás participando oficialmente por la gran moto de MAC DONALS. ¡Mucho éxito!`
+                    descripcion: `¡Felicidades ${nombreTitular}! Tu orden con ID (${idOrden}) ha sido verificada correctamente en el sistema. Ya estás participando oficialmente por la gran moto de MAC DONALS. ¡Mucho éxito!`
                 };
             } else {
-                // 2. RESPALDO OPCIONAL: Buscar por ID numérico exacto o referencia si no lo encuentra por código de sorteo directo
-                const idNumerico = codigoLimpio.replace(/[^0-9]/g, "");
-                let queryAlternativa = supabaseClient.from('ordenes_vip').select('*');
-                
-                if (idNumerico) {
-                    queryAlternativa = queryAlternativa.or(`id.eq.${idNumerico},referencia.eq.${codigoLimpio}`);
-                } else {
-                    queryAlternativa = queryAlternativa.eq('referencia', codigoLimpio);
-                }
-
-                const { data: ordenAltData, error: altError } = await queryAlternativa.maybeSingle();
+                // 2. RESPALDO SECUNDARIO: Buscar por referencia bancaria o de pago si aplica
+                const { data: ordenAltData, error: altError } = await supabaseClient
+                    .from('ordenes_vip')
+                    .select('*')
+                    .or(`referencia.ilike.${codigoLimpio},referencia_bancaria.ilike.${codigoLimpio}`)
+                    .maybeSingle();
 
                 if (!altError && ordenAltData) {
-                    const nombreTitular = ordenAltData.nombre_cliente || 'Participante VIP';
-                    const codigoAsignado = ordenAltData.codigo_sorteo_asignado || `VIP-${ordenAltData.id}`;
+                    const nombreTitular = ordenAltData.cliente_nombre || 'Participante VIP';
                     data = {
-                        codigo: codigoAsignado,
+                        codigo: ordenAltData.id,
                         titulo: "¡Participante Oficial del Sorteo de la Moto! 🏍️",
-                        descripcion: `¡Felicidades ${nombreTitular}! Tu orden #${ordenAltData.id} ha sido verificada. Tu código de sorteo asignado es ${codigoAsignado}. ¡Mucho éxito!`
+                        descripcion: `¡Felicidades ${nombreTitular}! Tu orden #${ordenAltData.id} ha sido verificada mediante tu referencia. ¡Mucho éxito!`
                     };
                 } else {
-                    // 3. RESPALDO ADICIONAL: Buscar en cupones o participantes_sorteo por si acaso
+                    // 3. RESPALDO ADICIONAL: Buscar en tablas auxiliares de cupones si existen
                     const { data: dataCupon } = await supabaseClient
                         .from('cupones')
                         .select('*')
@@ -205,26 +199,12 @@
 
                     if (dataCupon) {
                         data = dataCupon;
-                    } else {
-                        const { data: dataSorteo } = await supabaseClient
-                            .from('participantes_sorteo')
-                            .select('*')
-                            .or(`codigo.ilike.${codigoLimpio},codigo_sorteo.ilike.${codigoLimpio}`)
-                            .maybeSingle();
-
-                        if (dataSorteo) {
-                            data = {
-                                codigo: codigoLimpio.toUpperCase(),
-                                titulo: "Participante Oficial Verificado",
-                                descripcion: `¡Participante oficial verificado! Su número de la suerte está participando por la gran moto de MAC DONALS. ¡Mucho éxito! 😎🇻🇪`
-                            };
-                        }
                     }
                 }
             }
 
             if (!data) {
-                alert(`❌ El código de sorteo "${codigoIngresado}" no fue encontrado en el sistema. Asegúrate de escribirlo correctamente.`);
+                alert(`❌ El ID de orden "${codigoIngresado}" no fue encontrado en el sistema. Asegúrate de escribirlo correctamente (Ej: ABC-1234).`);
                 return;
             }
 
@@ -238,7 +218,7 @@
             document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
 
-            // Carga automática del video con reproducción inmediata (sin mute)
+            // Carga automática del video con reproducción inmediata
             const videoElemento = document.getElementById('video-premio-oficial');
             const contenedorVideo = document.getElementById('contenedor-video-modal');
             const urlVideoFija = "https://mkewwlmeikixpvfayisj.supabase.co/storage/v1/object/public/premios/moto-premio-1790018357531.mp4";
@@ -255,7 +235,7 @@
             }
             
             // Configurar enlaces de compartir en redes sociales
-            const textoCompartir = `¡Ya estoy participando por la gran moto en el sorteo oficial de MAC DONALS con mi código de sorteo: ${data.codigo}! 🏍️✨ ¡Participa tú también!`;
+            const textoCompartir = `¡Ya estoy participando por la gran moto en el sorteo oficial de MAC DONALS con mi ID de orden: ${data.codigo}! 🏍️✨ ¡Participa tú también!`;
             const urlActual = window.location.href;
 
             document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoCompartir + " " + urlActual)}`;
@@ -268,7 +248,7 @@
 
         function copiarEnlaceRedes(redSocial) {
             const enlaceActual = window.location.href;
-            const textoCopia = `¡Participando por la moto en MAC DONALS! 🏍️ Mi código de sorteo es mi pase seguro. ¡Entra aquí para verificar el tuyo! ${enlaceActual}`;
+            const textoCopia = `¡Participando por la moto en MAC DONALS! 🏍️ Mi ID de orden es mi pase seguro. ¡Entra aquí para verificar el tuyo! ${enlaceActual}`;
             
             navigator.clipboard.writeText(textoCopia).then(() => {
                 alert(`¡Enlace copiado con éxito para ${redSocial}!\n\nPuedes pegarlo directamente en tu historia o publicación.`);
@@ -290,7 +270,7 @@
         window.addEventListener('DOMContentLoaded', () => { 
             if (window.lucide) lucide.createIcons(); 
 
-            // Detectar si la URL trae un código automáticamente (ej: cuponera.html?codigo=VIP-15)
+            // Detectar si la URL trae un ID automáticamente (ej: cuponera.html?codigo=ABC-1234)
             const urlParams = new URLSearchParams(window.location.search);
             const codigoUrl = urlParams.get('codigo');
             if (codigoUrl) {
