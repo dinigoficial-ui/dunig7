@@ -50,8 +50,9 @@
                     </p>
                 </div>
             </div>
-            <a href="index.html" class="bg-stone-900/90 border border-amber-500/30 hover:border-amber-400 text-amber-400 px-4 py-2.5 rounded-xl text-xs font-futurista font-bold uppercase tracking-wider flex items-center gap-2 transition-all hover:bg-stone-800 shadow-lg">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i> Menú
+            <!-- Botón configurado exclusivamente para abrir la APK instalada -->
+            <a href="dunigshop://cuponera" onclick="abrirAppNativa(event)" class="bg-stone-900/90 border border-amber-500/30 hover:border-amber-400 text-amber-400 px-4 py-2.5 rounded-xl text-xs font-futurista font-bold uppercase tracking-wider flex items-center gap-2 transition-all hover:bg-stone-800 shadow-lg cursor-pointer">
+                <i data-lucide="smartphone" class="w-4 h-4"></i> Abrir en la App
             </a>
         </div>
     </header>
@@ -145,6 +146,18 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // Función estricta para activar el esquema nativo de la APK y evitar abrir webs por error
+        function abrirAppNativa(e) {
+            const esMovil = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (!esMovil) {
+                e.preventDefault();
+                alert("Esta opción está diseñada exclusivamente para teléfonos móviles con la aplicación instalada.");
+                return;
+            }
+            // Si está en el celular, el enlace dunigshop://cuponera activará la app instalada
+        }
+
         async function desbloquearCuponVIP() {
             const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
             if(!inputVal) {
@@ -158,7 +171,6 @@
             const codigoLimpio = codigoIngresado.trim();
             let data = null;
 
-            // 1. BUSQUEDA PRINCIPAL: Buscar directamente por el ID alfanumérico en la tabla ordenes_vip
             const { data: ordenesData, error: errorOrden } = await supabaseClient
                 .from('ordenes_vip')
                 .select('*')
@@ -175,7 +187,6 @@
                     descripcion: `¡Felicidades ${nombreTitular}! Tu orden con ID (${idOrden}) ha sido verificada correctamente en el sistema. Ya estás participando oficialmente por la gran moto de MAC DONALS. ¡Mucho éxito!`
                 };
             } else {
-                // 2. RESPALDO SECUNDARIO: Buscar por referencia bancaria o de pago si aplica
                 const { data: ordenAltData, error: altError } = await supabaseClient
                     .from('ordenes_vip')
                     .select('*')
@@ -190,7 +201,6 @@
                         descripcion: `¡Felicidades ${nombreTitular}! Tu orden #${ordenAltData.id} ha sido verificada mediante tu referencia. ¡Mucho éxito!`
                     };
                 } else {
-                    // 3. RESPALDO ADICIONAL: Buscar en tablas auxiliares de cupones si existen
                     const { data: dataCupon } = await supabaseClient
                         .from('cupones')
                         .select('*')
@@ -218,7 +228,6 @@
             document.getElementById('cupon-titulo-modal').innerText = tituloFinal;
             document.getElementById('cupon-descripcion-modal').innerText = descripcionTexto;
 
-            // Carga automática del video con reproducción inmediata
             const videoElemento = document.getElementById('video-premio-oficial');
             const contenedorVideo = document.getElementById('contenedor-video-modal');
             const urlVideoFija = "https://mkewwlmeikixpvfayisj.supabase.co/storage/v1/object/public/premios/moto-premio-1790018357531.mp4";
@@ -234,7 +243,6 @@
                 contenedorVideo.classList.add('hidden');
             }
             
-            // Configurar enlaces de compartir en redes sociales
             const textoCompartir = `¡Ya estoy participando por la gran moto en el sorteo oficial de D'UNIG SHOPPING con mi ID de orden: ${data.codigo}! 🏍️✨ ¡Participa tú también!`;
             const urlActual = window.location.href;
 
@@ -270,7 +278,6 @@
         window.addEventListener('DOMContentLoaded', () => { 
             if (window.lucide) lucide.createIcons(); 
 
-            // Detectar si la URL trae un ID automáticamente (ej: cuponera.html?codigo=ABC-1234)
             const urlParams = new URLSearchParams(window.location.search);
             const codigoUrl = urlParams.get('codigo');
             if (codigoUrl) {
