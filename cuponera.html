@@ -50,9 +50,9 @@
                     </p>
                 </div>
             </div>
-            <!-- Botón configurado para descargar/abrir el APK del mismo repositorio -->
-            <a href="app-debug.apk" download="app-debug.apk" onclick="descargarAppNativa(event)" class="bg-stone-900/90 border border-amber-500/30 hover:border-amber-400 text-amber-400 px-4 py-2.5 rounded-xl text-xs font-futurista font-bold uppercase tracking-wider flex items-center gap-2 transition-all hover:bg-stone-800 shadow-lg cursor-pointer">
-                <i data-lucide="smartphone" class="w-4 h-4"></i> Descargar App (APK)
+            <!-- Botón configurado para abrir la app instalada mediante esquema nativo -->
+            <a href="dunigshop://cuponera" onclick="abrirAppNativa(event)" class="bg-stone-900/90 border border-amber-500/30 hover:border-amber-400 text-amber-400 px-4 py-2.5 rounded-xl text-xs font-futurista font-bold uppercase tracking-wider flex items-center gap-2 transition-all hover:bg-stone-800 shadow-lg cursor-pointer">
+                <i data-lucide="smartphone" class="w-4 h-4"></i> Abrir en la App
             </a>
         </div>
     </header>
@@ -146,16 +146,25 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Función para gestionar la descarga o apertura del APK en el mismo repositorio
-        function descargarAppNativa(e) {
+        // Función para abrir la app instalada en el teléfono de inmediato
+        function abrirAppNativa(e) {
             const esMovil = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             
             if (!esMovil) {
-                // Si está en PC, permitimos la descarga directa del archivo APK
-                console.log("Iniciando descarga del APK en escritorio...");
+                e.preventDefault();
+                alert("Esta opción está diseñada exclusivamente para teléfonos móviles con la aplicación instalada.");
                 return;
             }
-            // En dispositivos móviles (Android), el navegador iniciará automáticamente la descarga del archivo app-debug.apk
+
+            // Si está en celular, dejamos que intente abrir el enlace esquema nativo dunigshop://
+            // Opcional: Si transcurre un momento y no abrió, podemos darle la opción de descargar el APK de respaldo
+            setTimeout(() => {
+                if (!document.hidden) {
+                    if (confirm("¿No tienes la aplicación instalada o no abrió automáticamente? Pulsa Aceptar para descargar el APK de respaldo.")) {
+                        window.location.href = "app-debug.apk";
+                    }
+                }
+            }, 1500);
         }
 
         async function desbloquearCuponVIP() {
