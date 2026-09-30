@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAC DONALS - Cuponera & Sorteo VIP</title>
+    <title>D'UNIG SHOPPING- Cuponera & Sorteo VIP</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -43,7 +43,7 @@
                 </div>
                 <div>
                     <h1 class="text-base sm:text-xl font-black tracking-[0.2em] text-white font-futurista">
-                        MAC <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500">DONALS</span>
+                        D'UNIG<span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500">SHOPPING</span>
                     </h1>
                     <p class="text-[9px] text-amber-400/80 uppercase tracking-[0.25em] font-bold font-futurista">
                         CUPONERA &amp; SORTEO VIP
@@ -136,7 +136,7 @@
 
     <!-- Footer -->
     <footer class="border-t border-stone-900/80 bg-stone-950/80 p-6 text-center text-[10px] text-stone-500 font-mono tracking-[0.2em] mt-12">
-        MAC DONALS • ECOSISTEMA D'UNIG LUXURY © 2026
+    • ECOSISTEMA D'UNIG SHOPPING © 2026
     </footer>
 
     <!-- Scripts de Lógica y Supabase -->
@@ -235,7 +235,7 @@
             }
             
             // Configurar enlaces de compartir en redes sociales
-            const textoCompartir = `¡Ya estoy participando por la gran moto en el sorteo oficial de MAC DONALS con mi ID de orden: ${data.codigo}! 🏍️✨ ¡Participa tú también!`;
+            const textoCompartir = `¡Ya estoy participando por la gran moto en el sorteo oficial de D'UNIG SHOPPING con mi ID de orden: ${data.codigo}! 🏍️✨ ¡Participa tú también!`;
             const urlActual = window.location.href;
 
             document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoCompartir + " " + urlActual)}`;
@@ -248,7 +248,7 @@
 
         function copiarEnlaceRedes(redSocial) {
             const enlaceActual = window.location.href;
-            const textoCopia = `¡Participando por la moto en MAC DONALS! 🏍️ Mi ID de orden es mi pase seguro. ¡Entra aquí para verificar el tuyo! ${enlaceActual}`;
+            const textoCopia = `¡Participando por la moto en D'UNIG SHOPPING! 🏍️ Mi ID de orden es mi pase seguro. ¡Entra aquí para verificar el tuyo! ${enlaceActual}`;
             
             navigator.clipboard.writeText(textoCopia).then(() => {
                 alert(`¡Enlace copiado con éxito para ${redSocial}!\n\nPuedes pegarlo directamente en tu historia o publicación.`);
