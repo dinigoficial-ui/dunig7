@@ -1023,14 +1023,18 @@
             
             const mensaje = `📦 *PEDIDO NACIONAL - D'UNIG SHOPING* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}`;
 
-            // Inserción completa y segura en Supabase (ordenes_vip)
+            // Generación de UUID único obligatorio para el campo id (text)
+            const generatedId = 'ord-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+
+            // Inserción completa y corregida en Supabase con todos los campos requeridos
             const { error: insertError } = await supabaseClient
               .from('ordenes_vip')
               .insert([
                 { 
+                  id: generatedId,
                   cliente_nombre: clienteLocal.nombre || 'Nombre del Cliente',
                   cliente_telefono: clienteLocal.whatsapp || '0414xxxxxxx',
-                  detalles_pedido: carrito.map(i => i.titulo).join(', '),
+                  detalles_pedido: carrito.map(i => i.titulo), // Envío correcto como formato array/JSONB compatible
                   total: totalGeneral,
                   monto_total: totalGeneral,
                   metodo_pago: metodo,
@@ -1038,7 +1042,7 @@
                   codigo_referido: codigoReferidoCliente,
                   referencia: ref,
                   referencia_bancaria: ref,
-                  estado: "Pendiente"
+                  estado: "pendiente"
                 }
               ]);
 
