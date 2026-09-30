@@ -912,7 +912,10 @@
                 tbody.innerHTML = "";
                 data.forEach(o => {
                     const fechaFormateada = new Date(o.created_at).toLocaleDateString();
-                    const telefonoCliente = o.telefono || o.whatsapp_cliente || o.telefono_cliente || "";
+                    
+                    // Se extrae directamente de la columna cliente_telefono con respaldos por compatibilidad
+                    const telefonoCliente = o.cliente_telefono || o.telefono || o.whatsapp_cliente || "";
+                    
                     const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
 
                     let estadoHtml = "";
