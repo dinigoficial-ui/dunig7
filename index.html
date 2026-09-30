@@ -163,7 +163,7 @@
                 </div>
             </div>
 
-            <!-- CARRUSEL DE IMÁGENES EN MOVIMIENTO (PORTADA CORREGIDA) -->
+            <!-- CARRUSEL DE IMÁGENES EN MOVIMIENTO -->
             <div class="w-full rounded-2xl overflow-hidden shadow-sm relative bg-black text-white border border-[#262626]">
                 <div class="w-full h-40 sm:h-56 relative overflow-hidden">
                     <div id="carrusel-slider-track" class="carrusel-contenedor h-full">
@@ -931,18 +931,13 @@
             }
         }
 
-        // ==========================================================
-        // FUNCIONES PARA MOSTRAR Y CERRAR EL CÓDIGO QR DEL APK
-        // ==========================================================
         window.mostrarQrApk = function() {
             const urlApk = "https://dinigoficial-ui.github.io/dunig7/app-debug.apk";
             const modal = document.getElementById('modal-qr');
             const contenedor = document.getElementById('contenedor-qr');
             
-            // Limpiamos cualquier QR previo que estuviera dibujado
             contenedor.innerHTML = "";
             
-            // Generamos el nuevo código QR usando la librería
             new QRCode(contenedor, {
                 text: urlApk,
                 width: 180,
@@ -952,7 +947,6 @@
                 correctLevel: QRCode.CorrectLevel.H
             });
             
-            // Mostramos el modal
             modal.classList.remove('hidden');
         }
 
@@ -1029,21 +1023,28 @@
             
             const mensaje = `📦 *PEDIDO NACIONAL - D'UNIG SHOPING* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}`;
 
+            // CORRECCIÓN: Estructurar exactamente con los campos permitidos y requeridos por la tabla ordenes_vip
             const datosOrdenPendiente = {
                 productos: carrito.map(i => i.titulo).join(', '),
                 total: totalGeneral,
-                monto_total: totalGeneral,
                 referencia: ref,
+                estado: 'activo',
+                owner_instagram: null,
+                monto_total: totalGeneral,
                 referencia_bancaria: ref,
-                estado: "Pendiente",
                 codigo_referido: codigoReferidoCliente,
                 coordenadas_gps: "N/A",
                 costo_delivery: 0.00,
                 nombre_cliente: clienteLocal.nombre || null,
-                telefono: clienteLocal.whatsapp || null
+                telefono: clienteLocal.whatsapp || null,
+                estatus_pago: 'pendiente'
             };
 
-            await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
+            const { error: errorSupabase } = await supabaseClient.from('ordenes_vip').insert([datosOrdenPendiente]); 
+            if (errorSupabase) {
+                console.error("Error al guardar en ordenes_vip:", errorSupabase);
+                alert("Hubo un error al registrar tu orden en la base de datos, pero se enviará por WhatsApp.");
+            }
 
             await guardarOrdenEnCentral({
                 nombre: `Casa de las Papas - Envío por ${empresaEncomiendaSeleccionada}`,
