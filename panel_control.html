@@ -888,83 +888,57 @@
             }
         }
 
-        // Función encargada de descargar y formatear las órdenes reflejando cada nombre y cantidad desde `detalles_pedido`
-        async function descargarHistorialDeOrdenes() {
-            const { data, error } = await supabaseClient
-                .from('ordenes_vip')
-                .select('*')
-                .order('created_at', { ascending: false });
+        // Ejemplo de función para cargar y formatear las órdenes en tu Panel de Control
+async function cargarOrdenesPanel() {
+  try {
+    const { data, error } = await supabase
+      .from('ordenes_central') // Ajusta el nombre de tu tabla si es diferente
+      .select('*')
+      .order('created_at', { ascending: false });
 
-            if (!error && data) {
-                const tbody = document.getElementById('tabla-ordenes-body'); 
-                if (!tbody) return;
-                
-                tbody.innerHTML = "";
-                data.forEach(o => {
-                    const fechaFormateada = new Date(o.created_at).toLocaleDateString();
-                    const telefonoCliente = o.cliente_telefono || o.telefono || o.whatsapp_cliente || "";
-                    const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
+    if (error) throw error;
 
-                    let productosHTML = "";
-                    try {
-                        let parsedDetalles = o.detalles_pedido;
-                        if (typeof parsedDetalles === 'string') {
-                            parsedDetalles = JSON.parse(parsedDetalles);
-                        }
-                        if (Array.isArray(parsedDetalles)) {
-                            productosHTML = parsedDetalles.map(item => {
-                                const cantidad = item.cantidad || 1;
-                                const titulo = item.titulo || item.nombre || 'Producto';
-                                const precioItem = item.precio ? `($${(item.precio * cantidad).toFixed(2)})` : '';
-                                return `<div class="text-stone-200">▪ ${cantidad}x <b>${titulo}</b> ${precioItem}</div>`;
-                            }).join('');
-                        } else if (typeof parsedDetalles === 'object' && parsedDetalles !== null) {
-                            productosHTML = `<div class="text-stone-200">▪ ${parsedDetalles.titulo || parsedDetalles.nombre || 'Producto'}</div>`;
-                        } else {
-                            productosHTML = `<span class="text-stone-200">${o.detalles_pedido || 'Sin detalles'}</span>`;
-                        }
-                    } catch (e) {
-                        productosHTML = `<span class="text-stone-200">${o.detalles_pedido || 'Sin detalles'}</span>`;
-                    }
+    const contenedorOrdenes = document.getElementById('id-del-contenedor'); // Reemplaza con tu contenedor HTML
+    contenedorOrdenes.innerHTML = '';
 
-                    let estadoHtml = "";
+    data.forEach(orden => {
+      // 1. Extraer los nombres de los productos de forma segura
+      // Dependiendo de cómo guardes los productos (un JSON, un array o un string parseado):
+      let detalleProductos = '';
 
-                    if (o.estado === 'verificado') {
-                        estadoHtml = `
-                            <div class="flex items-center justify-end gap-2">
-                                <span class="text-green-400 font-bold uppercase text-[10px]">Verificado</span>
-                                <button onclick="enviarWhatsAppPremio('${telefonoCliente}', '${codigoPremio}', '${o.id}')" class="bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
-                                    <i data-lucide="send" class="w-3 h-3"></i> Reenviar WhatsApp
-                                </button>
-                            </div>`;
-                    } else if (o.estado === 'cancelado') {
-                        estadoHtml = `<span class="text-red-500 font-bold uppercase text-[10px]">Cancelado</span>`;
-                    } else {
-                        estadoHtml = `
-                            <button onclick="confirmarYEnviarPedido('${o.id}', '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
-                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar Pedido
-                            </button>`;
-                    }
-                    
-                    tbody.innerHTML += `<tr class="border-b border-stone-900/40 hover:bg-stone-900/10 transition-colors">
-                        <td class="p-3 font-mono text-amber-400 font-bold">#${o.id}</td>
-                        <td class="p-3 text-stone-400">${fechaFormateada}</td>
-                        <td class="p-3 nombre-del-plato">${productosHTML}</td>
-                        <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || o.monto_total || 0).toFixed(2)}</td>
-                        <td class="p-3 font-mono text-stone-400">
-                            <div>Ref: ${o.referencia || o.referencia_bancaria || 'N/A'}</div>
-                            <div class="text-[10px] text-amber-500/80">Tlf: ${telefonoCliente || 'No registrado'}</div>
-                        </td>
-                        <td class="p-3 text-right">
-                            ${estadoHtml}
-                        </td>
-                    </tr>`;
-                });
-                lucide.createIcons();
-            } else if (error) {
-                console.error("Error al descargar órdenes:", error.message);
-            }
-        }
+      if (Array.isArray(orden.productos)) {
+        // Si es un array de objetos ej: [{ nombre: 'Franela fashion', cantidad: 1 }, ...]
+        detalleProductos = orden.productos.map(p => p.nombre || p.titulo).join(', ');
+      } else if (typeof orden.productos === 'string') {
+        detalleProductos = orden.productos;
+      } else if (orden.detalles_carrito) {
+        // O si viene en otra propiedad de tu base de datos
+        detalleProductos = orden.detalles_carrito;
+      }
+
+      // 2. Si por alguna razón el campo está vacío, evitamos el "1x Producto" genérico 
+      // y mostramos una descripción clara o el respaldo adecuado.
+      if (!detalleProductos || detalleProductos.trim() === '') {
+        detalleProductos = 'Detalle de orden no especificado';
+      }
+
+      // 3. Renderizar la fila en el panel de control
+      const filaHTML = `
+        <div class="orden-fila">
+          <span class="orden-fecha">${orden.fecha || orden.created_at || '30/9/2026'}</span>
+          <span class="orden-productos">${detalleProductos}</span>
+          <span class="orden-total">$${parseFloat(orden.total || 0).toFixed(2)}</span>
+          <span class="orden-telefono">Tlf: ${orden.telefono || 'N/A'}</span>
+        </div>
+      `;
+      
+      contenedorOrdenes.innerHTML += filaHTML;
+    });
+
+  } catch (error) {
+    console.error('Error al cargar las órdenes:', error);
+  }
+}
 
         async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
             if (!idOrden) return;
