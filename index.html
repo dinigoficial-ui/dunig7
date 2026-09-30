@@ -8,6 +8,9 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <!-- Librería para generar códigos QR de forma automática -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
         body { 
@@ -44,6 +47,23 @@
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col justify-between relative">
+
+    <!-- MODAL PARA MOSTRAR EL CÓDIGO QR -->
+    <div id="modal-qr" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[99999] hidden flex items-center justify-center p-4">
+        <div class="bg-[#1f1f1f] border border-[#333333] w-full max-w-xs rounded-2xl p-6 text-center shadow-2xl space-y-4">
+            <h3 class="text-white font-bold text-base flex items-center justify-center gap-2">
+                <i data-lucide="qr-code" class="w-5 h-5 text-amber-400"></i> Escanea para descargar
+            </h3>
+            <p class="text-xs text-gray-400">Apunta con la cámara de tu teléfono para descargar el APK de D'UNIG SHOPPING.</p>
+            
+            <!-- Contenedor donde se dibuja el QR -->
+            <div id="contenedor-qr" class="bg-white p-4 rounded-xl flex items-center justify-center mx-auto w-fit"></div>
+            
+            <button onclick="cerrarModalQr()" class="w-full bg-amber-400 text-black font-bold py-2.5 rounded-xl text-xs hover:bg-amber-300 transition-colors cursor-pointer">
+                Cerrar
+            </button>
+        </div>
+    </div>
 
     <!-- MODAL / PANTALLA DE REGISTRO INICIAL Y EDICIÓN OBLIGATORIOS -->
     <div id="modal-registro-cliente" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
@@ -112,10 +132,10 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <!-- BOTÓN DE COMPARTIR EL APK -->
-                    <button onclick="compartirAplicacion()" class="bg-[#1b1b1b] border border-[#333333] hover:border-white px-2.5 py-1.5 rounded-full flex items-center gap-1.5 cursor-pointer transition-all text-emerald-400" title="Compartir Aplicación APK">
-                        <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                        <span class="text-[10px] font-bold uppercase hidden sm:inline">Compartir APK</span>
+                    <!-- BOTÓN DE CÓDIGO QR PARA EL APK -->
+                    <button onclick="mostrarQrApk()" class="bg-[#2a2a2a] border border-[#3d3d3d] hover:border-white text-amber-400 text-xs font-bold py-2 px-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all" title="Ver Código QR para descargar APK">
+                        <i data-lucide="qr-code" class="w-4 h-4"></i>
+                        <span class="text-[10px] uppercase hidden sm:inline">Código QR</span>
                     </button>
 
                     <button onclick="abrirModalEdicionDatos()" class="bg-[#1b1b1b] border border-[#333333] hover:border-white p-2 rounded-full flex items-center justify-center cursor-pointer transition-all text-gray-300" title="Editar mis datos">
@@ -912,28 +932,33 @@
         }
 
         // ==========================================================
-// FUNCIÓN CORREGIDA PARA COMPARTIR EL APK DEL REPOSITORIO
-// ==========================================================
-window.compartirAplicacion = async function() {
-    // Como está en el mismo repositorio, puedes usar la ruta relativa o la URL completa de tu GitHub Pages:
-    const urlApk = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/') + "app-debug.apk";
-    const mensaje = "¡Descarga la aplicación oficial de D'UNIG SHOPPING en tu dispositivo Android! 📱🚀\n\nInstálala aquí:\n" + urlApk;
-
-    if (navigator.share) {
-        try {
-            await navigator.share({
-                title: "D'UNIG SHOPPING APK",
-                text: mensaje,
-                url: urlApk
+        // FUNCIONES PARA MOSTRAR Y CERRAR EL CÓDIGO QR DEL APK
+        // ==========================================================
+        window.mostrarQrApk = function() {
+            const urlApk = "https://dinigoficial-ui.github.io/dunig7/app-debug.apk";
+            const modal = document.getElementById('modal-qr');
+            const contenedor = document.getElementById('contenedor-qr');
+            
+            // Limpiamos cualquier QR previo que estuviera dibujado
+            contenedor.innerHTML = "";
+            
+            // Generamos el nuevo código QR usando la librería
+            new QRCode(contenedor, {
+                text: urlApk,
+                width: 180,
+                height: 180,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
             });
-        } catch (err) {
-            console.log("Error al compartir nativamente:", err);
+            
+            // Mostramos el modal
+            modal.classList.remove('hidden');
         }
-    } else {
-        navigator.clipboard.writeText(urlApk);
-        alert("¡Enlace directo al APK copiado al portapapeles!\n\n" + urlApk);
-    }
-}
+
+        window.cerrarModalQr = function() {
+            document.getElementById('modal-qr').classList.add('hidden');
+        }
 
         window.addEventListener('DOMContentLoaded', async () => {
             aplicarYFijarCodigoReferido();
