@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D'UNIG SHOPPING- Cuponera & Sorteo VIP</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -34,7 +34,7 @@
 </head>
 <body class="text-stone-200 antialiased min-h-screen flex flex-col justify-between grid-bg relative selection:bg-amber-500 selection:text-stone-950">
 
-    <!-- Header Elegante -->
+    <!-- Header Elegante (Sin botón de app) -->
     <header class="bg-stone-950/70 backdrop-blur-2xl border-b border-amber-500/10 sticky top-0 z-40 px-4">
         <div class="max-w-7xl mx-auto h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -50,10 +50,6 @@
                     </p>
                 </div>
             </div>
-            <!-- Botón configurado para abrir la app instalada mediante esquema nativo -->
-            <a href="dunigshop://cuponera" onclick="abrirAppNativa(event)" class="bg-stone-900/90 border border-amber-500/30 hover:border-amber-400 text-amber-400 px-4 py-2.5 rounded-xl text-xs font-futurista font-bold uppercase tracking-wider flex items-center gap-2 transition-all hover:bg-stone-800 shadow-lg cursor-pointer">
-                <i data-lucide="smartphone" class="w-4 h-4"></i> Abrir en la App
-            </a>
         </div>
     </header>
 
@@ -146,27 +142,6 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Función para abrir la app instalada en el teléfono de inmediato
-        function abrirAppNativa(e) {
-            const esMovil = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            
-            if (!esMovil) {
-                e.preventDefault();
-                alert("Esta opción está diseñada exclusivamente para teléfonos móviles con la aplicación instalada.");
-                return;
-            }
-
-            // Si está en celular, dejamos que intente abrir el enlace esquema nativo dunigshop://
-            // Opcional: Si transcurre un momento y no abrió, podemos darle la opción de descargar el APK de respaldo
-            setTimeout(() => {
-                if (!document.hidden) {
-                    if (confirm("¿No tienes la aplicación instalada o no abrió automáticamente? Pulsa Aceptar para descargar el APK de respaldo.")) {
-                        window.location.href = "app-debug.apk";
-                    }
-                }
-            }, 1500);
-        }
-
         async function desbloquearCuponVIP() {
             const inputVal = document.getElementById('input-codigo-ingresado').value.trim();
             if(!inputVal) {
@@ -206,7 +181,7 @@
                     const nombreTitular = ordenAltData.cliente_nombre || 'Participante VIP';
                     data = {
                         codigo: ordenAltData.id,
-                        titulo: "¡Participante Oficial del Sorteo de la Moto! 🏍️",
+                        titulo: "¡Participante Oficial del Sorteo de la Moto! 🏍️️",
                         descripcion: `¡Felicidades ${nombreTitular}! Tu orden #${ordenAltData.id} ha sido verificada mediante tu referencia. ¡Mucho éxito!`
                     };
                 } else {
@@ -252,7 +227,7 @@
                 contenedorVideo.classList.add('hidden');
             }
             
-            const textoCompartir = `¡Ya estoy participando por la gran moto en el sorteo oficial de D'UNIG SHOPPING con mi ID de orden: ${data.codigo}! 🏍️✨ ¡Participa tú también!`;
+            const textoCompartir = `¡Ya estoy participando por la gran moto en el sorteo oficial de D'UNIG SHOPPING com mi ID de orden: ${data.codigo}! 🏍️✨ ¡Participa tú también!`;
             const urlActual = window.location.href;
 
             document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoCompartir + " " + urlActual)}`;
