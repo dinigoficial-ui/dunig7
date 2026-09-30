@@ -915,17 +915,13 @@
                     const telefonoCliente = o.cliente_telefono || o.telefono || o.whatsapp_cliente || "";
                     const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
 
-                    // --- PROCESAMIENTO DE PRODUCTOS DESDE detalles_pedido ---
+                    // Procesamiento de productos desde detalles_pedido
                     let productosHTML = "";
                     try {
                         let parsedDetalles = o.detalles_pedido;
-                        
-                        // Si está como string JSON, lo convertimos a objeto/array
                         if (typeof parsedDetalles === 'string') {
                             parsedDetalles = JSON.parse(parsedDetalles);
                         }
-
-                        // Si es un arreglo (el carrito clásico), lo recorremos
                         if (Array.isArray(parsedDetalles)) {
                             productosHTML = parsedDetalles.map(item => {
                                 const cantidad = item.cantidad || 1;
@@ -934,17 +930,13 @@
                                 return `<div class="text-stone-200">▪ ${cantidad}x <b>${titulo}</b> ${precioItem}</div>`;
                             }).join('');
                         } else if (typeof parsedDetalles === 'object' && parsedDetalles !== null) {
-                            // Por si se guardó como un objeto individual
                             productosHTML = `<div class="text-stone-200">▪ ${parsedDetalles.titulo || 'Producto'}</div>`;
                         } else {
-                            // Respaldo por si acaso hay datos antiguos guardados como texto plano
                             productosHTML = `<span class="text-stone-200">${o.detalles_pedido || o.productos || 'Sin detalles'}</span>`;
                         }
                     } catch (e) {
-                        // Si falla el parseo, mostramos el campo tradicional o un respaldo
                         productosHTML = `<span class="text-stone-200">${o.detalles_pedido || o.productos || 'Sin detalles'}</span>`;
                     }
-                    // ---------------------------------------------------------
 
                     let estadoHtml = "";
 
@@ -952,15 +944,16 @@
                         estadoHtml = `
                             <div class="flex items-center justify-end gap-2">
                                 <span class="text-green-400 font-bold uppercase text-[10px]">Verificado</span>
-                                <button onclick="enviarWhatsAppPremio('${telefonoCliente}', '${codigoPremio}', ${o.id})" class="bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
+                                <button onclick="enviarWhatsAppPremio('${telefonoCliente}', '${codigoPremio}', '${o.id}')" class="bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
                                     <i data-lucide="send" class="w-3 h-3"></i> Reenviar WhatsApp
                                 </button>
                             </div>`;
                     } else if (o.estado === 'cancelado') {
                         estadoHtml = `<span class="text-red-500 font-bold uppercase text-[10px]">Cancelado</span>`;
                     } else {
+                        // AQUÍ ESTABA EL ERROR: Se agregó '${o.id}' con comillas simples
                         estadoHtml = `
-                            <button onclick="confirmarYEnviarPedido(${o.id}, '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
+                            <button onclick="confirmarYEnviarPedido('${o.id}', '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
                                 <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar Pedido
                             </button>`;
                     }
