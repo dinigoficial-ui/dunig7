@@ -113,7 +113,7 @@
                 </div>
             </div>
 
-            <!-- Formulario de Ingredientes 3D -->
+            <!-- Ingredientes 3D -->
             <div class="glass-panel p-6 rounded-2xl space-y-4 shadow-2xl mt-6">
                 <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800/60 pb-3">
                     <i data-lucide="box" class="w-4 h-4"></i>
@@ -268,8 +268,8 @@
         </div>
     </main>
 
+    <!-- Sección Extras -->
     <main id="panel-seccion-extras" class="hidden max-w-7xl w-full mx-auto px-4 py-8 flex-grow relative z-10 space-y-6">
-        <!-- Canal WhatsApp -->
         <div class="max-w-md mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
                 <i data-lucide="phone-call" class="w-4 h-4"></i>
@@ -287,7 +287,6 @@
             </button>
         </div>
 
-        <!-- Aviso de Abierto / Cerrado para la Vitrina -->
         <div class="max-w-md mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
                 <i data-lucide="store" class="w-4 h-4"></i>
@@ -308,14 +307,13 @@
             </button>
         </div>
 
-        <!-- Configurar Hora en Vitrina -->
         <div class="max-w-md mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
                 <i data-lucide="clock" class="w-4 h-4"></i>
                 <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Horario / Hora en Vitrina</h3>
             </div>
             <p class="text-[11px] text-stone-400 leading-relaxed font-mono">
-                Configura el texto o la hora personalizada que se visualizará en la vitrina pública (ej: 08:00 AM - 10:00 PM o un mensaje de horario).
+                Configura el texto o la hora personalizada que se visualizará en la vitrina pública.
             </p>
             <div class="space-y-1.5">
                 <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Hora o Texto de Atención</label>
@@ -333,15 +331,6 @@
         const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        async function verificarAcceso() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) {
-                window.location.href = "login.html"; 
-                return null;
-            }
-            return session.user.email;
-        }
 
         let baseProductos = [];
         let categoriasDB = []; 
@@ -899,6 +888,7 @@
             }
         }
 
+        // Función encargada de descargar y formatear las órdenes reflejando cada nombre y cantidad desde `detalles_pedido`
         async function descargarHistorialDeOrdenes() {
             const { data, error } = await supabaseClient
                 .from('ordenes_vip')
@@ -915,7 +905,6 @@
                     const telefonoCliente = o.cliente_telefono || o.telefono || o.whatsapp_cliente || "";
                     const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
 
-                    // Procesamiento de productos desde detalles_pedido
                     let productosHTML = "";
                     try {
                         let parsedDetalles = o.detalles_pedido;
@@ -930,12 +919,12 @@
                                 return `<div class="text-stone-200">▪ ${cantidad}x <b>${titulo}</b> ${precioItem}</div>`;
                             }).join('');
                         } else if (typeof parsedDetalles === 'object' && parsedDetalles !== null) {
-                            productosHTML = `<div class="text-stone-200">▪ ${parsedDetalles.titulo || 'Producto'}</div>`;
+                            productosHTML = `<div class="text-stone-200">▪ ${parsedDetalles.titulo || parsedDetalles.nombre || 'Producto'}</div>`;
                         } else {
-                            productosHTML = `<span class="text-stone-200">${o.detalles_pedido || o.productos || 'Sin detalles'}</span>`;
+                            productosHTML = `<span class="text-stone-200">${o.detalles_pedido || 'Sin detalles'}</span>`;
                         }
                     } catch (e) {
-                        productosHTML = `<span class="text-stone-200">${o.detalles_pedido || o.productos || 'Sin detalles'}</span>`;
+                        productosHTML = `<span class="text-stone-200">${o.detalles_pedido || 'Sin detalles'}</span>`;
                     }
 
                     let estadoHtml = "";
@@ -951,7 +940,6 @@
                     } else if (o.estado === 'cancelado') {
                         estadoHtml = `<span class="text-red-500 font-bold uppercase text-[10px]">Cancelado</span>`;
                     } else {
-                        // AQUÍ ESTABA EL ERROR: Se agregó '${o.id}' con comillas simples
                         estadoHtml = `
                             <button onclick="confirmarYEnviarPedido('${o.id}', '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
                                 <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar Pedido
@@ -962,9 +950,9 @@
                         <td class="p-3 font-mono text-amber-400 font-bold">#${o.id}</td>
                         <td class="p-3 text-stone-400">${fechaFormateada}</td>
                         <td class="p-3 nombre-del-plato">${productosHTML}</td>
-                        <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || 0).toFixed(2)}</td>
+                        <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || o.monto_total || 0).toFixed(2)}</td>
                         <td class="p-3 font-mono text-stone-400">
-                            <div>Ref: ${o.referencia || 'N/A'}</div>
+                            <div>Ref: ${o.referencia || o.referencia_bancaria || 'N/A'}</div>
                             <div class="text-[10px] text-amber-500/80">Tlf: ${telefonoCliente || 'No registrado'}</div>
                         </td>
                         <td class="p-3 text-right">
@@ -978,11 +966,9 @@
             }
         }
 
-        // Función integrada para confirmar la orden en Supabase y abrir WhatsApp con el código de sorteo y enlace a la cuponera
         async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
             if (!idOrden) return;
 
-            // 1. Actualizar el estado de la orden en Supabase a 'verificado'
             const { error } = await supabaseClient
                 .from('ordenes_vip')
                 .update({ estado: 'verificado' })
@@ -993,7 +979,6 @@
                 return;
             }
 
-            // 2. Si no hay teléfono registrado, advertir pero permitir continuar ingresándolo
             if (!telefonoCliente || telefonoCliente.trim() === "" || telefonoCliente === "No registrado") {
                 telefonoCliente = prompt("Esta orden no tiene un número de WhatsApp registrado. Por favor, ingresa el número del cliente (con código de país):");
                 if (!telefonoCliente) {
@@ -1003,19 +988,12 @@
                 }
             }
 
-            // 3. Limpiar el formato del número (solo dígitos)
             const numeroLimpio = telefonoCliente.replace(/[^0-9]/g, "");
-
-            // 4. Definir link de la cuponera y construir el mensaje completo
             const linkCuponera = "https://dinigoficial-ui.github.io/dunig7/cuponera.html";
             const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigoPremio}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
-            
-            // 5. Abrir WhatsApp en una nueva pestaña
             window.open(urlWhatsApp, '_blank');
-
-            // 6. Recargar el historial de órdenes para reflejar el cambio de estado visualmente
             descargarHistorialDeOrdenes();
         }
 
@@ -1026,8 +1004,7 @@
             }
 
             const numeroLimpio = telefono.replace(/[^0-9]/g, "");
-            const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/cuponera.html";
-
+            const linkCuponera = "https://dinigoficial-ui.github.io/dunig7/cuponera.html";
             const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido verificada y confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigo}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
