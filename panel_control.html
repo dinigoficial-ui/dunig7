@@ -910,52 +910,56 @@
         if (!tbody) return;
         
         tbody.innerHTML = "";
+        
         data.forEach(o => {
+            // Imprimimos la orden completa en la consola del navegador (F12) 
+            // para ver exactamente cómo se llaman las propiedades de tus productos
+            console.log("Objeto Orden completo:", o);
+
             const fechaFormateada = new Date(o.created_at).toLocaleDateString();
-            const telefonoCliente = o.cliente_telefono || o.telefono || o.whatsapp_cliente || "";
+            const telefonoCliente = o.cliente_telefono || o.telefono || o.whatsapp || o.whatsapp_cliente || "";
             const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
 
-            // Procesamiento seguro y robusto de detalles_pedido (JSONB o Texto)
             let productosHTML = "";
+            
+            // Buscamos dinámicamente cualquier propiedad que pueda contener los productos
+            const rawDetalles = o.detalles_pedido || o.productos || o.items || o.carrito || o.pedido;
+
             try {
-                let parsedDetalles = o.detalles_pedido;
+                let detalles = rawDetalles;
                 
-                // Si viene como texto plano JSON, lo parseamos
-                if (typeof parsedDetalles === 'string') {
+                if (typeof detalles === 'string') {
                     try {
-                        parsedDetalles = JSON.parse(parsedDetalles);
-                    } catch (err) {
-                        // Si no es un JSON válido, se muestra como texto plano directamente
-                        parsedDetalles = o.detalles_pedido;
+                        detalles = JSON.parse(detalles);
+                    } catch (e) {
+                        detalles = rawDetalles;
                     }
                 }
 
-                if (Array.isArray(parsedDetalles)) {
-                    productosHTML = parsedDetalles.map(item => {
-                        const cantidad = item.cantidad || 1;
-                        const titulo = item.titulo || item.nombre || item.producto || 'Producto';
-                        const precioItem = item.precio ? `($${(item.precio * cantidad).toFixed(2)})` : '';
-                        return `<div class="text-stone-200">▪ ${cantidad}x <b>${titulo}</b> ${precioItem}</div>`;
+                if (Array.isArray(detalles)) {
+                    productosHTML = detalles.map(item => {
+                        const cant = item.cantidad || item.qty || item.amount || 1;
+                        const nombrePlato = item.titulo || item.nombre || item.producto || item.name || item. plato || 'Producto sin nombre';
+                        return `<div class="text-stone-200">▪ ${cant}x <b>${nombrePlato}</b></div>`;
                     }).join('');
-                } else if (typeof parsedDetalles === 'object' && parsedDetalles !== null) {
-                    const titulo = parsedDetalles.titulo || parsedDetalles.nombre || 'Producto';
-                    const cantidad = parsedDetalles.cantidad || 1;
-                    productosHTML = `<div class="text-stone-200">▪ ${cantidad}x <b>${titulo}</b></div>`;
+                } else if (typeof detalles === 'object' && detalles !== null) {
+                    const cant = detalles.cantidad || detalles.qty || 1;
+                    const nombrePlato = detalles.titulo || detalles.nombre || detalles.producto || detalles.name || 'Producto sin nombre';
+                    productosHTML = `<div class="text-stone-200">▪ ${cant}x <b>${nombrePlato}</b></div>`;
                 } else {
-                    productosHTML = `<span class="text-stone-200">${parsedDetalles || 'Sin detalles'}</span>`;
+                    productosHTML = `<span class="text-stone-200">${detalles || 'No hay productos registrados'}</span>`;
                 }
-            } catch (e) {
-                productosHTML = `<span class="text-stone-200">Error al leer los detalles</span>`;
+            } catch (err) {
+                productosHTML = `<span class="text-red-400">Error al leer productos</span>`;
             }
 
             let estadoHtml = "";
-
             if (o.estado === 'verificado') {
                 estadoHtml = `
                     <div class="flex items-center justify-end gap-2">
                         <span class="text-green-400 font-bold uppercase text-[10px]">Verificado</span>
                         <button onclick="enviarWhatsAppPremio('${telefonoCliente}', '${codigoPremio}', '${o.id}')" class="bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
-                            <i data-lucide="send" class="w-3 h-3"></i> Reenviar WhatsApp
+                            <i data-lucide="send" class="w-3 h-3"></i> Reenviar
                         </button>
                     </div>`;
             } else if (o.estado === 'cancelado') {
@@ -963,7 +967,7 @@
             } else {
                 estadoHtml = `
                     <button onclick="confirmarYEnviarPedido('${o.id}', '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
-                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar Pedido
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar
                     </button>`;
             }
             
@@ -971,9 +975,9 @@
                 <td class="p-3 font-mono text-amber-400 font-bold">#${o.id}</td>
                 <td class="p-3 text-stone-400">${fechaFormateada}</td>
                 <td class="p-3 nombre-del-plato">${productosHTML}</td>
-                <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || 0).toFixed(2)}</td>
+                <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || o.monto_total || 0).toFixed(2)}</td>
                 <td class="p-3 font-mono text-stone-400">
-                    <div>Ref: ${o.referencia || 'N/A'}</div>
+                    <div>Ref: ${o.referencia || o.referencia_bancaria || 'N/A'}</div>
                     <div class="text-[10px] text-amber-500/80">Tlf: ${telefonoCliente || 'No registrado'}</div>
                 </td>
                 <td class="p-3 text-right">
