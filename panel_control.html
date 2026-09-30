@@ -113,7 +113,7 @@
                 </div>
             </div>
 
-            <!-- Ingredientes 3D -->
+            <!-- Formulario de Ingredientes 3D -->
             <div class="glass-panel p-6 rounded-2xl space-y-4 shadow-2xl mt-6">
                 <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800/60 pb-3">
                     <i data-lucide="box" class="w-4 h-4"></i>
@@ -268,8 +268,8 @@
         </div>
     </main>
 
-    <!-- Sección Extras -->
     <main id="panel-seccion-extras" class="hidden max-w-7xl w-full mx-auto px-4 py-8 flex-grow relative z-10 space-y-6">
+        <!-- Canal WhatsApp -->
         <div class="max-w-md mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
                 <i data-lucide="phone-call" class="w-4 h-4"></i>
@@ -287,6 +287,7 @@
             </button>
         </div>
 
+        <!-- Aviso de Abierto / Cerrado para la Vitrina -->
         <div class="max-w-md mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
                 <i data-lucide="store" class="w-4 h-4"></i>
@@ -307,13 +308,14 @@
             </button>
         </div>
 
+        <!-- Configurar Hora en Vitrina -->
         <div class="max-w-md mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
                 <i data-lucide="clock" class="w-4 h-4"></i>
                 <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Horario / Hora en Vitrina</h3>
             </div>
             <p class="text-[11px] text-stone-400 leading-relaxed font-mono">
-                Configura el texto o la hora personalizada que se visualizará en la vitrina pública.
+                Configura el texto o la hora personalizada que se visualizará en la vitrina pública (ej: 08:00 AM - 10:00 PM o un mensaje de horario).
             </p>
             <div class="space-y-1.5">
                 <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Hora o Texto de Atención</label>
@@ -331,6 +333,15 @@
         const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function verificarAcceso() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = "login.html"; 
+                return null;
+            }
+            return session.user.email;
+        }
 
         let baseProductos = [];
         let categoriasDB = []; 
@@ -888,61 +899,90 @@
             }
         }
 
-        // Ejemplo de función para cargar y formatear las órdenes en tu Panel de Control
-async function cargarOrdenesPanel() {
-  try {
-    const { data, error } = await supabase
-      .from('ordenes_central') // Ajusta el nombre de tu tabla si es diferente
-      .select('*')
-      .order('created_at', { ascending: false });
+        async function descargarHistorialDeOrdenes() {
+            const { data, error } = await supabaseClient
+                .from('ordenes_vip')
+                .select('*')
+                .order('created_at', { ascending: false });
 
-    if (error) throw error;
+            if (!error && data) {
+                const tbody = document.getElementById('tabla-ordenes-body'); 
+                if (!tbody) return;
+                
+                tbody.innerHTML = "";
+                data.forEach(o => {
+                    const fechaFormateada = new Date(o.created_at).toLocaleDateString();
+                    const telefonoCliente = o.cliente_telefono || o.telefono || o.whatsapp_cliente || "";
+                    const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
 
-    const contenedorOrdenes = document.getElementById('id-del-contenedor'); // Reemplaza con tu contenedor HTML
-    contenedorOrdenes.innerHTML = '';
+                    // Procesamiento de productos desde detalles_pedido
+                    let productosHTML = "";
+                    try {
+                        let parsedDetalles = o.detalles_pedido;
+                        if (typeof parsedDetalles === 'string') {
+                            parsedDetalles = JSON.parse(parsedDetalles);
+                        }
+                        if (Array.isArray(parsedDetalles)) {
+                            productosHTML = parsedDetalles.map(item => {
+                                const cantidad = item.cantidad || 1;
+                                const titulo = item.titulo || item.nombre || 'Producto';
+                                const precioItem = item.precio ? `($${(item.precio * cantidad).toFixed(2)})` : '';
+                                return `<div class="text-stone-200">▪ ${cantidad}x <b>${titulo}</b> ${precioItem}</div>`;
+                            }).join('');
+                        } else if (typeof parsedDetalles === 'object' && parsedDetalles !== null) {
+                            productosHTML = `<div class="text-stone-200">▪ ${parsedDetalles.titulo || 'Producto'}</div>`;
+                        } else {
+                            productosHTML = `<span class="text-stone-200">${o.detalles_pedido || o.productos || 'Sin detalles'}</span>`;
+                        }
+                    } catch (e) {
+                        productosHTML = `<span class="text-stone-200">${o.detalles_pedido || o.productos || 'Sin detalles'}</span>`;
+                    }
 
-    data.forEach(orden => {
-      // 1. Extraer los nombres de los productos de forma segura
-      // Dependiendo de cómo guardes los productos (un JSON, un array o un string parseado):
-      let detalleProductos = '';
+                    let estadoHtml = "";
 
-      if (Array.isArray(orden.productos)) {
-        // Si es un array de objetos ej: [{ nombre: 'Franela fashion', cantidad: 1 }, ...]
-        detalleProductos = orden.productos.map(p => p.nombre || p.titulo).join(', ');
-      } else if (typeof orden.productos === 'string') {
-        detalleProductos = orden.productos;
-      } else if (orden.detalles_carrito) {
-        // O si viene en otra propiedad de tu base de datos
-        detalleProductos = orden.detalles_carrito;
-      }
+                    if (o.estado === 'verificado') {
+                        estadoHtml = `
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="text-green-400 font-bold uppercase text-[10px]">Verificado</span>
+                                <button onclick="enviarWhatsAppPremio('${telefonoCliente}', '${codigoPremio}', '${o.id}')" class="bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
+                                    <i data-lucide="send" class="w-3 h-3"></i> Reenviar WhatsApp
+                                </button>
+                            </div>`;
+                    } else if (o.estado === 'cancelado') {
+                        estadoHtml = `<span class="text-red-500 font-bold uppercase text-[10px]">Cancelado</span>`;
+                    } else {
+                        // AQUÍ ESTABA EL ERROR: Se agregó '${o.id}' con comillas simples
+                        estadoHtml = `
+                            <button onclick="confirmarYEnviarPedido('${o.id}', '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
+                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar Pedido
+                            </button>`;
+                    }
+                    
+                    tbody.innerHTML += `<tr class="border-b border-stone-900/40 hover:bg-stone-900/10 transition-colors">
+                        <td class="p-3 font-mono text-amber-400 font-bold">#${o.id}</td>
+                        <td class="p-3 text-stone-400">${fechaFormateada}</td>
+                        <td class="p-3 nombre-del-plato">${productosHTML}</td>
+                        <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || 0).toFixed(2)}</td>
+                        <td class="p-3 font-mono text-stone-400">
+                            <div>Ref: ${o.referencia || 'N/A'}</div>
+                            <div class="text-[10px] text-amber-500/80">Tlf: ${telefonoCliente || 'No registrado'}</div>
+                        </td>
+                        <td class="p-3 text-right">
+                            ${estadoHtml}
+                        </td>
+                    </tr>`;
+                });
+                lucide.createIcons();
+            } else if (error) {
+                console.error("Error al descargar órdenes:", error.message);
+            }
+        }
 
-      // 2. Si por alguna razón el campo está vacío, evitamos el "1x Producto" genérico 
-      // y mostramos una descripción clara o el respaldo adecuado.
-      if (!detalleProductos || detalleProductos.trim() === '') {
-        detalleProductos = 'Detalle de orden no especificado';
-      }
-
-      // 3. Renderizar la fila en el panel de control
-      const filaHTML = `
-        <div class="orden-fila">
-          <span class="orden-fecha">${orden.fecha || orden.created_at || '30/9/2026'}</span>
-          <span class="orden-productos">${detalleProductos}</span>
-          <span class="orden-total">$${parseFloat(orden.total || 0).toFixed(2)}</span>
-          <span class="orden-telefono">Tlf: ${orden.telefono || 'N/A'}</span>
-        </div>
-      `;
-      
-      contenedorOrdenes.innerHTML += filaHTML;
-    });
-
-  } catch (error) {
-    console.error('Error al cargar las órdenes:', error);
-  }
-}
-
+        // Función integrada para confirmar la orden en Supabase y abrir WhatsApp con el código de sorteo y enlace a la cuponera
         async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
             if (!idOrden) return;
 
+            // 1. Actualizar el estado de la orden en Supabase a 'verificado'
             const { error } = await supabaseClient
                 .from('ordenes_vip')
                 .update({ estado: 'verificado' })
@@ -953,6 +993,7 @@ async function cargarOrdenesPanel() {
                 return;
             }
 
+            // 2. Si no hay teléfono registrado, advertir pero permitir continuar ingresándolo
             if (!telefonoCliente || telefonoCliente.trim() === "" || telefonoCliente === "No registrado") {
                 telefonoCliente = prompt("Esta orden no tiene un número de WhatsApp registrado. Por favor, ingresa el número del cliente (con código de país):");
                 if (!telefonoCliente) {
@@ -962,12 +1003,19 @@ async function cargarOrdenesPanel() {
                 }
             }
 
+            // 3. Limpiar el formato del número (solo dígitos)
             const numeroLimpio = telefonoCliente.replace(/[^0-9]/g, "");
+
+            // 4. Definir link de la cuponera y construir el mensaje completo
             const linkCuponera = "https://dinigoficial-ui.github.io/dunig7/cuponera.html";
             const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigoPremio}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
+            
+            // 5. Abrir WhatsApp en una nueva pestaña
             window.open(urlWhatsApp, '_blank');
+
+            // 6. Recargar el historial de órdenes para reflejar el cambio de estado visualmente
             descargarHistorialDeOrdenes();
         }
 
@@ -978,7 +1026,8 @@ async function cargarOrdenesPanel() {
             }
 
             const numeroLimpio = telefono.replace(/[^0-9]/g, "");
-            const linkCuponera = "https://dinigoficial-ui.github.io/dunig7/cuponera.html";
+            const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/cuponera.html";
+
             const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido verificada y confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigo}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
