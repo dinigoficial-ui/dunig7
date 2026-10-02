@@ -44,27 +44,6 @@
         </div>
     </div>
 
-    <!-- Modal para Ver Datos de la Orden -->
-    <div id="modal-detalle-orden" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div class="glass-panel w-full max-w-lg p-6 rounded-3xl border border-stone-800 shadow-2xl space-y-4 relative">
-            <div class="flex justify-between items-center border-b border-stone-800 pb-3">
-                <div class="flex items-center gap-2 text-amber-400">
-                    <i data-lucide="file-text" class="w-5 h-5"></i>
-                    <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Detalles Completos de la Orden</h3>
-                </div>
-                <button onclick="cerrarModalDetalleOrden()" class="text-stone-400 hover:text-white p-1 rounded-lg cursor-pointer">✕</button>
-            </div>
-            
-            <div id="contenido-detalle-orden" class="space-y-3 text-xs font-mono max-h-96 overflow-y-auto pr-1">
-                <!-- Se inyecta dinámicamente -->
-            </div>
-
-            <div class="pt-2 border-t border-stone-900 flex justify-end">
-                <button onclick="cerrarModalDetalleOrden()" class="bg-stone-900 hover:bg-stone-800 text-stone-300 font-futurista font-bold px-4 py-2 rounded-xl text-[10px] uppercase tracking-wider cursor-pointer">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
     <header class="bg-black/40 backdrop-blur-xl border-b border-stone-900/80 sticky top-0 z-40 px-4">
         <div class="max-w-7xl mx-auto h-24 flex items-center justify-between relative z-10">
             <div class="flex items-center space-x-4">
@@ -289,10 +268,9 @@
         </div>
     </main>
 
-    <!-- Sección Extras (Actualizada con Clientes Referidos en modo Solo Lectura) -->
     <main id="panel-seccion-extras" class="hidden max-w-7xl w-full mx-auto px-4 py-8 flex-grow relative z-10 space-y-6">
         <!-- Canal WhatsApp -->
-        <div class="max-w-xl mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
+        <div class="max-w-md mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
                 <i data-lucide="phone-call" class="w-4 h-4"></i>
                 <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Configurar Extras: Canal WhatsApp</h3>
@@ -309,30 +287,43 @@
             </button>
         </div>
 
-        <!-- Visor de Clientes Referidos (Solo Lectura) -->
-        <div class="max-w-xl mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
+        <!-- Aviso de Abierto / Cerrado para la Vitrina -->
+        <div class="max-w-md mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
-                <i data-lucide="users" class="w-4 h-4"></i>
-                <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Clientes Referidos y Comisiones (Solo Lectura)</h3>
+                <i data-lucide="store" class="w-4 h-4"></i>
+                <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Estado del Negocio (Vitrina)</h3>
             </div>
             <p class="text-[11px] text-stone-400 leading-relaxed font-mono">
-                Listado automático de clientes registrados a través de compras desde la tabla <code>clientes_referidos</code>.
+                Define si el local se encuentra abierto o cerrado para reflejar el aviso automáticamente en la vitrina pública.
             </p>
-
-            <div class="border-t border-stone-900 pt-2">
-                <div class="overflow-x-auto max-h-64 overflow-y-auto">
-                    <table class="w-full text-left text-[11px]">
-                        <thead>
-                            <tr class="border-b border-stone-900 text-stone-500 uppercase tracking-widest text-[8px] font-futurista">
-                                <th class="pb-2">Cliente / Teléfono</th>
-                                <th class="pb-2">Código Referido</th>
-                                <th class="pb-2 text-right">Comisión</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-referidos-body"></tbody>
-                    </table>
-                </div>
+            <div class="space-y-1.5">
+                <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Estado Actual</label>
+                <select id="config-estado-negocio" class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white font-mono p-3.5 rounded-xl focus:outline-none focus:border-amber-400/40">
+                    <option value="abierto">🟢 Abierto - Recibiendo Órdenes</option>
+                    <option value="cerrado">🔴 Cerrado - Temporalmente Inactivo</option>
+                </select>
             </div>
+            <button onclick="guardarEstadoNegocioEnSupabase()" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black font-futurista font-black p-3 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg transition-transform hover:scale-[1.01]">
+                Actualizar Estado en Vitrina
+            </button>
+        </div>
+
+        <!-- Configurar Hora en Vitrina -->
+        <div class="max-w-md mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
+            <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
+                <i data-lucide="clock" class="w-4 h-4"></i>
+                <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Horario / Hora en Vitrina</h3>
+            </div>
+            <p class="text-[11px] text-stone-400 leading-relaxed font-mono">
+                Configura el texto o la hora personalizada que se visualizará en la vitrina pública (ej: 08:00 AM - 10:00 PM o un mensaje de horario).
+            </p>
+            <div class="space-y-1.5">
+                <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Hora o Texto de Atención</label>
+                <input type="text" id="config-hora-vitrina" placeholder="Ej: 10:00 AM - 11:00 PM" class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white font-mono p-3.5 rounded-xl focus:outline-none focus:border-amber-400/40">
+            </div>
+            <button onclick="guardarHoraVitrinaEnSupabase()" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black font-futurista font-black p-3 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg transition-transform hover:scale-[1.01]">
+                Actualizar Hora en Vitrina
+            </button>
         </div>
     </main>
 
@@ -357,8 +348,6 @@
         let filtroInstagram = "luxury_store";
         let fotosSliderArray = Array(5).fill("");
         let listaCuentas = [];
-        let cacheOrdenesVIP = []; 
-        let listaReferidosCache = []; 
 
         window.addEventListener('DOMContentLoaded', async () => { 
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -412,7 +401,8 @@
             if (target === 'ordenes') descargarHistorialDeOrdenes();
             if (target === 'extras') {
                 descargarAjusteWhatsApp();
-                descargarClientesReferidos(); 
+                descargarEstadoNegocio();
+                descargarHoraVitrina();
             }
         }
 
@@ -909,183 +899,94 @@
             }
         }
 
-        // --- Visor Dinámico de Clientes Referidos (Solo Lectura) ---
-        async function descargarClientesReferidos() {
-            const { data, error } = await supabaseClient.from('clientes_referidos').select('*').order('id', { ascending: true });
-            if (!error && data) {
-                listaReferidosCache = data;
-                const tbody = document.getElementById('tabla-referidos-body');
-                if (!tbody) return;
-                tbody.innerHTML = "";
-                
-                if (listaReferidosCache.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="3" class="py-4 text-center text-stone-600 font-mono text-[10px]">Sin clientes referidos registrados todavía.</td></tr>`;
-                    return;
-                }
-
-                listaReferidosCache.forEach(r => {
-                    tbody.innerHTML += `
-                        <tr class="border-b border-stone-900/40 hover:bg-stone-900/20 transition-colors">
-                            <td class="py-2">
-                                <div class="text-white font-bold">${r.nombre_cliente}</div>
-                                <div class="text-[9px] text-stone-500 font-mono">${r.telefono}</div>
-                            </td>
-                            <td class="py-2 text-amber-400 font-mono font-bold text-[10px]">${r.codigo_referido}</td>
-                            <td class="py-2 text-right text-stone-300 font-mono">${parseFloat(r.porcentaje_comision).toFixed(2)}%</td>
-                        </tr>`;
-                });
-            } else if (error) {
-                console.error("Error al cargar referidos:", error.message);
-            }
-        }
-        // ----------------------------------------------------
-
         async function descargarHistorialDeOrdenes() {
-            const { data, error } = await supabaseClient
-                .from('ordenes_vip')
-                .select('*')
-                .order('created_at', { ascending: false });
+    const { data, error } = await supabaseClient
+        .from('ordenes_vip')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-            if (!error && data) {
-                cacheOrdenesVIP = data; 
-                const tbody = document.getElementById('tabla-ordenes-body'); 
-                if (!tbody) return;
-                
-                tbody.innerHTML = "";
-                data.forEach(o => {
-                    const fechaFormateada = new Date(o.created_at).toLocaleDateString();
-                    const telefonoCliente = o.cliente_telefono || o.telefono || o.whatsapp || o.whatsapp_cliente || "";
-                    const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
+    if (!error && data) {
+        const tbody = document.getElementById('tabla-ordenes-body'); 
+        if (!tbody) return;
+        
+        tbody.innerHTML = "";
+        data.forEach(o => {
+            const fechaFormateada = new Date(o.created_at).toLocaleDateString();
+            const telefonoCliente = o.cliente_telefono || o.telefono || o.whatsapp || o.whatsapp_cliente || "";
+            const codigoPremio = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
 
-                    let productosHTML = "";
+            let productosHTML = "";
+            try {
+                let detalles = o.detalles_pedido;
+                if (typeof detalles === 'string') {
                     try {
-                        let detalles = o.detalles_pedido;
-                        if (typeof detalles === 'string') {
-                            try {
-                                detalles = JSON.parse(detalles);
-                            } catch (e) {
-                                detalles = o.detalles_pedido;
-                            }
-                        }
-
-                        if (Array.isArray(detalles)) {
-                            productosHTML = detalles.map(item => {
-                                const cant = item.cantidad || item.qty || item.amount || 1;
-                                const nombrePlato = item.nombre_producto || item.nombre || item.titulo || item.producto || item.name || item.title || item.articulo || (typeof item === 'string' ? item : 'Producto');
-                                return `<div class="text-stone-200">▪ ${cant}x <b>${nombrePlato}</b></div>`;
-                            }).join('');
-                        } else if (typeof detalles === 'object' && detalles !== null) {
-                            const cant = detalles.cantidad || detalles.qty || 1;
-                            const nombrePlato = detalles.nombre_producto || detalles.nombre || detalles.titulo || detalles.producto || detalles.name || detalles.title || 'Producto';
-                            productosHTML = `<div class="text-stone-200">▪ ${cant}x <b>${nombrePlato}</b></div>`;
-                        } else {
-                            productosHTML = `<span class="text-stone-200">${detalles || 'Sin detalles especificados'}</span>`;
-                        }
-                    } catch (err) {
-                        productosHTML = `<span class="text-red-400">Error al procesar productos</span>`;
+                        detalles = JSON.parse(detalles);
+                    } catch (e) {
+                        detalles = o.detalles_pedido;
                     }
+                }
 
-                    let estadoHtml = "";
-                    if (o.estado === 'verificado') {
-                        estadoHtml = `
-                            <div class="flex items-center justify-end gap-1.5 flex-wrap">
-                                <span class="text-green-400 font-bold uppercase text-[10px]">Verificado</span>
-                                <button onclick="enviarWhatsAppPremio('${telefonoCliente}', '${codigoPremio}', '${o.id}')" class="bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white px-2 py-1 rounded-md text-[9px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
-                                    <i data-lucide="send" class="w-3 h-3"></i> Reenviar
-                                </button>
-                            </div>`;
-                    } else if (o.estado === 'cancelado') {
-                        estadoHtml = `<span class="text-red-500 font-bold uppercase text-[10px]">Cancelado</span>`;
-                    } else {
-                        estadoHtml = `
-                            <button onclick="confirmarYEnviarPedido('${o.id}', '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-2.5 py-1.5 rounded-lg text-[9px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1 ml-auto">
-                                <i data-lucide="check-circle" class="w-3 h-3"></i> Confirmar
-                            </button>`;
-                    }
-                    
-                    tbody.innerHTML += `<tr class="border-b border-stone-900/40 hover:bg-stone-900/10 transition-colors">
-                        <td class="p-3 font-mono text-amber-400 font-bold">#${o.id}</td>
-                        <td class="p-3 text-stone-400">${fechaFormateada}</td>
-                        <td class="p-3 nombre-del-plato">${productosHTML}</td>
-                        <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || o.monto_total || 0).toFixed(2)}</td>
-                        <td class="p-3 font-mono text-stone-400">
-                            <div>Ref: ${o.referencia || o.referencia_bancaria || 'N/A'}</div>
-                            <div class="text-[10px] text-amber-500/80">Tlf: ${telefonoCliente || 'No registrado'}</div>
-                        </td>
-                        <td class="p-3 text-right space-y-1">
-                            <div class="flex justify-end gap-1 mb-1">
-                                <button onclick="abrirModalDetalleOrden('${o.id}')" class="bg-stone-900 border border-stone-800 text-amber-400 hover:bg-stone-850 px-2 py-1 rounded-md text-[9px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
-                                    <i data-lucide="eye" class="w-3 h-3"></i> Ver Datos
-                                </button>
-                            </div>
-                            <div>${estadoHtml}</div>
-                        </td>
-                    </tr>`;
-                });
-                lucide.createIcons();
-            } else if (error) {
-                console.error("Error al descargar órdenes:", error.message);
-            }
-        }
-
-        function abrirModalDetalleOrden(idOrden) {
-            const orden = cacheOrdenesVIP.find(o => String(o.id) === String(idOrden));
-            if (!orden) {
-                alert("No se encontraron los datos para esta orden.");
-                return;
+                if (Array.isArray(detalles)) {
+                    productosHTML = detalles.map(item => {
+                        const cant = item.cantidad || item.qty || item.amount || 1;
+                        // Buscamos todas las variantes posibles de la propiedad del nombre
+                        const nombrePlato = item.nombre_producto || item.nombre || item.titulo || item.producto || item.name || item.title || item.articulo || (typeof item === 'string' ? item : 'Producto');
+                        return `<div class="text-stone-200">▪ ${cant}x <b>${nombrePlato}</b></div>`;
+                    }).join('');
+                } else if (typeof detalles === 'object' && detalles !== null) {
+                    const cant = detalles.cantidad || detalles.qty || 1;
+                    const nombrePlato = detalles.nombre_producto || detalles.nombre || detalles.titulo || detalles.producto || detalles.name || detalles.title || 'Producto';
+                    productosHTML = `<div class="text-stone-200">▪ ${cant}x <b>${nombrePlato}</b></div>`;
+                } else {
+                    productosHTML = `<span class="text-stone-200">${detalles || 'Sin detalles especificados'}</span>`;
+                }
+            } catch (err) {
+                productosHTML = `<span class="text-red-400">Error al procesar productos</span>`;
             }
 
-            const contenedor = document.getElementById('contenido-detalle-orden');
-            contenedor.innerHTML = "";
-
-            const camposExcluidos = ['id', 'created_at', 'detalles_pedido'];
+            let estadoHtml = "";
+            if (o.estado === 'verificado') {
+                estadoHtml = `
+                    <div class="flex items-center justify-end gap-2">
+                        <span class="text-green-400 font-bold uppercase text-[10px]">Verificado</span>
+                        <button onclick="enviarWhatsAppPremio('${telefonoCliente}', '${codigoPremio}', '${o.id}')" class="bg-green-600/20 border border-green-600/50 text-green-400 hover:bg-green-600 hover:text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
+                            <i data-lucide="send" class="w-3 h-3"></i> Reenviar
+                        </button>
+                    </div>`;
+            } else if (o.estado === 'cancelado') {
+                estadoHtml = `<span class="text-red-500 font-bold uppercase text-[10px]">Cancelado</span>`;
+            } else {
+                estadoHtml = `
+                    <button onclick="confirmarYEnviarPedido('${o.id}', '${telefonoCliente}', '${codigoPremio}')" class="bg-amber-500 hover:bg-amber-400 text-black font-futurista font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition-transform hover:scale-105 cursor-pointer shadow-md flex items-center gap-1.5 ml-auto">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Confirmar
+                    </button>`;
+            }
             
-            let htmlCampos = `<div class="bg-stone-950 p-4 rounded-2xl border border-stone-900 space-y-2 mb-4">
-                <div class="text-amber-400 font-bold font-futurista pb-2 border-b border-stone-900">ID Orden: #${orden.id}</div>
-                <div class="text-[10px] text-stone-400">Fecha de Registro: ${new Date(orden.created_at).toLocaleString()}</div>
-            </div>`;
+            tbody.innerHTML += `<tr class="border-b border-stone-900/40 hover:bg-stone-900/10 transition-colors">
+                <td class="p-3 font-mono text-amber-400 font-bold">#${o.id}</td>
+                <td class="p-3 text-stone-400">${fechaFormateada}</td>
+                <td class="p-3 nombre-del-plato">${productosHTML}</td>
+                <td class="p-3 font-mono font-bold text-stone-200">$${parseFloat(o.total || o.monto_total || 0).toFixed(2)}</td>
+                <td class="p-3 font-mono text-stone-400">
+                    <div>Ref: ${o.referencia || o.referencia_bancaria || 'N/A'}</div>
+                    <div class="text-[10px] text-amber-500/80">Tlf: ${telefonoCliente || 'No registrado'}</div>
+                </td>
+                <td class="p-3 text-right">
+                    ${estadoHtml}
+                </td>
+            </tr>`;
+        });
+        lucide.createIcons();
+    } else if (error) {
+        console.error("Error al descargar órdenes:", error.message);
+    }
+}
 
-            htmlCampos += `<div class="space-y-2">`;
-            for (const [key, value] of Object.entries(orden)) {
-                if (camposExcluidos.includes(key)) continue;
-                let valorFormateado = value;
-                if (typeof value === 'object' && value !== null) {
-                    valorFormateado = JSON.stringify(value, null, 2);
-                } else if (value === null || value === undefined || value === "") {
-                    valorFormateado = "N/A";
-                }
-                
-                htmlCampos += `
-                    <div class="bg-stone-950/60 p-2.5 rounded-xl border border-stone-900/60">
-                        <span class="text-amber-500/80 uppercase font-bold text-[9px] block">${key}:</span>
-                        <span class="text-stone-200 text-xs break-all">${valorFormateado}</span>
-                    </div>`;
-            }
-            htmlCampos += `</div>`;
-
-            if (orden.detalles_pedido) {
-                let detallesStr = orden.detalles_pedido;
-                if (typeof detallesStr === 'object') {
-                    detallesStr = JSON.stringify(detallesStr, null, 2);
-                }
-                htmlCampos += `
-                    <div class="mt-4 bg-stone-950 p-3 rounded-xl border border-stone-900">
-                        <span class="text-amber-400 uppercase font-bold text-[9px] block mb-1">Estructura / Detalles del Pedido (JSON):</span>
-                        <pre class="text-[10px] text-stone-300 overflow-x-auto whitespace-pre-wrap">${detallesStr}</pre>
-                    </div>`;
-            }
-
-            contenedor.innerHTML = htmlCampos;
-            document.getElementById('modal-detalle-orden').classList.remove('hidden');
-        }
-
-        function cerrarModalDetalleOrden() {
-            document.getElementById('modal-detalle-orden').classList.add('hidden');
-        }
-
+        // Función integrada para confirmar la orden en Supabase y abrir WhatsApp con el código de sorteo y enlace a la cuponera
         async function confirmarYEnviarPedido(idOrden, telefonoCliente, codigoPremio) {
             if (!idOrden) return;
 
+            // 1. Actualizar el estado de la orden en Supabase a 'verificado'
             const { error } = await supabaseClient
                 .from('ordenes_vip')
                 .update({ estado: 'verificado' })
@@ -1096,6 +997,7 @@
                 return;
             }
 
+            // 2. Si no hay teléfono registrado, advertir pero permitir continuar ingresándolo
             if (!telefonoCliente || telefonoCliente.trim() === "" || telefonoCliente === "No registrado") {
                 telefonoCliente = prompt("Esta orden no tiene un número de WhatsApp registrado. Por favor, ingresa el número del cliente (con código de país):");
                 if (!telefonoCliente) {
@@ -1105,12 +1007,19 @@
                 }
             }
 
+            // 3. Limpiar el formato del número (solo dígitos)
             const numeroLimpio = telefonoCliente.replace(/[^0-9]/g, "");
+
+            // 4. Definir link de la cuponera y construir el mensaje completo
             const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/cuponera.html";
             const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigoPremio}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
+            
+            // 5. Abrir WhatsApp en una nueva pestaña
             window.open(urlWhatsApp, '_blank');
+
+            // 6. Recargar el historial de órdenes para reflejar el cambio de estado visualmente
             descargarHistorialDeOrdenes();
         }
 
@@ -1123,7 +1032,7 @@
             const numeroLimpio = telefono.replace(/[^0-9]/g, "");
             const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/cuponera.html";
 
-            const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido verificada y confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigo}*\n\n🎟 *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
+            const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido verificada y confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigo}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
             window.open(urlWhatsApp, '_blank');
@@ -1150,6 +1059,59 @@
                 .upsert({ id: 'whatsapp_notificaciones', valor: num, updated_at: new Date().toISOString() });
 
             if(!error) { alert("¡Canal WhatsApp guardado con éxito!"); } else { alert("Error al guardar: " + error.message); }
+        }
+
+        async function descargarEstadoNegocio() {
+            const { data, error } = await supabaseClient
+                .from('ajustes_sistema')
+                .select('valor')
+                .eq('id', 'estado_negocio')
+                .single();
+            
+            if(!error && data) {
+                document.getElementById('config-estado-negocio').value = data.valor;
+            }
+        }
+
+        async function guardarEstadoNegocioEnSupabase() {
+            const estado = document.getElementById('config-estado-negocio').value;
+
+            const { error } = await supabaseClient
+                .from('ajustes_sistema')
+                .upsert({ id: 'estado_negocio', valor: estado, updated_at: new Date().toISOString() });
+
+            if(!error) { 
+                alert("¡Estado del negocio actualizado correctamente para la vitrina!"); 
+            } else { 
+                alert("Error al guardar estado: " + error.message); 
+            }
+        }
+
+        async function descargarHoraVitrina() {
+            const { data, error } = await supabaseClient
+                .from('ajustes_sistema')
+                .select('valor')
+                .eq('id', 'hora_vitrina')
+                .single();
+            
+            if(!error && data) {
+                document.getElementById('config-hora-vitrina').value = data.valor;
+            }
+        }
+
+        async function guardarHoraVitrinaEnSupabase() {
+            const hora = document.getElementById('config-hora-vitrina').value.trim();
+            if(!hora) { alert("Por favor ingresa una hora o texto de horario válido."); return; }
+
+            const { error } = await supabaseClient
+                .from('ajustes_sistema')
+                .upsert({ id: 'hora_vitrina', valor: hora, updated_at: new Date().toISOString() });
+
+            if(!error) { 
+                alert("¡Hora en vitrina actualizada correctamente!"); 
+            } else { 
+                alert("Error al guardar hora: " + error.message); 
+            }
         }
     </script>
 </body>
