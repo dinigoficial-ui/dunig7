@@ -289,7 +289,7 @@
         </div>
     </main>
 
-    <!-- Sección Extras (Actualizada con Clientes Referidos y sin Estado/Horario de Vitrina) -->
+    <!-- Sección Extras (Actualizada con Clientes Referidos en modo Solo Lectura) -->
     <main id="panel-seccion-extras" class="hidden max-w-7xl w-full mx-auto px-4 py-8 flex-grow relative z-10 space-y-6">
         <!-- Canal WhatsApp -->
         <div class="max-w-xl mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
@@ -309,54 +309,24 @@
             </button>
         </div>
 
-        <!-- Gestión de Clientes Referidos -->
+        <!-- Visor de Clientes Referidos (Solo Lectura) -->
         <div class="max-w-xl mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
                 <i data-lucide="users" class="w-4 h-4"></i>
-                <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Clientes Referidos y Comisiones</h3>
+                <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Clientes Referidos y Comisiones (Solo Lectura)</h3>
             </div>
             <p class="text-[11px] text-stone-400 leading-relaxed font-mono">
-                Administra los clientes referidos conectados a la tabla <code>clientes_referidos</code>.
+                Listado automático de clientes registrados a través de compras desde la tabla <code>clientes_referidos</code>.
             </p>
-            
-            <input type="hidden" id="ref-id-edicion" value="">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div class="space-y-1">
-                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-wider">Nombre del Cliente</label>
-                    <input type="text" id="ref-nombre" placeholder="Nombre completo..." class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white p-3 rounded-xl focus:outline-none">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-wider">Teléfono</label>
-                    <input type="text" id="ref-telefono" placeholder="Ej: 584121234567" class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white p-3 rounded-xl focus:outline-none font-mono">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-wider">Código Referido</label>
-                    <input type="text" id="ref-codigo" placeholder="Ej: REF-2026" class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white p-3 rounded-xl focus:outline-none font-mono">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-wider">% Comisión</label>
-                    <input type="number" id="ref-comision" step="0.01" placeholder="Ej: 10.00" class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white p-3 rounded-xl focus:outline-none font-mono">
-                </div>
-            </div>
 
-            <div class="flex gap-2 pt-2">
-                <button id="btn-cancelar-ref" onclick="limpiarFormularioReferido()" class="hidden bg-stone-900 text-stone-400 font-futurista font-bold px-4 rounded-xl text-xs uppercase cursor-pointer hover:bg-stone-800">X</button>
-                <button onclick="guardarClienteReferidoSupabase()" id="btn-guardar-ref" class="flex-1 bg-gradient-to-r from-amber-400 to-amber-500 text-black font-futurista font-black p-3 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg transition-transform hover:scale-[1.01]">
-                    Guardar Cliente Referido
-                </button>
-            </div>
-
-            <div class="border-t border-stone-900 pt-4 mt-4">
-                <h4 class="font-futurista font-bold text-[10px] uppercase text-amber-400/80 tracking-wider mb-2">Referidos Registrados</h4>
-                <div class="overflow-x-auto max-h-48 overflow-y-auto">
+            <div class="border-t border-stone-900 pt-2">
+                <div class="overflow-x-auto max-h-64 overflow-y-auto">
                     <table class="w-full text-left text-[11px]">
                         <thead>
                             <tr class="border-b border-stone-900 text-stone-500 uppercase tracking-widest text-[8px] font-futurista">
                                 <th class="pb-2">Cliente / Teléfono</th>
-                                <th class="pb-2">Código</th>
-                                <th class="pb-2">Comisión</th>
-                                <th class="pb-2 text-right">Acción</th>
+                                <th class="pb-2">Código Referido</th>
+                                <th class="pb-2 text-right">Comisión</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-referidos-body"></tbody>
@@ -388,7 +358,7 @@
         let fotosSliderArray = Array(5).fill("");
         let listaCuentas = [];
         let cacheOrdenesVIP = []; 
-        let listaReferidosCache = []; // Caché para referidos
+        let listaReferidosCache = []; 
 
         window.addEventListener('DOMContentLoaded', async () => { 
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -442,7 +412,7 @@
             if (target === 'ordenes') descargarHistorialDeOrdenes();
             if (target === 'extras') {
                 descargarAjusteWhatsApp();
-                descargarClientesReferidos(); // Cargar la lista de referidos
+                descargarClientesReferidos(); 
             }
         }
 
@@ -939,7 +909,7 @@
             }
         }
 
-        // --- Funciones Nuevas para Clientes Referidos ---
+        // --- Visor Dinámico de Clientes Referidos (Solo Lectura) ---
         async function descargarClientesReferidos() {
             const { data, error } = await supabaseClient.from('clientes_referidos').select('*').order('id', { ascending: true });
             if (!error && data) {
@@ -949,7 +919,7 @@
                 tbody.innerHTML = "";
                 
                 if (listaReferidosCache.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-stone-600 font-mono text-[10px]">Sin clientes referidos registrados.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="3" class="py-4 text-center text-stone-600 font-mono text-[10px]">Sin clientes referidos registrados todavía.</td></tr>`;
                     return;
                 }
 
@@ -961,85 +931,11 @@
                                 <div class="text-[9px] text-stone-500 font-mono">${r.telefono}</div>
                             </td>
                             <td class="py-2 text-amber-400 font-mono font-bold text-[10px]">${r.codigo_referido}</td>
-                            <td class="py-2 text-stone-300 font-mono">${parseFloat(r.porcentaje_comision).toFixed(2)}%</td>
-                            <td class="py-2 text-right flex justify-end gap-1">
-                                <button onclick="cargarEdicionReferido(${r.id})" class="p-1 text-amber-400 bg-stone-900 border border-stone-800 rounded cursor-pointer hover:bg-stone-850">✏️</button>
-                                <button onclick="eliminarClienteReferido(${r.id})" class="p-1 text-red-500 bg-stone-900 border border-stone-800 rounded cursor-pointer hover:bg-stone-850">🗑️</button>
-                            </td>
+                            <td class="py-2 text-right text-stone-300 font-mono">${parseFloat(r.porcentaje_comision).toFixed(2)}%</td>
                         </tr>`;
                 });
             } else if (error) {
                 console.error("Error al cargar referidos:", error.message);
-            }
-        }
-
-        async function guardarClienteReferidoSupabase() {
-            const id = document.getElementById('ref-id-edicion').value;
-            const nombre = document.getElementById('ref-nombre').value.trim();
-            const telefono = document.getElementById('ref-telefono').value.trim();
-            const codigo = document.getElementById('ref-codigo').value.trim();
-            const comision = parseFloat(document.getElementById('ref-comision').value);
-
-            if (!nombre || !telefono || !codigo || isNaN(comision)) {
-                alert("Por favor completa todos los campos del cliente referido correctamente.");
-                return;
-            }
-
-            const payload = {
-                nombre_cliente: nombre,
-                telefono: telefono,
-                codigo_referido: codigo,
-                porcentaje_comision: comision
-            };
-
-            let res;
-            if (id) {
-                res = await supabaseClient.from('clientes_referidos').update(payload).eq('id', id);
-            } else {
-                res = await supabaseClient.from('clientes_referidos').insert([payload]);
-            }
-
-            if (!res.error) {
-                alert("¡Cliente referido sincronizado con éxito!");
-                limpiarFormularioReferido();
-                descargarClientesReferidos();
-            } else {
-                alert("Error al guardar en base de datos: " + res.error.message);
-            }
-        }
-
-        function cargarEdicionReferido(id) {
-            const ref = listaReferidosCache.find(r => r.id === id);
-            if (!ref) return;
-
-            document.getElementById('ref-id-edicion').value = ref.id;
-            document.getElementById('ref-nombre').value = ref.nombre_cliente;
-            document.getElementById('ref-telefono').value = ref.telefono;
-            document.getElementById('ref-codigo').value = ref.codigo_referido;
-            document.getElementById('ref-comision').value = ref.porcentaje_comision;
-
-            document.getElementById('btn-guardar-ref').innerText = "Actualizar Referido";
-            document.getElementById('btn-cancelar-ref').classList.remove('hidden');
-        }
-
-        function limpiarFormularioReferido() {
-            document.getElementById('ref-id-edicion').value = "";
-            document.getElementById('ref-nombre').value = "";
-            document.getElementById('ref-telefono').value = "";
-            document.getElementById('ref-codigo').value = "";
-            document.getElementById('ref-comision').value = "";
-            document.getElementById('btn-guardar-ref').innerText = "Guardar Cliente Referido";
-            document.getElementById('btn-cancelar-ref').classList.add('hidden');
-        }
-
-        async function eliminarClienteReferido(id) {
-            if (confirm("¿Estás seguro de eliminar este cliente referido?")) {
-                const { error } = await supabaseClient.from('clientes_referidos').delete().eq('id', id);
-                if (!error) {
-                    descargarClientesReferidos();
-                } else {
-                    alert("Error al eliminar: " + error.message);
-                }
             }
         }
         // ----------------------------------------------------
@@ -1227,7 +1123,7 @@
             const numeroLimpio = telefono.replace(/[^0-9]/g, "");
             const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/cuponera.html";
 
-            const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido verificada y confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigo}*\n\n🎟️️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
+            const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido verificada y confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigo}*\n\n🎟 *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
             window.open(urlWhatsApp, '_blank');
