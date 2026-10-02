@@ -44,7 +44,7 @@
         </div>
     </div>
 
-    <!-- Modal para Ver Datos de la Orden (NUEVO) -->
+    <!-- Modal para Ver Datos de la Orden -->
     <div id="modal-detalle-orden" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div class="glass-panel w-full max-w-lg p-6 rounded-3xl border border-stone-800 shadow-2xl space-y-4 relative">
             <div class="flex justify-between items-center border-b border-stone-800 pb-3">
@@ -289,9 +289,10 @@
         </div>
     </main>
 
+    <!-- Sección Extras (Actualizada con Clientes Referidos y sin Estado/Horario de Vitrina) -->
     <main id="panel-seccion-extras" class="hidden max-w-7xl w-full mx-auto px-4 py-8 flex-grow relative z-10 space-y-6">
         <!-- Canal WhatsApp -->
-        <div class="max-w-md mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
+        <div class="max-w-xl mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
                 <i data-lucide="phone-call" class="w-4 h-4"></i>
                 <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Configurar Extras: Canal WhatsApp</h3>
@@ -308,43 +309,60 @@
             </button>
         </div>
 
-        <!-- Aviso de Abierto / Cerrado para la Vitrina -->
-        <div class="max-w-md mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
+        <!-- Gestión de Clientes Referidos -->
+        <div class="max-w-xl mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
             <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
-                <i data-lucide="store" class="w-4 h-4"></i>
-                <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Estado del Negocio (Vitrina)</h3>
+                <i data-lucide="users" class="w-4 h-4"></i>
+                <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Clientes Referidos y Comisiones</h3>
             </div>
             <p class="text-[11px] text-stone-400 leading-relaxed font-mono">
-                Define si el local se encuentra abierto o cerrado para reflejar el aviso automáticamente en la vitrina pública.
+                Administra los clientes referidos conectados a la tabla <code>clientes_referidos</code>.
             </p>
-            <div class="space-y-1.5">
-                <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Estado Actual</label>
-                <select id="config-estado-negocio" class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white font-mono p-3.5 rounded-xl focus:outline-none focus:border-amber-400/40">
-                    <option value="abierto">🟢 Abierto - Recibiendo Órdenes</option>
-                    <option value="cerrado">🔴 Cerrado - Temporalmente Inactivo</option>
-                </select>
+            
+            <input type="hidden" id="ref-id-edicion" value="">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="space-y-1">
+                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-wider">Nombre del Cliente</label>
+                    <input type="text" id="ref-nombre" placeholder="Nombre completo..." class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white p-3 rounded-xl focus:outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-wider">Teléfono</label>
+                    <input type="text" id="ref-telefono" placeholder="Ej: 584121234567" class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white p-3 rounded-xl focus:outline-none font-mono">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-wider">Código Referido</label>
+                    <input type="text" id="ref-codigo" placeholder="Ej: REF-2026" class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white p-3 rounded-xl focus:outline-none font-mono">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-wider">% Comisión</label>
+                    <input type="number" id="ref-comision" step="0.01" placeholder="Ej: 10.00" class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white p-3 rounded-xl focus:outline-none font-mono">
+                </div>
             </div>
-            <button onclick="guardarEstadoNegocioEnSupabase()" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black font-futurista font-black p-3 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg transition-transform hover:scale-[1.01]">
-                Actualizar Estado en Vitrina
-            </button>
-        </div>
 
-        <!-- Configurar Hora en Vitrina -->
-        <div class="max-w-md mx-auto glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
-            <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
-                <i data-lucide="clock" class="w-4 h-4"></i>
-                <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Horario / Hora en Vitrina</h3>
+            <div class="flex gap-2 pt-2">
+                <button id="btn-cancelar-ref" onclick="limpiarFormularioReferido()" class="hidden bg-stone-900 text-stone-400 font-futurista font-bold px-4 rounded-xl text-xs uppercase cursor-pointer hover:bg-stone-800">X</button>
+                <button onclick="guardarClienteReferidoSupabase()" id="btn-guardar-ref" class="flex-1 bg-gradient-to-r from-amber-400 to-amber-500 text-black font-futurista font-black p-3 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg transition-transform hover:scale-[1.01]">
+                    Guardar Cliente Referido
+                </button>
             </div>
-            <p class="text-[11px] text-stone-400 leading-relaxed font-mono">
-                Configura el texto o la hora personalizada que se visualizará en la vitrina pública (ej: 08:00 AM - 10:00 PM o un mensaje de horario).
-            </p>
-            <div class="space-y-1.5">
-                <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Hora o Texto de Atención</label>
-                <input type="text" id="config-hora-vitrina" placeholder="Ej: 10:00 AM - 11:00 PM" class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white font-mono p-3.5 rounded-xl focus:outline-none focus:border-amber-400/40">
+
+            <div class="border-t border-stone-900 pt-4 mt-4">
+                <h4 class="font-futurista font-bold text-[10px] uppercase text-amber-400/80 tracking-wider mb-2">Referidos Registrados</h4>
+                <div class="overflow-x-auto max-h-48 overflow-y-auto">
+                    <table class="w-full text-left text-[11px]">
+                        <thead>
+                            <tr class="border-b border-stone-900 text-stone-500 uppercase tracking-widest text-[8px] font-futurista">
+                                <th class="pb-2">Cliente / Teléfono</th>
+                                <th class="pb-2">Código</th>
+                                <th class="pb-2">Comisión</th>
+                                <th class="pb-2 text-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-referidos-body"></tbody>
+                    </table>
+                </div>
             </div>
-            <button onclick="guardarHoraVitrinaEnSupabase()" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black font-futurista font-black p-3 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg transition-transform hover:scale-[1.01]">
-                Actualizar Hora en Vitrina
-            </button>
         </div>
     </main>
 
@@ -369,7 +387,8 @@
         let filtroInstagram = "luxury_store";
         let fotosSliderArray = Array(5).fill("");
         let listaCuentas = [];
-        let cacheOrdenesVIP = []; // Almacenamiento local para ver detalles de órdenes
+        let cacheOrdenesVIP = []; 
+        let listaReferidosCache = []; // Caché para referidos
 
         window.addEventListener('DOMContentLoaded', async () => { 
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -423,8 +442,7 @@
             if (target === 'ordenes') descargarHistorialDeOrdenes();
             if (target === 'extras') {
                 descargarAjusteWhatsApp();
-                descargarEstadoNegocio();
-                descargarHoraVitrina();
+                descargarClientesReferidos(); // Cargar la lista de referidos
             }
         }
 
@@ -921,6 +939,111 @@
             }
         }
 
+        // --- Funciones Nuevas para Clientes Referidos ---
+        async function descargarClientesReferidos() {
+            const { data, error } = await supabaseClient.from('clientes_referidos').select('*').order('id', { ascending: true });
+            if (!error && data) {
+                listaReferidosCache = data;
+                const tbody = document.getElementById('tabla-referidos-body');
+                if (!tbody) return;
+                tbody.innerHTML = "";
+                
+                if (listaReferidosCache.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-stone-600 font-mono text-[10px]">Sin clientes referidos registrados.</td></tr>`;
+                    return;
+                }
+
+                listaReferidosCache.forEach(r => {
+                    tbody.innerHTML += `
+                        <tr class="border-b border-stone-900/40 hover:bg-stone-900/20 transition-colors">
+                            <td class="py-2">
+                                <div class="text-white font-bold">${r.nombre_cliente}</div>
+                                <div class="text-[9px] text-stone-500 font-mono">${r.telefono}</div>
+                            </td>
+                            <td class="py-2 text-amber-400 font-mono font-bold text-[10px]">${r.codigo_referido}</td>
+                            <td class="py-2 text-stone-300 font-mono">${parseFloat(r.porcentaje_comision).toFixed(2)}%</td>
+                            <td class="py-2 text-right flex justify-end gap-1">
+                                <button onclick="cargarEdicionReferido(${r.id})" class="p-1 text-amber-400 bg-stone-900 border border-stone-800 rounded cursor-pointer hover:bg-stone-850">✏️</button>
+                                <button onclick="eliminarClienteReferido(${r.id})" class="p-1 text-red-500 bg-stone-900 border border-stone-800 rounded cursor-pointer hover:bg-stone-850">🗑️</button>
+                            </td>
+                        </tr>`;
+                });
+            } else if (error) {
+                console.error("Error al cargar referidos:", error.message);
+            }
+        }
+
+        async function guardarClienteReferidoSupabase() {
+            const id = document.getElementById('ref-id-edicion').value;
+            const nombre = document.getElementById('ref-nombre').value.trim();
+            const telefono = document.getElementById('ref-telefono').value.trim();
+            const codigo = document.getElementById('ref-codigo').value.trim();
+            const comision = parseFloat(document.getElementById('ref-comision').value);
+
+            if (!nombre || !telefono || !codigo || isNaN(comision)) {
+                alert("Por favor completa todos los campos del cliente referido correctamente.");
+                return;
+            }
+
+            const payload = {
+                nombre_cliente: nombre,
+                telefono: telefono,
+                codigo_referido: codigo,
+                porcentaje_comision: comision
+            };
+
+            let res;
+            if (id) {
+                res = await supabaseClient.from('clientes_referidos').update(payload).eq('id', id);
+            } else {
+                res = await supabaseClient.from('clientes_referidos').insert([payload]);
+            }
+
+            if (!res.error) {
+                alert("¡Cliente referido sincronizado con éxito!");
+                limpiarFormularioReferido();
+                descargarClientesReferidos();
+            } else {
+                alert("Error al guardar en base de datos: " + res.error.message);
+            }
+        }
+
+        function cargarEdicionReferido(id) {
+            const ref = listaReferidosCache.find(r => r.id === id);
+            if (!ref) return;
+
+            document.getElementById('ref-id-edicion').value = ref.id;
+            document.getElementById('ref-nombre').value = ref.nombre_cliente;
+            document.getElementById('ref-telefono').value = ref.telefono;
+            document.getElementById('ref-codigo').value = ref.codigo_referido;
+            document.getElementById('ref-comision').value = ref.porcentaje_comision;
+
+            document.getElementById('btn-guardar-ref').innerText = "Actualizar Referido";
+            document.getElementById('btn-cancelar-ref').classList.remove('hidden');
+        }
+
+        function limpiarFormularioReferido() {
+            document.getElementById('ref-id-edicion').value = "";
+            document.getElementById('ref-nombre').value = "";
+            document.getElementById('ref-telefono').value = "";
+            document.getElementById('ref-codigo').value = "";
+            document.getElementById('ref-comision').value = "";
+            document.getElementById('btn-guardar-ref').innerText = "Guardar Cliente Referido";
+            document.getElementById('btn-cancelar-ref').classList.add('hidden');
+        }
+
+        async function eliminarClienteReferido(id) {
+            if (confirm("¿Estás seguro de eliminar este cliente referido?")) {
+                const { error } = await supabaseClient.from('clientes_referidos').delete().eq('id', id);
+                if (!error) {
+                    descargarClientesReferidos();
+                } else {
+                    alert("Error al eliminar: " + error.message);
+                }
+            }
+        }
+        // ----------------------------------------------------
+
         async function descargarHistorialDeOrdenes() {
             const { data, error } = await supabaseClient
                 .from('ordenes_vip')
@@ -928,7 +1051,7 @@
                 .order('created_at', { ascending: false });
 
             if (!error && data) {
-                cacheOrdenesVIP = data; // Almacenamos en caché para el modal de detalles
+                cacheOrdenesVIP = data; 
                 const tbody = document.getElementById('tabla-ordenes-body'); 
                 if (!tbody) return;
                 
@@ -995,7 +1118,6 @@
                         </td>
                         <td class="p-3 text-right space-y-1">
                             <div class="flex justify-end gap-1 mb-1">
-                                <!-- BOTÓN NUEVO PARA VER DATOS CARGADOS -->
                                 <button onclick="abrirModalDetalleOrden('${o.id}')" class="bg-stone-900 border border-stone-800 text-amber-400 hover:bg-stone-850 px-2 py-1 rounded-md text-[9px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1">
                                     <i data-lucide="eye" class="w-3 h-3"></i> Ver Datos
                                 </button>
@@ -1010,7 +1132,6 @@
             }
         }
 
-        // Funciones para el Modal de Datos de la Orden (NUEVO)
         function abrirModalDetalleOrden(idOrden) {
             const orden = cacheOrdenesVIP.find(o => String(o.id) === String(idOrden));
             if (!orden) {
@@ -1021,7 +1142,6 @@
             const contenedor = document.getElementById('contenido-detalle-orden');
             contenedor.innerHTML = "";
 
-            // Mapeo detallado de todos los campos que pueden venir de la tabla ordenes_vip
             const camposExcluidos = ['id', 'created_at', 'detalles_pedido'];
             
             let htmlCampos = `<div class="bg-stone-950 p-4 rounded-2xl border border-stone-900 space-y-2 mb-4">
@@ -1047,7 +1167,6 @@
             }
             htmlCampos += `</div>`;
 
-            // Agregar detalles de productos si existen
             if (orden.detalles_pedido) {
                 let detallesStr = orden.detalles_pedido;
                 if (typeof detallesStr === 'object') {
@@ -1108,7 +1227,7 @@
             const numeroLimpio = telefono.replace(/[^0-9]/g, "");
             const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/cuponera.html";
 
-            const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido verificada y confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigo}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
+            const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido verificada y confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigo}*\n\n🎟️️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
             window.open(urlWhatsApp, '_blank');
@@ -1135,59 +1254,6 @@
                 .upsert({ id: 'whatsapp_notificaciones', valor: num, updated_at: new Date().toISOString() });
 
             if(!error) { alert("¡Canal WhatsApp guardado con éxito!"); } else { alert("Error al guardar: " + error.message); }
-        }
-
-        async function descargarEstadoNegocio() {
-            const { data, error } = await supabaseClient
-                .from('ajustes_sistema')
-                .select('valor')
-                .eq('id', 'estado_negocio')
-                .single();
-            
-            if(!error && data) {
-                document.getElementById('config-estado-negocio').value = data.valor;
-            }
-        }
-
-        async function guardarEstadoNegocioEnSupabase() {
-            const estado = document.getElementById('config-estado-negocio').value;
-
-            const { error } = await supabaseClient
-                .from('ajustes_sistema')
-                .upsert({ id: 'estado_negocio', valor: estado, updated_at: new Date().toISOString() });
-
-            if(!error) { 
-                alert("¡Estado del negocio actualizado correctamente para la vitrina!"); 
-            } else { 
-                alert("Error al guardar estado: " + error.message); 
-            }
-        }
-
-        async function descargarHoraVitrina() {
-            const { data, error } = await supabaseClient
-                .from('ajustes_sistema')
-                .select('valor')
-                .eq('id', 'hora_vitrina')
-                .single();
-            
-            if(!error && data) {
-                document.getElementById('config-hora-vitrina').value = data.valor;
-            }
-        }
-
-        async function guardarHoraVitrinaEnSupabase() {
-            const hora = document.getElementById('config-hora-vitrina').value.trim();
-            if(!hora) { alert("Por favor ingresa una hora o texto de horario válido."); return; }
-
-            const { error } = await supabaseClient
-                .from('ajustes_sistema')
-                .upsert({ id: 'hora_vitrina', valor: hora, updated_at: new Date().toISOString() });
-
-            if(!error) { 
-                alert("¡Hora en vitrina actualizada correctamente!"); 
-            } else { 
-                alert("Error al guardar hora: " + error.message); 
-            }
         }
     </script>
 </body>
