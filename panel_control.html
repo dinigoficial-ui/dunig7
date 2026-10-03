@@ -270,7 +270,7 @@
 
     <!-- Sección Configurar Extras -->
     <main id="panel-seccion-extras" class="hidden max-w-7xl w-full mx-auto px-4 py-8 flex-grow relative z-10 space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-6 max-w-xl">
             <!-- Canal WhatsApp -->
             <div class="glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
                 <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
@@ -288,68 +288,31 @@
                     Sincronizar
                 </button>
             </div>
-
-            <!-- Estado del Negocio -->
-            <div class="glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
-                <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
-                    <i data-lucide="store" class="w-4 h-4"></i>
-                    <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Estado Vitrina</h3>
-                </div>
-                <p class="text-[11px] text-stone-400 leading-relaxed font-mono">
-                    Define si el local está abierto o cerrado automáticamente en la vitrina.
-                </p>
-                <div class="space-y-1.5">
-                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Estado Actual</label>
-                    <select id="config-estado-negocio" class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white font-mono p-3 rounded-xl focus:outline-none focus:border-amber-400/40">
-                        <option value="abierto">🟢 Abierto</option>
-                        <option value="cerrado">🔴 Cerrado</option>
-                    </select>
-                </div>
-                <button onclick="guardarEstadoNegocioEnSupabase()" class="w-full bg-amber-500 text-black font-futurista font-black p-2.5 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg hover:bg-amber-400 transition-colors">
-                    Actualizar
-                </button>
-            </div>
-
-            <!-- Horario en Vitrina -->
-            <div class="glass-panel p-6 rounded-2xl shadow-2xl border border-stone-900/60 space-y-4">
-                <div class="flex items-center gap-2 text-amber-400 border-b border-stone-800 pb-3">
-                    <i data-lucide="clock" class="w-4 h-4"></i>
-                    <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Horario Vitrina</h3>
-                </div>
-                <p class="text-[11px] text-stone-400 leading-relaxed font-mono">
-                    Texto o intervalo de hora visible públicamente.
-                </p>
-                <div class="space-y-1.5">
-                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Horario</label>
-                    <input type="text" id="config-hora-vitrina" placeholder="Ej: 10:00 AM - 11:00 PM" class="w-full bg-stone-950/80 border border-stone-800 text-xs text-white font-mono p-3 rounded-xl focus:outline-none focus:border-amber-400/40">
-                </div>
-                <button onclick="guardarHoraVitrinaEnSupabase()" class="w-full bg-amber-500 text-black font-futurista font-black p-2.5 rounded-xl text-xs uppercase tracking-widest cursor-pointer shadow-lg hover:bg-amber-400 transition-colors">
-                    Actualizar
-                </button>
-            </div>
         </div>
 
-        <!-- NUEVA VISTA INTEGRADA: Resumen Total de Órdenes VIP -->
+        <!-- VISTA GLOBAL AMPLIADA: Todo lo que se carga en la tabla ordenes_vip -->
         <div class="glass-panel p-6 rounded-3xl border border-stone-900 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-stone-800 pb-4">
                 <div class="flex items-center gap-2 text-amber-400">
                     <i data-lucide="database" class="w-5 h-5"></i>
-                    <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Vista Global y Auditoría de Órdenes VIP</h3>
+                    <h3 class="font-futurista font-black text-xs uppercase tracking-[0.2em] text-white">Vista Global y Auditoría Completa de Órdenes VIP</h3>
                 </div>
                 <button onclick="descargarVistaTotalOrdenesExtras()" class="px-3 py-1.5 bg-stone-900 border border-stone-800 text-amber-400 hover:bg-stone-800 rounded-xl text-[10px] font-bold uppercase font-futurista cursor-pointer flex items-center gap-1">
                     <i data-lucide="refresh-cw" class="w-3 h-3"></i> Sincronizar Vista
                 </button>
             </div>
-            <div class="overflow-x-auto max-h-96 overflow-y-auto">
+            <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
                 <table class="w-full text-left text-xs">
                     <thead>
                         <tr class="border-b border-stone-900 text-stone-500 uppercase tracking-widest text-[9px] font-futurista">
                             <th class="p-3">#ID</th>
-                            <th class="p-3">Fecha</th>
+                            <th class="p-3">Fecha y Hora</th>
+                            <th class="p-3">Cliente / Teléfono</th>
                             <th class="p-3">Contenido del Pedido</th>
-                            <th class="p-3">Monto ($)</th>
-                            <th class="p-3">Referencia / Cliente</th>
-                            <th class="p-3 text-right">Estado Actual</th>
+                            <th class="p-3">Total ($)</th>
+                            <th class="p-3">Referencia</th>
+                            <th class="p-3">Código Sorteo</th>
+                            <th class="p-3 text-right">Estado</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-vista-total-extras-body"></tbody>
@@ -432,9 +395,7 @@
             if (target === 'ordenes') descargarHistorialDeOrdenes();
             if (target === 'extras') {
                 descargarAjusteWhatsApp();
-                descargarEstadoNegocio();
-                descargarHoraVitrina();
-                descargarVistaTotalOrdenesExtras(); // <-- Añadido aquí
+                descargarVistaTotalOrdenesExtras();
             }
         }
 
@@ -449,21 +410,26 @@
             tbody.innerHTML = "";
 
             if (error || !data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-stone-600 font-mono text-xs">No hay registros globales en la tabla ordenes_vip.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-stone-600 font-mono text-xs">No hay registros globales en la tabla ordenes_vip.</td></tr>`;
                 return;
             }
 
             data.forEach(o => {
                 const fecha = new Date(o.created_at).toLocaleString();
-                const tlf = o.cliente_telefono || o.telefono || o.whatsapp || 'N/A';
+                const tlf = o.cliente_telefono || o.telefono || o.whatsapp || o.whatsapp_cliente || 'N/A';
+                const clienteNombre = o.cliente_nombre || o.nombre || 'Cliente VIP';
+                const codigoSorteo = o.codigo_sorteo_asignado || o.codigo_premio || o.codigo || `VIP-${o.id}`;
+                const referenciaBancaria = o.referencia || o.referencia_bancaria || 'N/A';
                 
                 let productosTexto = "";
                 try {
                     let detalles = typeof o.detalles_pedido === 'string' ? JSON.parse(o.detalles_pedido) : o.detalles_pedido;
                     if (Array.isArray(detalles)) {
                         productosTexto = detalles.map(i => `${i.cantidad || i.qty || 1}x ${i.nombre_producto || i.nombre || i.titulo || 'Item'}`).join(', ');
+                    } else if (typeof detalles === 'object' && detalles !== null) {
+                        productosTexto = `${detalles.cantidad || 1}x ${detalles.nombre_producto || detalles.nombre || 'Item'}`;
                     } else {
-                        productosTexto = JSON.stringify(detalles);
+                        productosTexto = o.detalles_pedido || 'Detalle no disponible';
                     }
                 } catch(e) {
                     productosTexto = o.detalles_pedido || 'Detalle no disponible';
@@ -477,9 +443,11 @@
                     <tr class="border-b border-stone-900/40 hover:bg-stone-900/20 transition-colors">
                         <td class="p-3 font-mono text-amber-400 font-bold">#${o.id}</td>
                         <td class="p-3 text-stone-400 text-[10px] font-mono">${fecha}</td>
+                        <td class="p-3 font-mono text-stone-300 text-[11px]"><b>${clienteNombre}</b><br><span class="text-amber-500/80">Tlf: ${tlf}</span></td>
                         <td class="p-3 text-stone-200 truncate max-w-xs" title="${productosTexto}">${productosTexto}</td>
-                        <td class="p-3 font-mono font-bold text-amber-400">$${parseFloat(o.total || 0).toFixed(2)}</td>
-                        <td class="p-3 font-mono text-stone-300 text-[11px]">Ref: ${o.referencia || 'N/A'} <br><span class="text-amber-500/80">Tlf: ${tlf}</span></td>
+                        <td class="p-3 font-mono font-bold text-amber-400">$${parseFloat(o.total || o.monto_total || 0).toFixed(2)}</td>
+                        <td class="p-3 font-mono text-stone-300 text-[11px]">${referenciaBancaria}</td>
+                        <td class="p-3 font-mono text-amber-300 font-bold text-[11px]">${codigoSorteo}</td>
                         <td class="p-3 text-right">${badgeEstado}</td>
                     </tr>`;
             });
@@ -887,7 +855,7 @@
                         <td class="py-2 text-amber-400 font-bold uppercase text-[10px]">${nombrePlataforma}</td>
                         <td class="py-2 text-stone-300 text-[10px]">${infoRender}</td>
                         <td class="py-2 text-right flex justify-end gap-1">
-                            <button onclick="cargarEdicionPago(${c.id})" class="p-1 text-amber-400 bg-stone-900 border border-stone-800 rounded cursor-pointer hover:bg-stone-850">✏️</button>
+                            <button onclick="cargarEdicionPago(${c.id})" class="p-1 text-amber-400 bg-stone-900 border border-stone-800 rounded cursor-pointer hover:bg-stone-850">✏️️</button>
                             <button onclick="eliminarCuentaPago(${c.id})" class="p-1 text-red-500 bg-stone-900 border border-stone-800 rounded cursor-pointer hover:bg-stone-850">🗑️</button>
                         </td>
                     </tr>`;
@@ -1127,59 +1095,6 @@
                 .upsert({ id: 'whatsapp_notificaciones', valor: num, updated_at: new Date().toISOString() });
 
             if(!error) { alert("¡Canal WhatsApp guardado con éxito!"); } else { alert("Error al guardar: " + error.message); }
-        }
-
-        async function descargarEstadoNegocio() {
-            const { data, error } = await supabaseClient
-                .from('ajustes_sistema')
-                .select('valor')
-                .eq('id', 'estado_negocio')
-                .single();
-            
-            if(!error && data) {
-                document.getElementById('config-estado-negocio').value = data.valor;
-            }
-        }
-
-        async function guardarEstadoNegocioEnSupabase() {
-            const estado = document.getElementById('config-estado-negocio').value;
-
-            const { error } = await supabaseClient
-                .from('ajustes_sistema')
-                .upsert({ id: 'estado_negocio', valor: estado, updated_at: new Date().toISOString() });
-
-            if(!error) { 
-                alert("¡Estado del negocio actualizado correctamente para la vitrina!"); 
-            } else { 
-                alert("Error al guardar estado: " + error.message); 
-            }
-        }
-
-        async function descargarHoraVitrina() {
-            const { data, error } = await supabaseClient
-                .from('ajustes_sistema')
-                .select('valor')
-                .eq('id', 'hora_vitrina')
-                .single();
-            
-            if(!error && data) {
-                document.getElementById('config-hora-vitrina').value = data.valor;
-            }
-        }
-
-        async function guardarHoraVitrinaEnSupabase() {
-            const hora = document.getElementById('config-hora-vitrina').value.trim();
-            if(!hora) { alert("Por favor ingresa una hora o texto de horario válido."); return; }
-
-            const { error } = await supabaseClient
-                .from('ajustes_sistema')
-                .upsert({ id: 'hora_vitrina', valor: hora, updated_at: new Date().toISOString() });
-
-            if(!error) { 
-                alert("¡Hora en vitrina actualizada correctamente!"); 
-            } else { 
-                alert("Error al guardar hora: " + error.message); 
-            }
         }
     </script>
 </body>
