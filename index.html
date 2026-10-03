@@ -1023,31 +1023,69 @@
             
             const mensaje = `📦 *PEDIDO NACIONAL - D'UNIG SHOPING* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}`;
 
-            // Generación de UUID único obligatorio para el campo id (text)
-            const generatedId = 'ord-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+            // Generación de ID corto / único
+            const idGenerado = 'ord-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+            const carritoActual = carrito.map(i => i.titulo);
+            const nombreCliente = clienteLocal.nombre || 'Nombre del Cliente';
+            const telefonoCliente = clienteLocal.whatsapp || '0414xxxxxxx';
+            const totalPagar = totalGeneral;
+            const metodoPago = metodo;
+            const ubicacionCliente = `${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}`;
+            const codigoReferidoInput = codigoReferidoCliente;
 
-            // Inserción completa y corregida en Supabase con todos los campos requeridos
-            const { error: insertError } = await supabaseClient
+            // 1. Guardas la orden en ordenes_vip (con .select().single() para obtener created_at y otros campos automáticos)
+            const { data: orden, error: errorOrden } = await supabaseClient
               .from('ordenes_vip')
               .insert([
-                { 
-                  id: generatedId,
-                  cliente_nombre: clienteLocal.nombre || 'Nombre del Cliente',
-                  cliente_telefono: clienteLocal.whatsapp || '0414xxxxxxx',
-                  detalles_pedido: carrito.map(i => i.titulo), // Envío correcto como formato array/JSONB compatible
-                  total: totalGeneral,
-                  monto_total: totalGeneral,
-                  metodo_pago: metodo,
-                  ubicacion_entrega: `${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}`,
-                  codigo_referido: codigoReferidoCliente,
+                {
+                  id: idGenerado,
+                  cliente_nombre: nombreCliente,
+                  cliente_telefono: telefonoCliente,
+                  detalles_pedido: carritoActual,
+                  total: totalPagar,
+                  monto_total: totalPagar,
+                  metodo_pago: metodoPago,
+                  ubicacion_entrega: ubicacionCliente,
+                  codigo_referido: codigoReferidoInput || null,
                   referencia: ref,
                   referencia_bancaria: ref,
                   estado: "pendiente"
                 }
+              ])
+              .select()
+              .single();
+
+            if (errorOrden) {
+              console.error("Error al guardar la orden:", errorOrden);
+              alert("Hubo un error al registrar tu orden en el sistema. Inténtalo de nuevo.");
+              return;
+            }
+
+            // 2. Si la orden se guardó con éxito, duplicamos los mismos datos en clientes_referidos
+            const { error: errorReferidos } = await supabaseClient
+              .from('clientes_referidos')
+              .insert([
+                {
+                  id: orden.id,
+                  created_at: orden.created_at,
+                  cliente_nombre: orden.cliente_nombre,
+                  cliente_telefono: orden.cliente_telefono,
+                  detalles_pedido: orden.detalles_pedido,
+                  total: orden.total,
+                  estado: orden.estado,
+                  metodo_pago: orden.metodo_pago,
+                  ubicacion_entrega: orden.ubicacion_entrega,
+                  codigo_referido: orden.codigo_referido,
+                  referencia: orden.referencia,
+                  referencia_bancaria: orden.referencia_bancaria,
+                  monto_total: orden.monto_total
+                }
               ]);
 
-            if (insertError) {
-                console.error("Error al registrar en ordenes_vip:", insertError.message);
+            if (errorReferidos) {
+              console.warn("La orden se guardó pero hubo un detalle al pasarla a referidos:", errorReferidos);
+            } else {
+              console.log("¡Orden registrada y duplicada en clientes_referidos con éxito!");
             }
 
             await guardarOrdenEnCentral({
