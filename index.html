@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>D'UNIG SHOPPING - Ecosistema Studio 3D & VIP</title>
+    <title>DUNIGSHOP - Tienda online con envíos a toda Venezuela</title>
+    <meta name="description" content="DUNIGSHOP: gorras, franelas, calzado, gafas y más. Envíos a toda Venezuela por MRW, Domesa y Tealca, cobro a destino.">
+    <meta name="theme-color" content="#0a0907">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,6 +13,7 @@
     <!-- Librería para generar códigos QR de forma automática -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
         body { 
@@ -44,6 +47,65 @@
             min-width: 100%;
             box-sizing: border-box;
         }
+        /* ===== TEMA LUJO DUNIGSHOP (negro y oro) ===== */
+        :root{--oro1:#F5D77A;--oro2:#D4AF37;--oro3:#9C7A1C;--naranja:#F57C00;--oro-borde:rgba(212,175,55,.28);}
+        body{background:radial-gradient(1200px 600px at 50% -10%,rgba(212,175,55,.10),transparent 60%),radial-gradient(800px 500px at 100% 100%,rgba(245,124,0,.07),transparent 60%),#0a0907 !important;}
+        h1,h2,h3{letter-spacing:.01em}
+        h2.text-xl,h2.text-lg,#detalle-titulo{font-family:'Playfair Display',serif !important;}
+        .lux-gold-text,.lux-brand{background:linear-gradient(110deg,var(--oro3) 0%,var(--oro1) 25%,#fff6d6 40%,var(--oro2) 55%,var(--oro3) 75%,var(--oro1) 100%);background-size:250% auto;-webkit-background-clip:text;background-clip:text;color:var(--oro2);-webkit-text-fill-color:transparent;animation:luxShine 5s linear infinite;}
+        .lux-brand{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:800;letter-spacing:.06em;}
+        .lux-brand-accent{background:inherit;-webkit-background-clip:text;background-clip:text;}
+        @keyframes luxShine{to{background-position:-250% center}}
+        /* Paneles y tarjetas */
+        .bg-\[\#141414\],.bg-\[\#121212\]{background:linear-gradient(160deg,rgba(28,24,16,.92),rgba(14,13,11,.95)) !important;}
+        .border-\[\#262626\],.border-\[\#222222\],.border-\[\#333333\],.border-\[\#3d3d3d\]{border-color:var(--oro-borde) !important;}
+        header{box-shadow:0 1px 0 rgba(212,175,55,.35),0 10px 30px rgba(0,0,0,.6);backdrop-filter:blur(10px);}
+        .sticky.top-0{background:rgba(10,9,7,.92) !important;backdrop-filter:blur(12px);}
+        .text-amber-400,.text-amber-500{color:var(--oro1) !important;}
+        .bg-amber-400{background:linear-gradient(180deg,var(--oro1),var(--oro2)) !important;}
+        input:focus,select:focus{border-color:var(--oro2) !important;box-shadow:0 0 0 3px rgba(212,175,55,.18) !important;}
+        /* Botones 3D dorados */
+        button.bg-white,button.bg-amber-400{position:relative;overflow:hidden;background:linear-gradient(180deg,#FFE9A3 0%,var(--oro2) 55%,#B8901F 100%) !important;color:#1a1305 !important;border:1px solid #f7dd8a !important;box-shadow:0 6px 0 #7a5d12,0 12px 24px rgba(212,175,55,.35),inset 0 1px 0 rgba(255,255,255,.7) !important;transform:translateY(0);transition:transform .15s ease,box-shadow .15s ease,filter .2s !important;text-shadow:0 1px 0 rgba(255,255,255,.4);}
+        button.bg-white:hover,button.bg-amber-400:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 8px 0 #7a5d12,0 18px 34px rgba(212,175,55,.45),inset 0 1px 0 rgba(255,255,255,.7) !important;}
+        button.bg-white:active,button.bg-amber-400:active{transform:translateY(5px);box-shadow:0 1px 0 #7a5d12,0 4px 10px rgba(212,175,55,.3),inset 0 1px 0 rgba(255,255,255,.5) !important;}
+        button.bg-white::after,button.bg-amber-400::after{content:"";position:absolute;top:0;left:-75%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);transform:skewX(-20deg);animation:luxSweep 3.2s ease-in-out infinite;}
+        @keyframes luxSweep{0%,60%{left:-75%}100%{left:130%}}
+        /* Botones redondos del header */
+        header button{box-shadow:0 3px 0 rgba(0,0,0,.6),0 0 0 1px rgba(212,175,55,.25),0 6px 16px rgba(0,0,0,.5);transition:transform .15s,box-shadow .2s !important;}
+        header button:hover{box-shadow:0 3px 0 rgba(0,0,0,.6),0 0 0 1px var(--oro2),0 0 18px rgba(212,175,55,.35);}
+        header button:active{transform:translateY(2px);}
+        header .bg-white.p-2{background:linear-gradient(180deg,var(--oro1),var(--oro2)) !important;box-shadow:0 4px 14px rgba(212,175,55,.4);}
+        #contador-carrito-badge{background:linear-gradient(180deg,var(--oro1),var(--oro2)) !important;color:#1a1305 !important;}
+        /* Carrusel con movimiento */
+        #carrusel-slider-track img{animation:luxKen 12s ease-in-out infinite alternate;transform-origin:center;}
+        @keyframes luxKen{from{transform:scale(1)}to{transform:scale(1.14) translate(-2%,-2%)}}
+        #carrusel-slider-track h2{font-family:'Playfair Display',serif;text-shadow:0 2px 12px rgba(0,0,0,.7);}
+        #carrusel-puntos button{background:rgba(245,215,122,.45) !important;}
+        #carrusel-puntos button.bg-white{background:var(--oro1) !important;box-shadow:0 0 10px var(--oro2) !important;border:none !important;}
+        #carrusel-puntos button::after{display:none}
+        #carrusel-puntos button.bg-white{transform:none !important;}
+        .rounded-2xl.overflow-hidden.relative.bg-black{box-shadow:0 0 0 1px rgba(212,175,55,.35),0 20px 40px rgba(0,0,0,.6),0 0 40px rgba(212,175,55,.08);}
+        /* Tarjetas de producto con efecto 3D */
+        #grid-productos-vitrina>div{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,border-color .35s !important;transform-style:preserve-3d;animation:luxUp .6s ease both;}
+        #grid-productos-vitrina>div:hover{border-color:var(--oro2) !important;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 24px rgba(212,175,55,.25);}
+        #grid-productos-vitrina .font-mono{color:var(--oro1) !important;}
+        #grid-productos-vitrina h3{letter-spacing:.04em}
+        @keyframes luxUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+        #detalle-precio{color:var(--oro1) !important;}
+        .encomienda-card.border-white{border-color:var(--oro2) !important;box-shadow:0 0 16px rgba(212,175,55,.35);background:rgba(212,175,55,.08) !important;}
+        .encomienda-card:hover{border-color:var(--oro2) !important;}
+        /* Navegación inferior */
+        nav[aria-label="Navegación inferior"]{background:rgba(14,12,9,.92) !important;backdrop-filter:blur(14px);box-shadow:0 -1px 0 rgba(212,175,55,.35),0 -10px 30px rgba(0,0,0,.6);}
+        nav[aria-label="Navegación inferior"] button:hover,nav[aria-label="Navegación inferior"] a:hover{color:var(--oro1) !important;}
+        nav[aria-label="Navegación inferior"] button::after{display:none}
+        /* Destellos dorados de fondo */
+        #lux-particulas{position:fixed;inset:0;pointer-events:none;z-index:0;}
+        /* Modal de registro y QR */
+        #modal-registro-cliente>div,#modal-qr>div{box-shadow:0 0 0 1px rgba(212,175,55,.35),0 30px 60px rgba(0,0,0,.7),0 0 60px rgba(212,175,55,.12) !important;}
+        #modal-registro-cliente h2{font-family:'Playfair Display',serif;}
+        #modal-registro-cliente .bg-white.w-12{background:linear-gradient(180deg,var(--oro1),var(--oro2)) !important;}
+        ::-webkit-scrollbar-thumb{background:var(--oro3) !important;}
+        @media (prefers-reduced-motion:reduce){*{animation:none !important}}
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col justify-between relative">
@@ -54,7 +116,7 @@
             <h3 class="text-white font-bold text-base flex items-center justify-center gap-2">
                 <i data-lucide="qr-code" class="w-5 h-5 text-amber-400"></i> Escanea para descargar
             </h3>
-            <p class="text-xs text-gray-400">Apunta con la cámara de tu teléfono para descargar el APK de D'UNIG SHOPPING.</p>
+            <p class="text-xs text-gray-400">Apunta con la cámara de tu teléfono para descargar la app de DUNIGSHOP.</p>
             
             <!-- Contenedor donde se dibuja el QR -->
             <div id="contenedor-qr" class="bg-white p-4 rounded-xl flex items-center justify-center mx-auto w-fit"></div>
@@ -119,7 +181,7 @@
                     </div>
                     <div>
                         <h1 class="text-sm font-black tracking-tight text-white">
-                           D'UNIG<span class="text-amber-500">SHOPPING</span>
+                           <span class="lux-brand">DUNIG<span class="lux-brand-accent">SHOP</span></span>
                         </h1>
                         <p class="text-[8px] text-gray-400 uppercase tracking-widest font-semibold">VENEZUELA</p>
                     </div>
@@ -171,15 +233,15 @@
                             <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1000&auto=format&fit=crop" alt="Banner 1" class="w-full h-full object-cover opacity-75">
                             <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-4 space-y-1">
                                 <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Exclusivo VIP</span>
-                                <h2 class="text-lg sm:text-2xl font-extrabold tracking-tight uppercase">D'UNIG SHOPPING</h2>
-                                <p class="text-[11px] text-gray-300">tu tienda preferida.</p>
+                                <h2 class="text-lg sm:text-2xl font-extrabold tracking-tight uppercase lux-gold-text">DUNIGSHOP</h2>
+                                <p class="text-[11px] text-gray-300">Tu tienda preferida, con envíos a toda Venezuela.</p>
                             </div>
                         </div>
                         <div class="carrusel-slide relative h-full flex-shrink-0">
                             <img src="https://images.unsplash.com/photo-1526738549149-8e07eca6c147?q=80&w=1000&auto=format&fit=crop" alt="Banner 2" class="w-full h-full object-cover opacity-75">
                             <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex flex-col justify-end p-4 space-y-1">
                                 <span class="text-[9px] bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full w-max font-bold uppercase tracking-widest text-amber-400">Envíos Nacionales</span>
-                                <h2 class="text-lg sm:text-2xl font-extrabold tracking-tight uppercase">MRW, ZOOM Y TEALCA</h2>
+                                <h2 class="text-lg sm:text-2xl font-extrabold tracking-tight uppercase">MRW, DOMESA Y TEALCA</h2>
                                 <p class="text-[11px] text-gray-300">Despachos seguros a nivel nacional con cobro a destino.</p>
                             </div>
                         </div>
@@ -304,8 +366,8 @@
                     <select id="tipoMetodoPago" onchange="gestionarCamposPagoCart()" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3 rounded-xl focus:outline-none focus:border-white">
                         <option value="">Seleccione...</option>
                         <option value="zelle">Zelle</option>
-                        <option value="nequi">Nequi</option>
                         <option value="pago_movil">Pago Móvil</option>
+                        <option value="binance">Binance</option>
                         <option value="efectivo">Efectivo</option>
                     </select>
                 </div>
@@ -318,8 +380,8 @@
                 </div>
 
                 <div id="contenedorNumeroMesaCart" class="space-y-1 hidden">
-                    <label class="text-[9px] uppercase text-white font-bold block">Número de Mesa</label>
-                    <input type="text" id="input-num-mesa" placeholder="Ej. Mesa 04" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3 rounded-xl font-mono">
+                    <label class="text-[9px] uppercase text-white font-bold block">Observación del pago en efectivo</label>
+                    <input type="text" id="input-num-mesa" placeholder="Ej. Pago en efectivo en dólares" class="w-full bg-[#1f1f1f] border border-[#333333] text-xs text-white p-3 rounded-xl font-mono">
                 </div>
 
                 <div id="contenedorReferenciaCart" class="space-y-1 hidden">
@@ -344,7 +406,7 @@
             <i data-lucide="shopping-cart" class="w-5 h-5"></i>
             <span class="text-[10px] font-bold uppercase tracking-wide">Cesta</span>
         </button>
-        <a href="cuponera.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white cursor-pointer">
+        <a href="https://dinigoficial-ui.github.io/cuponera/cuponera.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white cursor-pointer">
             <i data-lucide="ticket" class="w-5 h-5"></i>
             <span class="text-[10px] font-bold uppercase tracking-wide">Cupones</span>
         </a>
@@ -499,7 +561,7 @@
                     <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=200&auto=format&fit=crop" alt="MRW" class="w-full h-full object-cover"></div>
                     <span class="text-[10px] font-bold text-white uppercase">MRW</span>
                 </div>
-                <div onclick="seleccionarEmpresaEncomienda('DOMESA', '🏢 Grupo ZOOM / DOMESA')" id="encomienda-domesa" class="encomienda-card cursor-pointer bg-[#1a1a1a] border border-[#262626] hover:border-white p-2 rounded-xl flex flex-col items-center text-center transition-all">
+                <div onclick="seleccionarEmpresaEncomienda('DOMESA', '🏢 DOMESA')" id="encomienda-domesa" class="encomienda-card cursor-pointer bg-[#1a1a1a] border border-[#262626] hover:border-white p-2 rounded-xl flex flex-col items-center text-center transition-all">
                     <div class="w-full h-12 rounded-lg overflow-hidden bg-black mb-1 flex items-center justify-center border border-[#333333]"><img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=200&auto=format&fit=crop" alt="DOMESA" class="w-full h-full object-cover"></div>
                     <span class="text-[10px] font-bold text-white uppercase">DOMESA</span>
                 </div>
@@ -605,7 +667,7 @@
                 await fetch(SUPABASE_CENTRAL_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "apikey": SUPABASE_CENTRAL_KEY, "Authorization": `Bearer ${SUPABASE_CENTRAL_KEY}`, "Prefer": "return=representation" },
-                    body: JSON.stringify({ comercio: nuevaOrden.nombre || "Casa de las Papas", comercio_nombre: nuevaOrden.nombre || "Casa de las Papas", comercio_direccion: "HVX5+G5H, Mérida", productos: nuevaOrden.detalles || "Pedido", costo_delivery: 0.00, coordenadas_gps: "N/A", estado: "Pendiente" })
+                    body: JSON.stringify({ comercio: nuevaOrden.nombre || "DUNIGSHOP", comercio_nombre: nuevaOrden.nombre || "DUNIGSHOP", comercio_direccion: "HVX5+G5H, Mérida", productos: nuevaOrden.detalles || "Pedido", costo_delivery: 0.00, coordenadas_gps: "N/A", estado: "Pendiente" })
                 });
             } catch (error) {}
         }
@@ -617,7 +679,7 @@
                     data.forEach(cuenta => {
                         let htmlDetalle = '';
                         if (cuenta.plataforma === 'efectivo') {
-                            htmlDetalle = `<p class="text-white font-bold">💵 Efectivo en tienda física.</p>`;
+                            htmlDetalle = `<p class="text-white font-bold">💵 Efectivo: coordina el pago por WhatsApp.</p>`;
                         } else {
                             if (cuenta.banco) htmlDetalle += `<p><strong>Banco:</strong> ${cuenta.banco}</p>`;
                             if (cuenta.telefono) htmlDetalle += `<p><strong>Teléfono:</strong> ${cuenta.telefono}</p>`;
@@ -628,7 +690,8 @@
                     });
                 }
             } catch (err) {}
-            if (!datosDePago['efectivo']) datosDePago['efectivo'] = `<p class="text-white font-bold">💵 Efectivo en tienda.</p>`;
+            if (!datosDePago['efectivo']) datosDePago['efectivo'] = `<p class="text-white font-bold">💵 Efectivo: coordina el pago por WhatsApp.</p>`;
+            if (!datosDePago['binance']) datosDePago['binance'] = `<p class="text-white font-bold">🟡 Binance: te enviamos los datos por WhatsApp.</p>`;
         }
 
         window.cambiarPantalla = async function(nombre) {
@@ -937,136 +1000,5 @@
             const contenedor = document.getElementById('contenedor-qr');
             
             contenedor.innerHTML = "";
-            
-            new QRCode(contenedor, {
-                text: urlApk,
-                width: 180,
-                height: 180,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-            
-            modal.classList.remove('hidden');
-        }
-
-        window.cerrarModalQr = function() {
-            document.getElementById('modal-qr').classList.add('hidden');
-        }
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            aplicarYFijarCodigoReferido();
-            await detectarReferidoPorDeepLink(); 
-            verificarClienteRegistrado();
-            iniciarCarrusel();
-            await cargarEmpresasEncomiendaSupabase();
-            await cargarCuentasPagoSupabase();
-            descargarCatalogoDeSupabase();
-            descargarAdicionalesDeSupabase();
-            lucide.createIcons();
-        });
-
-        window.enviarPedidoWhatsApp = async function() {
-            const clienteRegistradoValidacion = localStorage.getItem('dunig_cliente_registrado');
-            if (!clienteRegistradoValidacion) {
-                verificarClienteRegistrado();
-                return;
-            }
-
-            if(carrito.length === 0) { alert("Agrega productos primero."); return; }
-
-            const paisVal = document.getElementById('pais').value;
-            const ciudadVal = document.getElementById('ciudad').value;
-            const regionVal = document.getElementById('region').value.trim();
-
-            if(!paisVal || !ciudadVal || !regionVal) {
-                alert("Por favor selecciona el país, la ciudad y escribe tu región o sector de destino.");
-                return;
-            }
-
-            const metodo = document.getElementById('tipoMetodoPago').value;
-            if(!metodo) { alert("Por favor selecciona un método de pago."); return; }
-
-            let ref = "";
-            let numeroMesa = "";
-
-            if (metodo === 'efectivo') {
-                numeroMesa = document.getElementById('input-num-mesa').value.trim();
-                if(!numeroMesa) {
-                    alert("Por favor ingresa el número de mesa u observación.");
-                    document.getElementById('input-num-mesa').focus();
-                    return;
-                }
-                ref = `Efectivo / Local (Mesa/Nota: ${numeroMesa})`;
-            } else {
-                ref = document.getElementById('input-ref-pago').value.trim();
-                if(!ref) { alert("Por favor ingresa el número o código de referencia."); return; }
-            }
-
-            const clienteLocal = JSON.parse(clienteRegistradoValidacion);
-            
-            const inputRefElem = document.getElementById('input-referido');
-            const codigoReferidoCliente = inputRefElem ? inputRefElem.value.trim().toUpperCase() : (clienteLocal.codigo_referido || localStorage.getItem('dunig_ref_code') || 'NINGUNO');
-            
-            let totalGeneral = carrito.reduce((a, b) => a + b.precio, 0);
-            let lista = carrito.map(i => `• ${i.titulo} ($${i.precio.toFixed(2)})`).join('\n');
-
-            let wsNum = "584120000000"; 
-            try {
-                const { data, error } = await supabaseClient.from('ajustes_sistema').select('valor').eq('id', 'whatsapp_notificaciones').single();
-                if(!error && data && data.valor) {
-                    wsNum = data.valor.replace(/[^0-9]/g, "");
-                }
-            } catch (err) {}
-
-            let mensajeMesaExtra = metodo === 'efectivo' ? `🪑 *OBSERVACIÓN / MESA:* ${numeroMesa}\n` : '';
-            
-            const mensaje = `📦 *PEDIDO NACIONAL - D'UNIG SHOPING* 📦\n\n👤 *CLIENTE:* ${clienteLocal.nombre || 'N/A'}\n📱 *WHATSAPP:* ${clienteLocal.whatsapp || 'N/A'}\n🎁 *REF. CLIENTE:* ${codigoReferidoCliente}\n\n${lista}\n\n💵 *TOTAL PRODUCTOS:* $${totalGeneral.toFixed(2)}\n📍 *DESTINO:* ${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}\n🚚 *AGENCIA DE ENCOMIENDA:* ${empresaEncomiendaSeleccionada} (Cobro a Destino)\n🏦 *MÉTODO DE Pago:* ${metodo.toUpperCase()}\n${mensajeMesaExtra}🔢 *REF:* ${ref}`;
-
-            // Generación de UUID único obligatorio para el campo id (text)
-            const generatedId = 'ord-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
-
-            // Inserción completa y corregida en Supabase con todos los campos requeridos
-            const { error: insertError } = await supabaseClient
-              .from('ordenes_vip')
-              .insert([
-                { 
-                  id: generatedId,
-                  cliente_nombre: clienteLocal.nombre || 'Nombre del Cliente',
-                  cliente_telefono: clienteLocal.whatsapp || '0414xxxxxxx',
-                  detalles_pedido: carrito.map(i => i.titulo), // Envío correcto como formato array/JSONB compatible
-                  total: totalGeneral,
-                  monto_total: totalGeneral,
-                  metodo_pago: metodo,
-                  ubicacion_entrega: `${paisVal.toUpperCase()} / ${ciudadVal.toUpperCase()} / ${regionVal.toUpperCase()}`,
-                  codigo_referido: codigoReferidoCliente,
-                  referencia: ref,
-                  referencia_bancaria: ref,
-                  estado: "pendiente"
-                }
-              ]);
-
-            if (insertError) {
-                console.error("Error al registrar en ordenes_vip:", insertError.message);
-            }
-
-            await guardarOrdenEnCentral({
-                nombre: `Casa de las Papas - Envío por ${empresaEncomiendaSeleccionada}`,
-                detalles: carrito.map(i => i.titulo).join(', ')
-            });
-
-            carrito = [];
-            document.getElementById('contador-carrito-badge').innerText = "0";
-            document.getElementById('tipoMetodoPago').value = "";
-            document.getElementById('input-ref-pago').value = "";
-            document.getElementById('input-num-mesa').value = "";
-            document.getElementById('contenedorReferenciaCart').classList.add('hidden');
-            document.getElementById('contenedorNumeroMesaCart').classList.add('hidden');
-            document.getElementById('info-metodo-pago').classList.add('hidden');
-            
-            cambiarPantalla('vitrina');
-            window.open(`https://api.whatsapp.com/send?phone=${wsNum}&text=${encodeURIComponent(mensaje)}`, '_blank');
-        }
-    </script>
-</body> 
-</html>
+          
+Vista previa truncada.
