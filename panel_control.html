@@ -55,7 +55,7 @@
             </div>
             
             <div class="flex flex-col gap-1.5 items-end">
-                <a href="https://dinigoficial-ui.github.io/dunig7/" target="_blank" class="px-2.5 py-1.5 rounded-lg border border-stone-800 text-stone-400 hover:text-white transition-all text-[10px] font-bold uppercase tracking-wider font-futurista bg-stone-900/30 flex items-center gap-1.5 cursor-pointer">
+                <a href="https://dunigshop.github.io/dunig7/" target="_blank" class="px-2.5 py-1.5 rounded-lg border border-stone-800 text-stone-400 hover:text-white transition-all text-[10px] font-bold uppercase tracking-wider font-futurista bg-stone-900/30 flex items-center gap-1.5 cursor-pointer">
                     <i data-lucide="eye" class="w-3.5 h-3.5 text-amber-500"></i> Ver Vitrina
                 </a>
                 <button onclick="ejecutarLogout()" class="px-2.5 py-1.5 rounded-lg border border-red-900/30 text-red-400 hover:text-red-300 transition-all text-[10px] font-bold uppercase tracking-wider font-futurista bg-stone-900/30 flex items-center gap-1.5 cursor-pointer">
@@ -1052,7 +1052,7 @@
             }
 
             const numeroLimpio = telefonoCliente.replace(/[^0-9]/g, "");
-            const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/cuponera.html";
+            const linkCuponera = "https://dunigshop.github.io/cuponera/cuponera.html";
             const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido *verificada y confirmada* con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigoPremio}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
@@ -1067,7 +1067,7 @@
             }
 
             const numeroLimpio = telefono.replace(/[^0-9]/g, "");
-            const linkCuponera = "https://dinigoficial-ui.github.io/cuponera/cuponera.html";
+            const linkCuponera = "https://dunigshop.github.io/cuponera/cuponera.html";
             const mensaje = `¡Hola! Tu orden VIP #${idOrden} ha sido verificada y confirmada con éxito. 🎉\n\nTu código exclusivo para el sorteo y acceso a la cuponera es:\n📌 *${codigo}*\n\n🎟️ *Ingresa a nuestra cuponera aquí:* \n${linkCuponera}\n\n¡Guarda muy bien este código para participar y desbloquear tus beneficios! Gracias por tu compra.`;
 
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
