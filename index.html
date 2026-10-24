@@ -421,6 +421,7 @@ slideActual = (slideActual + 1) % totalSlides;
 actualizarPosicionCarrusel();
 }, 3000);
 }
+window.irASlide = function(i){ return irASlide(i); };
 function irASlide(indice) {
 slideActual = indice;
 actualizarPosicionCarrusel();
@@ -792,6 +793,13 @@ carrito.push({ titulo: tituloFinal, precio: precioFinal, imagen_url: imagenFinal
 document.getElementById('contador-carrito-badge').innerText = carrito.length;
 cambiarPantalla('vitrina');
 }
+window.eliminarDelCarrito = function(idx) {
+carrito.splice(idx, 1);
+renderizarCarrito();
+const badge = document.getElementById('contador-carrito-badge');
+if (badge) badge.innerText = carrito.length;
+setTimeout(() => { try { lucide.createIcons(); } catch (e) {} }, 30);
+}
 function renderizarCarrito() {
 const cont = document.getElementById('lista-items-carrito');
 const contAbajo = document.getElementById('cantidad-items-abajo');
@@ -812,7 +820,7 @@ cont.innerHTML += `
 <img src="${item.imagen_url}" class="w-10 h-10 object-cover rounded-lg border border-[#262626]">
 <div>
 <h4 class="text-xs font-bold text-white uppercase">${item.titulo}</h4>
-<button onclick="carrito.splice(${idx},1);renderizarCarrito();document.getElementById('contador-carrito-badge').innerText=carrito.length;" class="text-[10px] text-red-400 hover:underline">Eliminar</button>
+<button onclick="eliminarDelCarrito(${idx})" class="text-[10px] text-red-400 hover:underline">Eliminar</button>
 </div>
 </div>
 <span class="font-mono text-white font-bold text-xs">$${item.precio.toFixed(2)}</span>
@@ -1050,3 +1058,4 @@ document.addEventListener('pointerout',function(e){var t=e.target.closest&&e.tar
 </script>
 </body>
 </html>
+
