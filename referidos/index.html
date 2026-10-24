@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Referidos · DUNIGSHOP</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Plus+Jakarta+Sans:wght@200;300;400;500;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at 50% 0%, #1c1917 0%, #0c0a09 100%); background-color: #030202; }
+        .font-futurista { font-family: 'Orbitron', sans-serif; }
+        .glow-gold { box-shadow: 0 0 25px rgba(229, 193, 88, 0.15); }
+        .text-gold { color: #e5c158; text-shadow: 0 0 12px rgba(229, 193, 88, 0.2); }
+        .glass-panel { background: linear-gradient(135deg, rgba(28, 25, 23, 0.45) 0%, rgba(12, 10, 9, 0.6) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.02); }
+        .grid-bg { background-image: linear-gradient(rgba(229, 193, 88, 0.01) 1px, transparent 1px), linear-gradient(90deg, rgba(229, 193, 88, 0.01) 1px, transparent 1px); background-size: 32px 32px; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #e5c158; border-radius: 10px; }
+    </style>
+</head>
+<body class="text-stone-200 antialiased min-h-screen flex flex-col justify-between grid-bg relative">
+
+    <header class="bg-black/40 backdrop-blur-xl border-b border-stone-900/80 sticky top-0 z-40 px-4">
+        <div class="max-w-4xl mx-auto h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="border border-amber-500/30 p-2 rounded-xl bg-stone-950/80 glow-gold">
+                    <i data-lucide="users" class="w-6 h-6 text-amber-400"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-black tracking-[0.15em] text-white font-futurista">
+                        DUNIG<span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-500">SHOP</span>
+                    </h1>
+                    <p class="text-[8px] text-amber-500/70 uppercase tracking-[0.25em] font-bold font-futurista">
+                        PROGRAMA DE REFERIDOS VIP
+                    </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-xl w-full mx-auto px-4 py-12 flex-grow flex items-center justify-center relative z-10">
+        <div class="glass-panel p-8 rounded-3xl shadow-2xl border border-stone-900 w-full space-y-6">
+            
+            <div class="text-center space-y-2">
+                <span class="text-[10px] uppercase tracking-[0.2em] font-futurista font-black text-amber-400 bg-amber-500/5 px-3 py-1 rounded-md border border-amber-500/10">REGISTRO OFICIAL</span>
+                <h2 class="text-2xl font-black font-futurista text-white tracking-wide uppercase">Nuevo Referido</h2>
+                <p class="text-xs text-stone-400">Ingresa tus datos para unirte al programa y recibir tu código, tu enlace y tu kit para compartir.</p>
+            </div>
+
+            <div id="banner-patrocinador" class="hidden bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl text-center">
+                <p class="text-[10px] text-amber-400 font-futurista tracking-wider">Estás siendo invitado por el código: <span id="txt-patrocinador" class="font-bold"></span></p>
+            </div>
+
+            <form id="form-referido" onsubmit="registrarReferido(event)" class="space-y-4">
+                
+                <div class="space-y-1.5">
+                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Nombre de Referido</label>
+                    <input type="text" id="ref-nombre" required placeholder="Ej. Carlos Pérez" class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-amber-400/40 font-medium">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Cédula de Identidad</label>
+                    <input type="text" id="ref-cedula" required placeholder="Ej. V-26000000" class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-amber-400/40 font-mono">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Número de Teléfono</label>
+                    <input type="tel" id="ref-telefono" required placeholder="Ej. 04120000000" class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-amber-400/40 font-mono">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[9px] uppercase text-stone-400 font-bold tracking-widest block font-futurista">Ciudad</label>
+                    <input type="text" id="ref-ciudad" required placeholder="Ej. Mérida" class="w-full bg-stone-900 border border-stone-800 text-xs text-white p-3.5 rounded-xl focus:outline-none focus:border-amber-400/40 font-medium">
+                </div>
+
+                <div class="bg-stone-900/70 border border-stone-800 rounded-xl p-3.5 space-y-2">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" id="ref-acepto" required class="mt-0.5 w-4 h-4 accent-amber-400 shrink-0">
+                        <span class="text-[11px] text-stone-300 leading-relaxed">Declaro que mis datos son reales, que soy mayor de edad y que leí y acepto los <a href="https://dunigshop.github.io/dunig7/terminos.html#referidos" target="_blank" class="text-amber-400 underline">Términos y Condiciones del Programa de Referidos</a>. Entiendo que participo como afiliado independiente, sin relación laboral con DUNIGSHOP, que no puedo cobrar dinero a nombre de la tienda y que solo gano comisión por ventas confirmadas.</span>
+                    </label>
+                </div>
+
+                <button type="submit" id="btn-enviar" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-black font-futurista font-black py-4 px-6 rounded-xl text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-2 cursor-pointer shadow-lg transition-all duration-300 mt-6">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i> COMPLETAR REGISTRO
+                </button>
+            </form>
+
+            <div id="kit" class="hidden space-y-4">
+                <div class="text-center space-y-1">
+                    <span class="text-[10px] uppercase tracking-[0.2em] font-futurista font-black text-emerald-400 bg-emerald-500/5 px-3 py-1 rounded-md border border-emerald-500/20">REGISTRO EXITOSO</span>
+                    <h2 class="text-xl font-black font-futurista text-white tracking-wide uppercase">Tu kit de referido</h2>
+                    <p class="text-xs text-stone-400">Guárdalo: toca "Guardar mi kit en WhatsApp" y te llega a tu propio chat.</p>
+                </div>
+                <div class="bg-stone-900 border border-amber-500/20 rounded-xl p-4 text-center">
+                    <p class="text-[9px] uppercase tracking-widest text-stone-400 font-futurista">Tu código</p>
+                    <p id="kit-codigo" class="text-2xl font-black font-futurista text-gold tracking-widest"></p>
+                </div>
+                <div class="bg-stone-900 border border-stone-800 rounded-xl p-4 space-y-3 text-xs">
+                    <div><p class="text-[9px] uppercase tracking-widest text-stone-400 font-futurista mb-1">Tu enlace para compartir</p><a id="kit-link" target="_blank" class="text-amber-400 break-all underline"></a></div>
+                    <div class="flex justify-center"><img id="kit-qr" alt="QR de tu enlace" class="w-40 h-40 rounded-lg bg-white p-2"></div>
+                    <div><p class="text-[9px] uppercase tracking-widest text-stone-400 font-futurista mb-1">Material para compartir (toda la info de la tienda)</p><a href="https://dunigshop.github.io/dunig7/lujo/" target="_blank" class="text-amber-400 break-all underline">https://dunigshop.github.io/dunig7/lujo/</a></div>
+                    <div><p class="text-[9px] uppercase tracking-widest text-stone-400 font-futurista mb-1">Consulta tus comisiones</p><a href="https://dunig5.github.io/comisiones/" target="_blank" class="text-amber-400 break-all underline">https://dunig5.github.io/comisiones/</a></div>
+                    <div><p class="text-[9px] uppercase tracking-widest text-stone-400 font-futurista mb-1">Términos y condiciones</p><a href="https://dunigshop.github.io/dunig7/terminos.html#referidos" target="_blank" class="text-amber-400 break-all underline">https://dunigshop.github.io/dunig7/terminos.html</a></div>
+                </div>
+                <div class="bg-stone-900/60 border border-stone-800 rounded-xl p-4 text-[11px] text-stone-300 space-y-1">
+                    <p class="font-bold text-amber-400 font-futurista text-[10px] tracking-widest">CÓMO GANAS</p>
+                    <p>BRONCE 1-9 ventas: 10% · PLATA 10-24: 12% · ORO 25+: 15% + premio del mes. Comisión sobre el precio del producto, sin envío. Pagos los viernes por Pago Móvil o Binance, mínimo $5.</p>
+                    <p>Recuerda: el cliente siempre paga directo a DUNIGSHOP. Nunca recibas dinero de clientes.</p>
+                </div>
+                <a id="btn-wa-yo" target="_blank" class="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-futurista font-black py-4 px-6 rounded-xl text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-2 shadow-lg">GUARDAR MI KIT EN WHATSAPP</a>
+                <a id="btn-wa-tienda" target="_blank" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black font-futurista font-black py-4 px-6 rounded-xl text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-2 shadow-lg">AVISAR A DUNIGSHOP</a>
+                <button type="button" onclick="copiarKit()" id="btn-copiar" class="w-full border border-amber-500/30 text-amber-400 font-futurista font-black py-3 px-6 rounded-xl text-[11px] uppercase tracking-[0.15em]">COPIAR TODO</button>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="border-t border-stone-950 bg-black/60 p-4 text-center text-[10px] text-stone-600 font-mono tracking-widest">© 2026 DUNIGSHOP · VENEZUELA · <a href="https://dunigshop.github.io/dunig7/terminos.html" target="_blank" class="text-amber-500/80 underline">TÉRMINOS Y CONDICIONES</a></footer>
+
+    <script>
+        const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o"; 
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        window.addEventListener('DOMContentLoaded', () => { 
+            lucide.createIcons(); 
+            const urlParams = new URLSearchParams(window.location.search);
+            const ref = urlParams.get('ref');
+            if (ref) {
+                document.getElementById('txt-patrocinador').innerText = ref;
+                document.getElementById('banner-patrocinador').classList.remove('hidden');
+            }
+        });
+
+        async function registrarReferido(event) {
+            event.preventDefault();
+
+            const btn = document.getElementById('btn-enviar');
+            btn.disabled = true;
+            btn.innerText = "REGISTRANDO...";
+
+            const nombre = document.getElementById('ref-nombre').value.trim();
+            const cedula = document.getElementById('ref-cedula').value.trim();
+            const telefono = document.getElementById('ref-telefono').value.trim();
+            const ciudad = document.getElementById('ref-ciudad').value.trim();
+
+            const acepto = document.getElementById('ref-acepto').checked;
+            if (!acepto) { alert('Debes aceptar los Términos y Condiciones.'); btn.disabled=false; btn.innerHTML = `<i data-lucide="user-plus" class="w-4 h-4"></i> COMPLETAR REGISTRO`; lucide.createIcons(); return; }
+
+            let codigoGenerado = ''; for (let i=0;i<7;i++) codigoGenerado += Math.floor(Math.random()*10); for (let i=0;i<3;i++) codigoGenerado += 'ABCDEFGHJKLMNPQRSTUVWXYZ'.charAt(Math.floor(Math.random()*24));
+            const linkGenerado = `https://dunigshop.github.io/dunig7/?ref=${codigoGenerado}`;
+            const base = { nombre, cedula, telefono, ciudad, codigo_referido: codigoGenerado };
+            const conTerminos = Object.assign({}, base, { acepto_terminos: true, terminos_version: '1.0', fecha_aceptacion: new Date().toISOString(), patrocinador: (new URLSearchParams(location.search)).get('ref') || null });
+
+            let { error } = await supabaseClient.from('afiliados_referidos').insert([conTerminos]);
+            if (error && /column|schema/i.test(error.message || '')) {
+                ({ error } = await supabaseClient.from('afiliados_referidos').insert([base]));
+            }
+
+            if (error) {
+                console.error("Error de Supabase:", error);
+                alert("No se pudo completar el registro: " + error.message);
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="user-plus" class="w-4 h-4"></i> COMPLETAR REGISTRO`;
+                lucide.createIcons();
+                return;
+            }
+            mostrarKit(nombre, cedula, telefono, ciudad, codigoGenerado, linkGenerado);
+        }
+
+        let textoKit = '';
+        function telInternacional(t) {
+            let d = (t || '').replace(/\D/g, '');
+            if (d.startsWith('58')) return d;
+            if (d.startsWith('0')) d = d.slice(1);
+            return '58' + d;
+        }
+        function mostrarKit(nombre, cedula, telefono, ciudad, codigo, link) {
+            textoKit =
+`*DUNIGSHOP · Kit de referido*
+Nombre: ${nombre}
+Código: ${codigo}
+
+Tu enlace para compartir:
+${link}
+
+Material con toda la info de la tienda:
+https://dunigshop.github.io/dunig7/lujo/
+
+Consulta tus comisiones:
+https://dunig5.github.io/comisiones/
+
+Términos y condiciones:
+https://dunigshop.github.io/dunig7/terminos.html
+
+Comisiones: Bronce 10% · Plata 12% · Oro 15%. Pagos los viernes, mínimo $5.
+El cliente siempre paga directo a DUNIGSHOP. Nunca recibas dinero de clientes.`;
+            document.getElementById('kit-codigo').innerText = codigo;
+            const a = document.getElementById('kit-link'); a.href = link; a.innerText = link;
+            document.getElementById('kit-qr').src = 'https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=' + encodeURIComponent(link);
+            document.getElementById('btn-wa-yo').href = 'https://wa.me/' + telInternacional(telefono) + '?text=' + encodeURIComponent(textoKit);
+            const aviso = `Hola DUNIGSHOP, me acabo de registrar como referido.\nNombre: ${nombre}\nCédula: ${cedula}\nTeléfono: ${telefono}\nCiudad: ${ciudad}\nCódigo: ${codigo}\nAcepté los Términos y Condiciones v1.0.`;
+            document.getElementById('btn-wa-tienda').href = 'https://wa.me/584221494236?text=' + encodeURIComponent(aviso);
+            document.getElementById('form-referido').classList.add('hidden');
+            document.getElementById('kit').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function copiarKit() {
+            const ok = () => { document.getElementById('btn-copiar').innerText = '¡COPIADO!'; };
+            if (navigator.clipboard) navigator.clipboard.writeText(textoKit).then(ok).catch(fallback); else fallback();
+            function fallback() { const t = document.createElement('textarea'); t.value = textoKit; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); ok(); } catch(e) { alert(textoKit); } t.remove(); }
+        }
+    </script>
+</body>
+</html>
