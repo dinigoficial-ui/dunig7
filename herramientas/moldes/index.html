@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moldes desde una Foto · DUNIGSHOP</title>
+<meta name="description" content="Saca las medidas de una persona con una foto y genera moldes de costura a tamaño real para imprimir. Todo se procesa en tu teléfono.">
+<style>
+:root{--bg:#0d0b09;--card:#1a1611;--gold:#d4a84a;--gold2:#f3d58a;--txt:#f3eee6;--mut:#a89f92;--line:#3a3127}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);line-height:1.45}
+header{padding:28px 18px 18px;text-align:center;background:radial-gradient(circle at 50% 0,#3a2a10 0,#0d0b09 70%)}
+header h1{margin:0 0 6px;font-size:1.7rem;color:var(--gold2)}
+header p{margin:0;color:var(--mut)}
+main{max-width:860px;margin:0 auto;padding:12px 14px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}
+.card h2{margin:0 0 10px;font-size:1.15rem;color:var(--gold)}
+.step{display:inline-block;background:var(--gold);color:#1a1205;border-radius:50%;width:26px;height:26px;text-align:center;line-height:26px;font-weight:700;margin-right:6px}
+label{display:block;font-size:.9rem;color:var(--mut);margin:8px 0 4px}
+input,select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:#0f0d0a;color:var(--txt);font-size:1rem}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:inline-block;border:none;border-radius:12px;padding:13px 18px;font-size:1rem;font-weight:700;cursor:pointer;background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1a1205;box-shadow:0 4px 0 #8a6a25;margin:6px 6px 0 0}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #8a6a25}
+.btn.sec{background:#2a231a;color:var(--gold2);box-shadow:0 4px 0 #000}
+.btn:disabled{opacity:.5}
+.tips{color:var(--mut);font-size:.9rem;margin:6px 0 0;padding-left:18px}
+.status{margin-top:10px;color:var(--gold2);font-size:.95rem;min-height:1.2em}
+canvas{max-width:100%;border-radius:10px;margin-top:10px;background:#000}
+.meas{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+.meas small{color:var(--mut)}
+#preview{background:#fff;border-radius:10px;overflow:auto;margin-top:10px}
+#preview svg{display:block;width:100%;height:auto}
+.note{font-size:.85rem;color:var(--mut)}
+.warn{background:#2b1f0c;border-left:4px solid var(--gold);padding:10px;border-radius:8px;font-size:.9rem}
+footer{text-align:center;color:var(--mut);font-size:.8rem;padding:20px}
+@media(max-width:520px){.row,.meas{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>✂️ Moldes desde una Foto</h1>
+  <p>Toma una foto, saca las medidas y descarga tu molde a tamaño real.</p>
+</header>
+<main>
+
+<div class="card">
+  <h2><span class="step">1</span>Datos de la persona</h2>
+  <div class="row">
+    <div><label>Estatura (cm)</label><input id="altura" type="number" value="160" min="100" max="220"></div>
+    <div><label>Holgura de la prenda</label>
+      <select id="holgura">
+        <option value="4">Ajustada (tela elástica)</option>
+        <option value="10" selected>Normal</option>
+        <option value="16">Holgada</option>
+      </select></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2><span class="step">2</span>Fotos</h2>
+  <label>Foto de frente (obligatoria)</label>
+  <input id="fotoFrente" type="file" accept="image/*" capture="environment">
+  <label>Foto de perfil (opcional, mejora el contorno)</label>
+  <input id="fotoPerfil" type="file" accept="image/*" capture="environment">
+  <ul class="tips">
+    <li>Cuerpo completo, de la cabeza a los pies, sin zapatos altos.</li>
+    <li>Ropa ajustada y fondo liso. Brazos un poco separados del cuerpo.</li>
+    <li>Teléfono a la altura de la cintura, a 2 o 3 metros.</li>
+  </ul>
+  <button class="btn" id="btnMedir">📏 Sacar medidas</button>
+  <button class="btn sec" id="btnManual">✍️ Prefiero escribirlas</button>
+  <div class="status" id="status"></div>
+  <canvas id="canvas" hidden></canvas>
+  <p class="note">🔒 Las fotos se procesan en tu teléfono. No se suben a ningún servidor.</p>
+</div>
+
+<div class="card" id="cardMedidas" hidden>
+  <h2><span class="step">3</span>Medidas (cm) — revísalas y corrige si hace falta</h2>
+  <div class="meas" id="medidas"></div>
+  <p class="warn">Las medidas de una foto son aproximadas (±2–4 cm). Si puedes, compara busto, cintura y cadera con una cinta métrica antes de cortar tela buena.</p>
+</div>
+
+<div class="card" id="cardMolde" hidden>
+  <h2><span class="step">4</span>Molde</h2>
+  <div class="row">
+    <div><label>Prenda</label>
+      <select id="prenda">
+        <option value="blusa">Blusa / camiseta básica (delantero, espalda, manga)</option>
+        <option value="falda">Falda recta (delantero y espalda)</option>
+      </select></div>
+    <div><label>Manga / largo</label>
+      <select id="largo">
+        <option value="larga">Manga larga</option>
+        <option value="corta">Manga corta</option>
+      </select></div>
+  </div>
+  <div id="faldaLargoBox" hidden><label>Largo de la falda (cm)</label><input id="largoFalda" type="number" value="60"></div>
+  <button class="btn" id="btnGenerar">🧵 Generar molde</button>
+  <div id="preview"></div>
+  <div id="acciones" hidden>
+    <button class="btn" id="btnImprimir">🖨️ Imprimir en hojas carta</button>
+    <button class="btn sec" id="btnSVG">⬇️ Descargar SVG</button>
+    <p class="note">El molde no incluye margen de costura: agrega 1 cm al cortar (2 cm en el ruedo). Al imprimir, elige escala 100% / "tamaño real" y mide el cuadro de prueba: debe dar 10 × 10 cm. Une las hojas por las marcas.</p>
+  </div>
+</div>
+
+</main>
+<footer>DUNIGSHOP · Herramientas gratis para emprendedores</footer>
+
+<script type="module">
+import { PoseLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+
+const $ = id => document.getElementById(id);
+const status = t => $("status").textContent = t;
+let landmarker = null;
+let M = null; // medidas
+
+const CAMPOS = [
+  ["busto","Contorno de busto / pecho"],["cintura","Contorno de cintura"],["cadera","Contorno de cadera"],
+  ["hombros","Ancho de hombros"],["talle","Largo de talle (nuca a cintura)"],["alturaCadera","Cintura a cadera"],
+  ["brazo","Largo de brazo"],["bicep","Contorno de brazo"],["muneca","Contorno de muñeca"],
+  ["cuello","Contorno de cuello"],["cinturaRodilla","Cintura a rodilla"],["cinturaPiso","Cintura al piso"]
+];
+
+async function getLandmarker(){
+  if(landmarker) return landmarker;
+  status("Cargando el detector de cuerpo (solo la primera vez, ~9 MB)…");
+  const fileset = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
+  const opts = d => ({ baseOptions:{ modelAssetPath:"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task", delegate:d },
+    runningMode:"IMAGE", numPoses:1, outputSegmentationMasks:true });
+  try { landmarker = await PoseLandmarker.createFromOptions(fileset, opts("GPU")); }
+  catch(e){ landmarker = await PoseLandmarker.createFromOptions(fileset, opts("CPU")); }
+  return landmarker;
+}
+
+function loadImage(file){
+  return new Promise((res,rej)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      // reducir a máx 1280 px para velocidad
+      const s = Math.min(1, 1280/Math.max(img.width,img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width*s); c.height = Math.round(img.height*s);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+      res(c);
+    };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+function analizar(lm, canvas){
+  return new Promise((res,rej)=>{
+    lm.detect(canvas, result=>{
+      if(!result.landmarks || !result.landmarks.length){ rej(new Error("No encontré a la persona en la foto.")); return; }
+      const L = result.landmarks[0].map(p=>({x:p.x*canvas.width,y:p.y*canvas.height,v:p.visibility}));
+      const mk = result.segmentationMasks[0];
+      const w = mk.width, h = mk.height;
+      const data = mk.getAsFloat32Array().slice();
+      res({L, mask:{w,h,data}, cw:canvas.width, ch:canvas.height});
+    });
+  });
+}
+
+// ancho del tramo de cuerpo que contiene cx en la fila y (en px de la imagen)
+function anchoFila(det, y, cx){
+  const {w,h,data} = det.mask; const sx = w/det.cw, sy = h/det.ch;
+  let tot = 0, n = 0;
+  for(let dy=-3; dy<=3; dy++){
+    const r = Math.round((y)*sy)+dy; if(r<0||r>=h) continue;
+    const c0 = Math.round(cx*sx); if(data[r*w+c0] < 0.5) continue;
+    let a=c0, b=c0;
+    while(a>0 && data[r*w+a-1]>=0.5) a--;
+    while(b<w-1 && data[r*w+b+1]>=0.5) b++;
+    tot += (b-a+1)/sx; n++;
+  }
+  return n? tot/n : 0;
+}
+function limitesVerticales(det){
+  const {w,h,data} = det.mask; let top=-1, bot=-1;
+  for(let r=0;r<h;r++){ for(let c=0;c<w;c++) if(data[r*w+c]>=0.5){ top=r; break; } if(top>=0) break; }
+  for(let r=h-1;r>=0;r--){ for(let c=0;c<w;c++) if(data[r*w+c]>=0.5){ bot=r; break; } if(bot>=0) break; }
+  return {top: top*det.ch/h, bot: bot*det.ch/h};
+}
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const elipse=(a,b)=>Math.PI*(3*(a+b)-Math.sqrt((3*a+b)*(a+3*b)));
+
+function medir(front, side, altura){
+  const L = front.L;
+  const {top,bot} = limitesVerticales(front);
+  const k = altura/(bot-top); // cm por px
+  const shY = (L[11].y+L[12].y)/2, hipY=(L[23].y+L[24].y)/2, kneeY=(L[25].y+L[26].y)/2, ankY=(L[27].y+L[28].y)/2;
+  const cx = (L[11].x+L[12].x+L[23].x+L[24].x)/4;
+  const T = hipY-shY;
+  const chestY = shY + 0.27*T;
+  // cintura: fila más estrecha entre 50% y 85% del torso
+  let waistY = shY+0.65*T, minW = 1e9;
+  for(let f=0.5; f<=0.85; f+=0.01){ const y=shY+f*T; const wd=anchoFila(front,y,cx); if(wd>0 && wd<minW){minW=wd; waistY=y;} }
+  // cadera: fila más ancha entre la articulación y 35% hacia la rodilla
+  let hipRowY = hipY, maxW = 0;
+  for(let f=-0.05; f<=0.35; f+=0.01){ const y=hipY+f*(kneeY-hipY); const wd=anchoFila(front,y,cx); if(wd>maxW){maxW=wd; hipRowY=y;} }
+  const wChest = anchoFila(front,chestY,cx)*k, wWaist = minW*k, wHip = maxW*k;
+  // profundidades
+  let dChest = wChest*0.75, dWaist = wWaist*0.78, dHip = wHip*0.72, usoPerfil=false;
+  if(side){
+    const lim = limitesVerticales(side); const ks = altura/(lim.bot-lim.top);
+    const SL = side.L; const scx = (SL[11].x+SL[12].x+SL[23].x+SL[24].x)/4;
+    const frac = y => (y-top)/(bot-top);
+    const yS = f => lim.top + f*(lim.bot-lim.top);
+    const dc = anchoFila(side,yS(frac(chestY)),scx)*ks, dw = anchoFila(side,yS(frac(waistY)),scx)*ks, dh = anchoFila(side,yS(frac(hipRowY)),scx)*ks;
+    if(dc>5 && dw>5 && dh>5){ dChest=dc; dWaist=dw; dHip=dh; usoPerfil=true; }
+  }
+  const busto = elipse(wChest/2,dChest/2), cintura=elipse(wWaist/2,dWaist/2), cadera=elipse(wHip/2,dHip/2);
+  const brazoL = (dist(L[11],L[13])+dist(L[13],L[15]))*k*1.05, brazoR=(dist(L[12],L[14])+dist(L[14],L[16]))*k*1.05;
+  const r1 = x=>Math.round(x*10)/10;
+  return {
+    m:{ busto:r1(busto), cintura:r1(cintura), cadera:r1(cadera),
+      hombros:r1(dist(L[11],L[12])*k*1.15), talle:r1((waistY-shY)*k+5), alturaCadera:r1((hipRowY-waistY)*k),
+      brazo:r1(Math.max(brazoL,brazoR)), bicep:r1(busto*0.31), muneca:r1(busto*0.17), cuello:r1(busto*0.38),
+      cinturaRodilla:r1((kneeY-waistY)*k+3), cinturaPiso:r1((bot-waistY)*k) },
+    lineas:{chestY,waistY,hipRowY,cx}, usoPerfil
+  };
+}
+
+function dibujar(canvas, det, lineas){
+  const c = $("canvas"); c.hidden=false; c.width=canvas.width; c.height=canvas.height;
+  const g = c.getContext("2d"); g.drawImage(canvas,0,0);
+  const L = det.L; g.fillStyle="#f3d58a";
+  [11,12,13,14,15,16,23,24,25,26,27,28].forEach(i=>{ g.beginPath(); g.arc(L[i].x,L[i].y,Math.max(4,c.width/180),0,7); g.fill(); });
+  g.lineWidth=Math.max(2,c.width/300);
+  [["Busto",lineas.chestY,"#ff5d8f"],["Cintura",lineas.waistY,"#4dd0e1"],["Cadera",lineas.hipRowY,"#9ccc65"]].forEach(([t,y,col])=>{
+    g.strokeStyle=col; g.beginPath(); g.moveTo(0,y); g.lineTo(c.width,y); g.stroke();
+    g.fillStyle=col; g.font=`bold ${Math.max(14,c.width/30)}px sans-serif`; g.fillText(t,8,y-6);
+  });
+}
+
+function mostrarMedidas(m){
+  M = m;
+  $("medidas").innerHTML = CAMPOS.map(([k,t])=>`<div><label>${t}</label><input type="number" step="0.5" data-k="${k}" value="${m[k] ?? ""}"></div>`).join("");
+  $("medidas").querySelectorAll("input").forEach(i=>i.oninput=()=>{ M[i.dataset.k]=parseFloat(i.value)||0; });
+  $("cardMedidas").hidden=false; $("cardMolde").hidden=false;
+}
+
+$("btnMedir").onclick = async ()=>{
+  const f = $("fotoFrente").files[0]; if(!f){ status("Primero toma o elige la foto de frente."); return; }
+  const altura = parseFloat($("altura").value); if(!(altura>100)){ status("Escribe la estatura en cm."); return; }
+  $("btnMedir").disabled=true;
+  try{
+    const lm = await getLandmarker();
+    status("Analizando la foto de frente…");
+    const cf = await loadImage(f); const front = await analizar(lm, cf);
+    let side=null;
+    if($("fotoPerfil").files[0]){ status("Analizando la foto de perfil…"); const cs=await loadImage($("fotoPerfil").files[0]); try{ side=await analizar(lm,cs);}catch(e){} }
+    const r = medir(front, side, altura);
+    dibujar(cf, front, r.lineas);
+    mostrarMedidas(r.m);
+    status(r.usoPerfil? "✅ Medidas listas (frente + perfil)." : "✅ Medidas listas. Con una foto de perfil saldrían más exactas.");
+  }catch(e){ console.error(e); status("⚠️ "+(e.message||"No se pudo analizar la foto. Prueba con otra foto de cuerpo completo.")); }
+  $("btnMedir").disabled=false;
+};
+$("btnManual").onclick = ()=>{ mostrarMedidas({busto:90,cintura:72,cadera:98,hombros:38,talle:40,alturaCadera:20,brazo:58,bicep:28,muneca:15.5,cuello:35,cinturaRodilla:58,cinturaPiso:102}); status("Escribe tus medidas en el paso 3."); };
+$("prenda").onchange = ()=>{ const fa=$("prenda").value==="falda"; $("faldaLargoBox").hidden=!fa; $("largo").parentElement.hidden=fa; };
+
+/* ---------- Trazado de moldes (unidades: cm) ---------- */
+function bezLen(p){ // p: [x0,y0,x1,y1,x2,y2,x3,y3]
+  let l=0, px=p[0], py=p[1];
+  for(let i=1;i<=40;i++){ const t=i/40, u=1-t;
+    const x=u*u*u*p[0]+3*u*u*t*p[2]+3*u*t*t*p[4]+t*t*t*p[6], y=u*u*u*p[1]+3*u*u*t*p[3]+3*u*t*t*p[5]+t*t*t*p[7];
+    l+=Math.hypot(x-px,y-py); px=x; py=y; }
+  return l;
+}
+function pieza(nombre, w, h, path, extra, notas){ return {nombre,w,h,path,extra:extra||"",notas:notas||[]}; }
+const f1 = x=>x.toFixed(2);
+
+function cuerpo(m, E, delantero){
+  const B4 = m.busto/4 + E/4, W4 = Math.min(B4, m.cintura/4 + E/4 + 1), H4 = Math.max(W4, m.cadera/4 + E/4);
+  const neckW = m.cuello/6 + 0.3, nd = delantero? neckW+1 : 2;
+  const sx = m.hombros/2 + (delantero?0:0.5), sy = delantero? 4.5 : 4;
+  const AH = m.busto/10 + 12.5;
+  const across = sx - (delantero? 2.5 : 1.5);
+  const largo = m.talle + m.alturaCadera, yW = m.talle;
+  const arm = [sx,sy, sx-0.8,sy+(AH-sy)*0.45, across,AH-2.5, B4,AH];
+  const d = `M0,${f1(nd)} Q${f1(neckW*(delantero?1:0.8))},${f1(nd)} ${f1(neckW)},0 L${f1(sx)},${f1(sy)} `+
+    `C${f1(arm[2])},${f1(arm[3])} ${f1(arm[4])},${f1(arm[5])} ${f1(B4)},${f1(AH)} `+
+    `Q${f1(W4+0.3)},${f1((AH+yW)/2)} ${f1(W4)},${f1(yW)} Q${f1(W4)},${f1(yW+m.alturaCadera*0.5)} ${f1(H4)},${f1(largo)} L0,${f1(largo)} Z`;
+  const extra = `<line x1="0" y1="${f1(yW)}" x2="${f1(W4)}" y2="${f1(yW)}" class="guia"/>`+
+    `<line x1="${f1(B4*0.2)}" y1="${f1(AH+3)}" x2="${f1(B4*0.2)}" y2="${f1(largo-4)}" class="hilo"/>`;
+  return {p: pieza(delantero?"DELANTERO":"ESPALDA", Math.max(H4,B4)+1, largo+1, d, extra,
+    [delantero?"Cortar 1 al doblez":"Cortar 1 al doblez", "← Doblez de tela (centro)", `Busto ${m.busto} · Cintura ${m.cintura}`]), armLen: bezLen(arm)};
+}
+
+function manga(m, E, armTotal, corta){
+  let capH = armTotal*0.3;
+  let SW = 2*Math.sqrt(Math.max(1,(armTotal/2+0.5)**2 - capH**2));
+  const minSW = m.bicep + E/2 + 2;
+  if(SW < minSW){ SW = minSW; capH = Math.max(8, Math.sqrt(Math.max(1,(armTotal/2+0.5)**2 - (SW/2)**2))); }
+  const len = corta? 22 : m.brazo;
+  const bottomW = corta? SW-2 : Math.min(SW, m.muneca + 8);
+  const off = (SW-bottomW)/2;
+  const d = `M0,${f1(capH)} C${f1(SW*0.2)},${f1(capH*0.9)} ${f1(SW*0.3)},0 ${f1(SW/2)},0 C${f1(SW*0.7)},0 ${f1(SW*0.8)},${f1(capH*0.85)} ${f1(SW)},${f1(capH)} `+
+    `L${f1(SW-off)},${f1(len)} L${f1(off)},${f1(len)} Z`;
+  const extra = `<line x1="0" y1="${f1(capH)}" x2="${f1(SW)}" y2="${f1(capH)}" class="guia"/>`+
+    `<line x1="${f1(SW/2)}" y1="${f1(Math.min((len+1)*0.4,25)+6)}" x2="${f1(SW/2)}" y2="${f1(len-3)}" class="hilo"/>`;
+  return pieza("MANGA", SW+1, len+1, d, extra, ["Cortar 2 (una al revés)", "Copa: centro arriba al hombro", `Largo ${len.toFixed(0)} cm`]);
+}
+
+function falda(m, E, largo, delantero){
+  const ease = E>=10? 1 : 0.5;
+  const H4 = m.cadera/4 + ease, dartW = delantero? 2 : 3, dartL = delantero? 9 : 13;
+  let W4 = m.cintura/4 + 0.5, conPinza = (W4 + dartW) < H4;
+  const top = conPinza? W4+dartW : Math.min(W4,H4);
+  const hd = m.alturaCadera || 20;
+  const d = `M0,0 L${f1(top)},0 Q${f1(H4)},${f1(hd*0.35)} ${f1(H4)},${f1(hd)} L${f1(H4)},${f1(largo)} L0,${f1(largo)} Z`;
+  let extra = `<line x1="0" y1="${f1(hd)}" x2="${f1(H4)}" y2="${f1(hd)}" class="guia"/>`+
+    `<line x1="${f1(H4*0.18)}" y1="${f1(hd+4)}" x2="${f1(H4*0.18)}" y2="${f1(largo-5)}" class="hilo"/>`;
+  if(conPinza){ const dx = top*0.5; extra += `<path d="M${f1(dx-dartW/2)},0 L${f1(dx)},${dartL} L${f1(dx+dartW/2)},0" class="pinza"/>`; }
+  return pieza(delantero?"FALDA DELANTERO":"FALDA ESPALDA", H4+1, largo+1, d, extra, ["Cortar 1 al doblez", "← Doblez de tela (centro)", `Cadera ${m.cadera} · Largo ${largo}`]);
+}
+
+let SVG_ACTUAL = "", TAM = {w:0,h:0};
+function armarSVG(piezas){
+  const gap = 4, pad = 3; let x = pad, maxH = 0;
+  const grupos = piezas.map(p=>{
+    const g = `<g transform="translate(${f1(x)},${pad+4})"><path d="${p.path}" class="corte"/>${p.extra}`+
+      `<text x="${f1(p.w*0.5)}" y="${f1(Math.min(p.h*0.4, 25))}" class="tit" text-anchor="middle">${p.nombre}</text>`+
+      p.notas.map((n,i)=>`<text x="${f1(p.w*0.5)}" y="${f1(Math.min(p.h*0.4,25)+2.2+i*1.6)}" class="nota" text-anchor="middle">${n}</text>`).join("")+`</g>`;
+    x += p.w + gap; maxH = Math.max(maxH, p.h); return g;
+  });
+  const W = x + 12, H = maxH + pad*2 + 6;
+  const test = `<g transform="translate(${f1(W-12)},${pad+4})"><rect x="0" y="0" width="10" height="10" class="test"/><text x="5" y="5.4" class="nota" text-anchor="middle">10 × 10 cm</text></g>`;
+  TAM = {w:W,h:H};
+  SVG_ACTUAL = `<svg xmlns="http://www.w3.org/2000/svg" width="${f1(W)}cm" height="${f1(H)}cm" viewBox="0 0 ${f1(W)} ${f1(H)}">`+
+    `<style>.corte{fill:#fffdf6;stroke:#111;stroke-width:0.08}.guia{stroke:#c33;stroke-width:0.05;stroke-dasharray:0.5 0.4}.hilo{stroke:#235;stroke-width:0.06;marker-end:url(#fl);marker-start:url(#fl2)}.pinza{fill:none;stroke:#111;stroke-width:0.06}.test{fill:none;stroke:#000;stroke-width:0.08}.tit{font:bold 1.4px sans-serif;fill:#111}.nota{font:0.9px sans-serif;fill:#333}</style>`+
+    `<defs><marker id="fl" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#235"/></marker><marker id="fl2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#235"/></marker></defs>`+
+    `<rect width="100%" height="100%" fill="#fff"/>`+grupos.join("")+test+
+    `<text x="${pad}" y="${f1(H-1)}" class="nota">DUNIGSHOP · Moldes desde una foto · Sin margen de costura (agregar 1 cm)</text></svg>`;
+  $("preview").innerHTML = SVG_ACTUAL; $("acciones").hidden=false;
+}
+
+$("btnGenerar").onclick = ()=>{
+  if(!M) return;
+  const E = parseFloat($("holgura").value);
+  if($("prenda").value==="blusa"){
+    const fr = cuerpo(M,E,true), es = cuerpo(M,E,false);
+    armarSVG([fr.p, es.p, manga(M,E, fr.armLen+es.armLen, $("largo").value==="corta")]);
+  } else {
+    const lg = parseFloat($("largoFalda").value)||60;
+    armarSVG([falda(M,E,lg,true), falda(M,E,lg,false)]);
+  }
+};
+
+$("btnSVG").onclick = ()=>{
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([SVG_ACTUAL],{type:"image/svg+xml"}));
+  a.download = "molde-dunigshop.svg"; a.click();
+};
+
+$("btnImprimir").onclick = ()=>{
+  // hojas carta 21.59 x 27.94 cm, área útil con 1 cm de margen
+  const pw = 19.5, ph = 25.9, cols = Math.ceil(TAM.w/pw), rows = Math.ceil(TAM.h/ph);
+  const inner = SVG_ACTUAL.replace(/^<svg[^>]*>/,"").replace(/<\/svg>$/,"");
+  let pages = "";
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    pages += `<div class="pg"><svg xmlns="http://www.w3.org/2000/svg" width="${pw}cm" height="${ph}cm" viewBox="${f1(c*pw)} ${f1(r*ph)} ${pw} ${ph}">${inner}`+
+      `<rect x="${f1(c*pw)}" y="${f1(r*ph)}" width="${pw}" height="${ph}" fill="none" stroke="#999" stroke-width="0.03" stroke-dasharray="0.3 0.3"/>`+
+      `<text x="${f1(c*pw+0.4)}" y="${f1(r*ph+0.9)}" style="font:0.6px sans-serif;fill:#777">Hoja fila ${r+1} · columna ${c+1}</text></svg></div>`;
+  }
+  const w = window.open("","_blank");
+  w.document.write(`<!DOCTYPE html><html><head><title>Molde DUNIGSHOP</title><style>@page{size:letter;margin:1cm}body{margin:0}.pg{page-break-after:always;width:${pw}cm;height:${ph}cm;overflow:hidden}svg{display:block}</style></head><body>${pages}<script>setTimeout(()=>print(),600)<\/script></body></html>`);
+  w.document.close();
+};
+</script>
+</body>
+</html>
