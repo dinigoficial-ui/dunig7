@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DUNIGSHOP - Promotores</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0a0907">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap">
+<script>
+// Almacenamiento seguro (igual que la tienda): si localStorage está bloqueado usa memoria
+(function(){
+var mem={},ok=false;
+try{var k='__dunig_test';window.localStorage.setItem(k,'1');window.localStorage.removeItem(k);ok=true;}catch(e){ok=false;}
+window.almacenDunig={
+getItem:function(k){try{if(ok)return window.localStorage.getItem(k);}catch(e){}return Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null;},
+setItem:function(k,v){mem[k]=String(v);try{if(ok)window.localStorage.setItem(k,String(v));}catch(e){}},
+removeItem:function(k){delete mem[k];try{if(ok)window.localStorage.removeItem(k);}catch(e){}}
+};
+})();
+</script>
+<style>
+:root{--oro1:#F5D77A;--oro2:#D4AF37;--oro3:#9C7A1C;--oro-borde:rgba(212,175,55,.28);}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:#f3f4f6;background:radial-gradient(900px 500px at 50% -10%,rgba(212,175,55,.12),transparent 60%),#0a0907;min-height:100vh;padding-bottom:84px;-webkit-tap-highlight-color:transparent;}
+.lux-brand{font-family:'Playfair Display',serif;font-weight:800;letter-spacing:.06em;background:linear-gradient(110deg,var(--oro3) 0%,var(--oro1) 25%,#fff6d6 40%,var(--oro2) 55%,var(--oro3) 75%,var(--oro1) 100%);background-size:250% auto;-webkit-background-clip:text;background-clip:text;color:var(--oro2);-webkit-text-fill-color:transparent;animation:luxShine 5s linear infinite;}
+@keyframes luxShine{to{background-position:-250% center}}
+.tarjeta{background:linear-gradient(160deg,rgba(28,24,16,.92),rgba(14,13,11,.95));border:1px solid var(--oro-borde);border-radius:1rem;}
+.campo{width:100%;background:#16130e;border:1px solid #3a3122;color:#fff;font-size:15px;padding:.8rem .9rem;border-radius:.8rem;outline:none;}
+.campo:focus{border-color:var(--oro2);box-shadow:0 0 0 3px rgba(212,175,55,.18);}
+.etiqueta{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#bfae86;margin-bottom:.3rem;}
+.btn-oro{position:relative;overflow:hidden;background:linear-gradient(180deg,#FFE9A3 0%,var(--oro2) 55%,#B8901F 100%);color:#1a1305;border:1px solid #f7dd8a;box-shadow:0 5px 0 #7a5d12,0 10px 20px rgba(212,175,55,.3),inset 0 1px 0 rgba(255,255,255,.7);font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-radius:.9rem;transition:transform .12s,box-shadow .12s;}
+.btn-oro:active{transform:translateY(4px);box-shadow:0 1px 0 #7a5d12,0 4px 10px rgba(212,175,55,.3);}
+.btn-oro:disabled{filter:grayscale(.6) brightness(.7);}
+.btn-sec{background:#1b1710;border:1px solid #3a3122;color:#e8d9b0;font-weight:700;border-radius:.8rem;}
+.btn-sec:active{transform:translateY(1px);}
+.chip{font-size:11px;font-weight:700;padding:.4rem .8rem;border-radius:999px;border:1px solid #3a3122;color:#bfae86;background:#14110c;white-space:nowrap;}
+.chip.activo{background:linear-gradient(180deg,var(--oro1),var(--oro2));color:#1a1305;border-color:#f7dd8a;}
+nav.inferior{background:rgba(14,12,9,.95);backdrop-filter:blur(14px);box-shadow:0 -1px 0 rgba(212,175,55,.35),0 -10px 30px rgba(0,0,0,.6);padding-bottom:env(safe-area-inset-bottom);}
+nav.inferior button{color:#8b8170;}
+nav.inferior button.activo{color:var(--oro1);}
+.estado-pendiente{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.35);}
+.estado-entregado_cobrado{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.35);}
+.estado-cancelado{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.35);}
+.barra{height:12px;border-radius:999px;background:#1f1a12;border:1px solid #3a3122;overflow:hidden;}
+.barra>div{height:100%;background:linear-gradient(90deg,var(--oro3),var(--oro1));transition:width .6s ease;}
+.qty-btn{width:36px;height:36px;border-radius:.7rem;background:#1f1a12;border:1px solid #4a3e29;color:var(--oro1);font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;}
+#toast{transition:opacity .3s,transform .3s;}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body class="antialiased">
+
+<!-- ================= PANTALLA DE INGRESO ================= -->
+<section id="pantalla-login" class="min-h-screen flex items-center justify-center p-5">
+  <div class="tarjeta w-full max-w-sm p-7 space-y-6 shadow-2xl">
+    <div class="text-center space-y-2">
+      <div class="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center" style="background:linear-gradient(180deg,var(--oro1),var(--oro2));box-shadow:0 6px 20px rgba(212,175,55,.35)">
+        <i data-lucide="briefcase" class="w-7 h-7 text-black"></i>
+      </div>
+      <h1 class="text-2xl lux-brand">DUNIGSHOP<sup style="font-size:.5em">™</sup></h1>
+      <p class="text-xs text-stone-400 uppercase tracking-widest font-semibold">Acceso de promotores</p>
+    </div>
+    <form id="form-login" class="space-y-4" autocomplete="off">
+      <div>
+        <label class="etiqueta" for="login-codigo">Código de promotor</label>
+        <input id="login-codigo" class="campo font-mono uppercase" placeholder="Ej. P01" autocapitalize="characters" required>
+      </div>
+      <div>
+        <label class="etiqueta" for="login-pin">PIN</label>
+        <input id="login-pin" class="campo font-mono tracking-[.4em]" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="••••" required>
+      </div>
+      <p id="login-error" class="hidden text-center text-xs font-semibold text-red-400"></p>
+      <button id="btn-login" type="submit" class="btn-oro w-full py-4 text-sm">Entrar</button>
+    </form>
+    <p class="text-[11px] text-center text-stone-500">¿No tienes código? Pídelo a la administración de DUNIGSHOP.</p>
+  </div>
+</section>
+
+<!-- ================= APP DEL PROMOTOR ================= -->
+<div id="app" class="hidden">
+  <header class="sticky top-0 z-40 px-4 py-3" style="background:rgba(10,9,7,.92);backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(212,175,55,.35),0 10px 30px rgba(0,0,0,.6)">
+    <div class="max-w-xl mx-auto flex items-center justify-between gap-3">
+      <div class="min-w-0">
+        <p class="lux-brand text-base leading-tight">DUNIGSHOP</p>
+        <p class="text-[11px] text-stone-400 truncate">Hola, <b id="hdr-nombre" class="text-stone-200">Promotor</b> · <span id="hdr-codigo" class="font-mono text-amber-300"></span></p>
+      </div>
+      <button onclick="cerrarSesion()" class="btn-sec px-3 py-2 text-[11px] flex items-center gap-1.5"><i data-lucide="log-out" class="w-4 h-4"></i> Salir</button>
+    </div>
+  </header>
+
+  <!-- ---------- NUEVO PEDIDO ---------- -->
+  <main id="vista-nuevo" class="max-w-xl mx-auto px-4 py-5 space-y-4">
+    <h2 class="text-lg font-bold flex items-center gap-2" style="font-family:'Playfair Display',serif"><i data-lucide="file-plus-2" class="w-5 h-5 text-amber-300"></i> Nuevo pedido</h2>
+
+    <div class="tarjeta p-4 space-y-3">
+      <div>
+        <label class="etiqueta" for="np-nombre">Nombre del cliente</label>
+        <input id="np-nombre" class="campo" placeholder="Nombre y apellido" autocomplete="off">
+      </div>
+      <div>
+        <label class="etiqueta" for="np-telefono">Teléfono WhatsApp</label>
+        <input id="np-telefono" class="campo font-mono" type="tel" inputmode="tel" placeholder="0414-1234567" autocomplete="off">
+      </div>
+      <div>
+        <label class="etiqueta" for="np-direccion">Dirección</label>
+        <input id="np-direccion" class="campo" placeholder="Calle, casa, punto de referencia" autocomplete="off">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="etiqueta" for="np-sector">Sector</label>
+          <input id="np-sector" class="campo" placeholder="Urbanización / sector" autocomplete="off">
+        </div>
+        <div>
+          <label class="etiqueta" for="np-fecha">Fecha de entrega</label>
+          <input id="np-fecha" class="campo" type="date">
+        </div>
+      </div>
+      <div>
+        <label class="etiqueta" for="np-nota">Nota (opcional)</label>
+        <input id="np-nota" class="campo" placeholder="Ej. llevar cambio de $20" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="tarjeta p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-amber-200">Productos</h3>
+        <button onclick="cargarProductos(true)" class="text-[11px] text-stone-400 flex items-center gap-1"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Actualizar</button>
+      </div>
+      <div class="relative">
+        <i data-lucide="search" class="w-4 h-4 text-stone-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input id="np-buscar" class="campo" style="padding-left:2.2rem" placeholder="Buscar producto..." oninput="renderProductos()">
+      </div>
+      <div id="np-lista-productos" class="space-y-2 max-h-[46vh] overflow-y-auto pr-1">
+        <p class="text-xs text-stone-500 text-center py-6">Cargando productos...</p>
+      </div>
+    </div>
+
+    <div class="tarjeta p-4 space-y-3 sticky bottom-[88px] z-30" style="box-shadow:0 -6px 24px rgba(0,0,0,.6)">
+      <div class="flex items-center justify-between">
+        <span class="text-xs text-stone-400"><b id="np-cant" class="text-white font-mono">0</b> productos</span>
+        <span class="text-xl font-extrabold font-mono text-amber-200" id="np-total">$0.00</span>
+      </div>
+      <button id="btn-guardar-pedido" onclick="guardarPedido()" class="btn-oro w-full py-4 text-sm flex items-center justify-center gap-2"><i data-lucide="check" class="w-5 h-5"></i> Guardar pedido</button>
+    </div>
+  </main>
+
+  <!-- ---------- MIS ENTREGAS ---------- -->
+  <main id="vista-entregas" class="hidden max-w-xl mx-auto px-4 py-5 space-y-4">
+    <h2 class="text-lg font-bold flex items-center gap-2" style="font-family:'Playfair Display',serif"><i data-lucide="truck" class="w-5 h-5 text-amber-300"></i> Mis entregas</h2>
+    <div class="tarjeta p-3 space-y-3">
+      <div class="flex items-center gap-2">
+        <button onclick="moverDia(-1)" class="btn-sec w-11 h-11 flex items-center justify-center" aria-label="Día anterior"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+        <input id="ent-fecha" type="date" class="campo text-center" onchange="cargarEntregas()">
+        <button onclick="moverDia(1)" class="btn-sec w-11 h-11 flex items-center justify-center" aria-label="Día siguiente"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+      </div>
+      <div class="flex gap-2 overflow-x-auto pb-1" id="ent-filtros">
+        <button class="chip activo" data-estado="todos" onclick="filtrarEstado('todos')">Todos</button>
+        <button class="chip" data-estado="pendiente" onclick="filtrarEstado('pendiente')">Pendientes</button>
+        <button class="chip" data-estado="entregado_cobrado" onclick="filtrarEstado('entregado_cobrado')">Entregado-cobrado</button>
+        <button class="chip" data-estado="cancelado" onclick="filtrarEstado('cancelado')">Cancelados</button>
+      </div>
+      <p id="ent-resumen" class="text-[11px] text-stone-400"></p>
+    </div>
+    <div id="ent-lista" class="space-y-3"></div>
+  </main>
+
+  <!-- ---------- MIS VENTAS ---------- -->
+  <main id="vista-ventas" class="hidden max-w-xl mx-auto px-4 py-5 space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-bold flex items-center gap-2" style="font-family:'Playfair Display',serif"><i data-lucide="trending-up" class="w-5 h-5 text-amber-300"></i> Mis ventas</h2>
+      <button onclick="cargarVentas()" class="btn-sec px-3 py-2 text-[11px] flex items-center gap-1"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Actualizar</button>
+    </div>
+
+    <!-- Enlace personal de referido -->
+    <div class="tarjeta p-4 space-y-3">
+      <h3 class="text-sm font-bold uppercase tracking-wider text-amber-200 flex items-center gap-2"><i data-lucide="link" class="w-4 h-4"></i> Mi enlace de la tienda</h3>
+      <p class="text-[11px] text-stone-400">Compártelo en tus redes y estados. Los pedidos que entren por tu enlace quedan a tu nombre y cuentan como tus ventas.</p>
+      <div class="flex items-center gap-2">
+        <input id="v-enlace" class="campo font-mono text-xs" readonly onclick="this.select()">
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="copiarEnlace()" class="btn-sec py-3 text-xs flex items-center justify-center gap-1.5"><i data-lucide="copy" class="w-4 h-4"></i> Copiar</button>
+        <a id="v-enlace-wa" href="#" target="_blank" rel="noopener" class="btn-oro py-3 text-xs flex items-center justify-center gap-1.5"><i data-lucide="send" class="w-4 h-4"></i> Compartir por WhatsApp</a>
+      </div>
+    </div>
+
+    <div class="tarjeta p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-amber-200">Meta de hoy</h3>
+        <span class="text-xs font-mono text-stone-300"><b id="v-meta-actual" class="text-white">0</b> / <span id="v-meta-total">20</span> productos</span>
+      </div>
+      <div class="barra"><div id="v-meta-barra" style="width:0%"></div></div>
+      <p id="v-meta-texto" class="text-xs text-stone-400">¡El momento es hoy!</p>
+    </div>
+
+    <div class="tarjeta p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-amber-200">Meta de la semana</h3>
+        <span class="text-xs font-mono text-stone-300"><b id="v-msem-actual" class="text-white">0</b> / <span id="v-msem-total">100</span> productos</span>
+      </div>
+      <div class="barra"><div id="v-msem-barra" style="width:0%"></div></div>
+      <p id="v-msem-texto" class="text-xs text-stone-400"></p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div class="tarjeta p-4 space-y-2">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-stone-400">Hoy</p>
+        <p class="text-2xl font-extrabold font-mono text-amber-200" id="v-hoy-total">$0.00</p>
+        <p class="text-[11px] text-stone-400"><b id="v-hoy-ventas" class="text-white">0</b> ventas · <b id="v-hoy-prod" class="text-white">0</b> productos</p>
+        <p class="text-[11px] text-green-400 font-semibold">Comisión: <span id="v-hoy-com" class="font-mono">$0.00</span></p>
+        <p class="text-[11px] text-green-300 font-semibold hidden" id="v-hoy-bono-l">Bono: <span id="v-hoy-bono" class="font-mono">$0.00</span></p>
+      </div>
+      <div class="tarjeta p-4 space-y-2">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-stone-400">Esta semana</p>
+        <p class="text-2xl font-extrabold font-mono text-amber-200" id="v-sem-total">$0.00</p>
+        <p class="text-[11px] text-stone-400"><b id="v-sem-ventas" class="text-white">0</b> ventas · <b id="v-sem-prod" class="text-white">0</b> productos</p>
+        <p class="text-[11px] text-green-400 font-semibold">Comisión: <span id="v-sem-com" class="font-mono">$0.00</span></p>
+        <p class="text-[11px] text-green-300 font-semibold hidden" id="v-sem-bono-l">Bonos: <span id="v-sem-bono" class="font-mono">$0.00</span></p>
+      </div>
+    </div>
+    <div class="tarjeta p-4 flex items-center justify-between">
+      <span class="text-xs uppercase tracking-wider font-bold text-stone-300">Ganado esta semana</span>
+      <span class="text-2xl font-extrabold font-mono text-green-400" id="v-sem-ganado">$0.00</span>
+    </div>
+    <p class="text-[11px] text-stone-500 text-center">Se cuentan los pedidos marcados como <b>entregado-cobrado</b>, incluidos los que entran por tu enlace. Semana de lunes a domingo. Tu comisión actual: <b id="v-pct" class="text-stone-300">10</b>%.</p>
+
+    <!-- Ranking mensual -->
+    <div class="tarjeta p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-amber-200 flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4"></i> Ranking de <span id="v-rank-mes"></span></h3>
+      </div>
+      <div id="v-ranking" class="space-y-1.5"><p class="text-xs text-stone-500 text-center py-4">Cargando...</p></div>
+    </div>
+  </main>
+
+  <!-- NAVEGACIÓN INFERIOR -->
+  <nav class="inferior fixed bottom-0 left-0 right-0 z-40">
+    <div class="max-w-xl mx-auto grid grid-cols-3">
+      <button id="tab-nuevo" onclick="cambiarVista('nuevo')" class="activo py-3 flex flex-col items-center gap-1"><i data-lucide="file-plus-2" class="w-5 h-5"></i><span class="text-[10px] font-bold uppercase">Nuevo pedido</span></button>
+      <button id="tab-entregas" onclick="cambiarVista('entregas')" class="py-3 flex flex-col items-center gap-1"><i data-lucide="truck" class="w-5 h-5"></i><span class="text-[10px] font-bold uppercase">Mis entregas</span></button>
+      <button id="tab-ventas" onclick="cambiarVista('ventas')" class="py-3 flex flex-col items-center gap-1"><i data-lucide="trending-up" class="w-5 h-5"></i><span class="text-[10px] font-bold uppercase">Mis ventas</span></button>
+    </div>
+  </nav>
+</div>
+
+<!-- MODAL COBRO -->
+<div id="modal-cobro" class="hidden fixed inset-0 z-[90] bg-black/85 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
+  <div class="tarjeta w-full max-w-sm p-5 space-y-4">
+    <div class="flex items-center justify-between">
+      <h3 class="font-bold text-base" style="font-family:'Playfair Display',serif">Marcar como cobrado</h3>
+      <button onclick="cerrarModal('modal-cobro')" class="text-stone-400" aria-label="Cerrar"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <p class="text-xs text-stone-400" id="cobro-detalle"></p>
+    <div>
+      <span class="etiqueta">Método de pago</span>
+      <div class="grid grid-cols-2 gap-2" id="cobro-metodos"></div>
+    </div>
+    <button id="btn-confirmar-cobro" onclick="confirmarCobro()" class="btn-oro w-full py-4 text-sm">Confirmar cobro</button>
+  </div>
+</div>
+
+<!-- MODAL VENTA COBRADA -->
+<div id="modal-cobrado" class="hidden fixed inset-0 z-[95] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="tarjeta w-full max-w-sm p-6 space-y-4 text-center">
+    <div class="mx-auto w-14 h-14 rounded-full flex items-center justify-center" style="background:linear-gradient(180deg,var(--oro1),var(--oro2))"><i data-lucide="check" class="w-7 h-7 text-black"></i></div>
+    <h3 class="text-lg font-bold" style="font-family:'Playfair Display',serif">¡Venta cobrada!</h3>
+    <p class="text-xs text-stone-400" id="cobrado-detalle"></p>
+    <a id="cobrado-wa" href="#" target="_blank" rel="noopener" onclick="cerrarModal('modal-cobrado')" class="btn-sec w-full py-3 text-sm flex items-center justify-center gap-2"><i data-lucide="message-circle" class="w-5 h-5"></i> Enviar agradecimiento por WhatsApp</a>
+    <button onclick="cerrarModal('modal-cobrado')" class="btn-oro w-full py-3 text-sm">Listo</button>
+  </div>
+</div>
+
+<div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[100] opacity-0 pointer-events-none px-4 py-3 rounded-xl text-sm font-semibold shadow-2xl" style="background:#1b1710;border:1px solid var(--oro2);color:#f5e6b8"></div>
+
+<script>
+// ===================== CONFIGURACIÓN =====================
+const SUPABASE_URL = "https://mkewwlmeikixpvfayisj.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rZXd3bG1laWtpeHB2ZmF5aXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3Mzg5NTAsImV4cCI6MjEwNTMxNDk1MH0.xUm7b8j4EGjHtsrBP9DgBURKRhrsPwOxhwKLCAMxZ1o";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storage: window.almacenDunig } });
+const ZONA = 'America/Caracas';
+const CODIGO_PAIS = '58';
+const CLAVE_SESION = 'dunig_promotor_sesion';
+const TIENDA_URL = 'https://dunigshop.github.io/dunig7/v2/';
+const METODOS_PAGO = [
+  { id: 'efectivo_usd', nombre: 'Efectivo USD' },
+  { id: 'pago_movil', nombre: 'Pago móvil' },
+  { id: 'efectivo_bs', nombre: 'Bs efectivo' },
+  { id: 'zelle', nombre: 'Zelle' },
+  { id: 'binance', nombre: 'Binance' },
+  { id: 'punto_venta', nombre: 'Punto de venta' }
+];
+const NOMBRES_METODO = Object.fromEntries(METODOS_PAGO.map(m => [m.id, m.nombre]));
+const NOMBRES_ESTADO = { pendiente: 'Pendiente', entregado_cobrado: 'Entregado-cobrado', cancelado: 'Cancelado' };
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+let sesion = null;          // { codigo, pin_hash, promotor, ajustes }
+let productos = [];
+let cantidades = {};        // id -> cantidad
+let entregas = [];
+let filtroEstado = 'todos';
+let pedidoCobro = null;
+let metodoCobro = 'efectivo_usd';
+
+// ===================== UTILIDADES =====================
+function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function dinero(n) { return '$' + (Number(n) || 0).toFixed(2); }
+function hoyStr() { return new Date().toLocaleDateString('en-CA', { timeZone: ZONA }); }
+function sumarDias(fechaStr, dias) { const d = new Date(fechaStr + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + dias); return d.toISOString().slice(0, 10); }
+function lunesDe(fechaStr) { const d = new Date(fechaStr + 'T12:00:00Z'); const dow = (d.getUTCDay() + 6) % 7; return sumarDias(fechaStr, -dow); }
+function fechaBonita(fechaStr) { const d = new Date(fechaStr + 'T12:00:00Z'); return d.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }); }
+function nombreMes(mesStr) { const [a, m] = String(mesStr || '').split('-'); return (MESES[parseInt(m, 10) - 1] || '') + ' ' + (a || ''); }
+function telWhatsApp(tel) {
+  let d = String(tel || '').replace(/[^0-9]/g, '');
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.length === 11 && d.startsWith('0')) d = CODIGO_PAIS + d.slice(1);
+  else if (d.length === 10 && d.startsWith('4')) d = CODIGO_PAIS + d;
+  return d;
+}
+function toast(msg, ms) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.opacity = '1'; t.style.transform = 'translate(-50%, 0)';
+  clearTimeout(t._h); t._h = setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translate(-50%, 10px)'; }, ms || 2600);
+}
+function iconos() { try { lucide.createIcons(); } catch (e) {} }
+function cerrarModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+// SHA-256 (hex). Usa crypto.subtle y, si no existe (http o navegador viejo), una versión en JS.
+async function sha256Hex(texto) {
+  const bytes = new TextEncoder().encode(texto);
+  if (window.crypto && crypto.subtle && window.isSecureContext) {
+    const buf = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  return sha256JS(bytes);
+}
+function sha256JS(bytes) {
+  const K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  let H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const l = bytes.length, nBlocks = ((l + 9 + 63) >> 6);
+  const m = new Uint8Array(nBlocks * 64); m.set(bytes); m[l] = 0x80;
+  const bits = l * 8; const dv = new DataView(m.buffer);
+  dv.setUint32(m.length - 4, bits >>> 0); dv.setUint32(m.length - 8, Math.floor(bits / 4294967296));
+  const W = new Uint32Array(64); const rotr = (x, n) => (x >>> n) | (x << (32 - n));
+  for (let b = 0; b < nBlocks; b++) {
+    for (let i = 0; i < 16; i++) W[i] = dv.getUint32(b * 64 + i * 4);
+    for (let i = 16; i < 64; i++) { const s0 = rotr(W[i-15],7) ^ rotr(W[i-15],18) ^ (W[i-15] >>> 3); const s1 = rotr(W[i-2],17) ^ rotr(W[i-2],19) ^ (W[i-2] >>> 10); W[i] = (W[i-16] + s0 + W[i-7] + s1) >>> 0; }
+    let [a, bb, c, d, e, f, g, h] = H;
+    for (let i = 0; i < 64; i++) {
+      const S1 = rotr(e,6) ^ rotr(e,11) ^ rotr(e,25); const ch = (e & f) ^ (~e & g); const t1 = (h + S1 + ch + K[i] + W[i]) >>> 0;
+      const S0 = rotr(a,2) ^ rotr(a,13) ^ rotr(a,22); const mj = (a & bb) ^ (a & c) ^ (bb & c); const t2 = (S0 + mj) >>> 0;
+      h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = bb; bb = a; a = (t1 + t2) >>> 0;
+    }
+    H = [H[0]+a, H[1]+bb, H[2]+c, H[3]+d, H[4]+e, H[5]+f, H[6]+g, H[7]+h].map(x => x >>> 0);
+  }
+  return H.map(x => x.toString(16).padStart(8, '0')).join('');
+}
+// El hash del PIN siempre es SHA-256 de "CODIGO:PIN" (igual que en el panel de control)
+function hashPin(codigo, pin) { return sha256Hex(String(codigo).trim().toUpperCase() + ':' + String(pin).trim()); }
+
+async function rpc(nombre, params) {
+  const { data, error } = await supabaseClient.rpc(nombre, params);
+  if (error) {
+    const sinSql = /function|schema cache|not find/i.test(error.message || '');
+    return { ok: false, error: sinSql ? 'El sistema de promotores aún no está activado en la base de datos (falta ejecutar el SQL).' : ('Error de conexión: ' + error.message) };
+  }
+  if (data && data.ok === false && /PIN|inactivo|intentos/i.test(data.error || '') && nombre !== 'promotor_login') {
+    toast(data.error, 4000); cerrarSesion(true);
+  }
+  return data || { ok: false, error: 'Respuesta vacía del servidor.' };
+}
+function credenciales() { return { p_codigo: sesion.codigo, p_pin_hash: sesion.pin_hash }; }
+
+// ===================== SESIÓN =====================
+document.getElementById('form-login').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const codigo = document.getElementById('login-codigo').value.trim().toUpperCase();
+  const pin = document.getElementById('login-pin').value.trim();
+  const err = document.getElementById('login-error');
+  err.classList.add('hidden');
+  if (!codigo || !pin) { err.textContent = 'Escribe tu código y tu PIN.'; err.classList.remove('hidden'); return; }
+  const btn = document.getElementById('btn-login'); btn.disabled = true; btn.textContent = 'Verificando...';
+  const pin_hash = await hashPin(codigo, pin);
+  const r = await rpc('promotor_login', { p_codigo: codigo, p_pin_hash: pin_hash });
+  btn.disabled = false; btn.textContent = 'Entrar';
+  if (!r.ok) { err.textContent = r.error || 'No se pudo entrar.'; err.classList.remove('hidden'); return; }
+  sesion = { codigo, pin_hash, promotor: r.promotor, ajustes: r.ajustes || {} };
+  almacenDunig.setItem(CLAVE_SESION, JSON.stringify(sesion));
+  document.getElementById('login-pin').value = '';
+  entrarApp();
+});
+
+async function restaurarSesion() {
+  try { sesion = JSON.parse(almacenDunig.getItem(CLAVE_SESION) || 'null'); } catch (e) { sesion = null; }
+  if (!sesion || !sesion.codigo || !sesion.pin_hash) { mostrarLogin(); return; }
+  entrarApp();
+  const r = await rpc('promotor_login', { p_codigo: sesion.codigo, p_pin_hash: sesion.pin_hash });
+  if (r.ok) {
+    sesion.promotor = r.promotor; sesion.ajustes = r.ajustes || {};
+    almacenDunig.setItem(CLAVE_SESION, JSON.stringify(sesion));
+    pintarCabecera();
+  } else if (/PIN|inactivo/i.test(r.error || '')) {
+    cerrarSesion(true);
+    const err = document.getElementById('login-error'); err.textContent = r.error; err.classList.remove('hidden');
+  }
+}
+function mostrarLogin() {
+  document.getElementById('pantalla-login').classList.remove('hidden');
+  document.getElementById('app').classList.add('hidden');
+  iconos();
+}
+function pintarCabecera() {
+  document.getElementById('hdr-nombre').textContent = (sesion.promotor && sesion.promotor.nombre) || 'Promotor';
+  document.getElementById('hdr-codigo').textContent = sesion.codigo;
+}
+function entrarApp() {
+  document.getElementById('pantalla-login').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  pintarCabecera();
+  if (!document.getElementById('np-fecha').value) document.getElementById('np-fecha').value = hoyStr();
+  if (!document.getElementById('ent-fecha').value) document.getElementById('ent-fecha').value = hoyStr();
+  document.getElementById('np-fecha').min = hoyStr();
+  cambiarVista('nuevo');
+  if (productos.length === 0) cargarProductos();
+}
+function cerrarSesion(silencioso) {
+  if (!silencioso && !confirm('¿Cerrar sesión?')) return;
+  almacenDunig.removeItem(CLAVE_SESION); sesion = null;
+  mostrarLogin();
+}
+
+function cambiarVista(v) {
+  ['nuevo', 'entregas', 'ventas'].forEach(x => {
+    document.getElementById('vista-' + x).classList.toggle('hidden', x !== v);
+    document.getElementById('tab-' + x).classList.toggle('activo', x === v);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (v === 'entregas') cargarEntregas();
+  if (v === 'ventas') cargarVentas();
+  iconos();
+}
+
+// ===================== NUEVO PEDIDO =====================
+async function cargarProductos(forzar) {
+  const cont = document.getElementById('np-lista-productos');
+  if (forzar) cont.innerHTML = '<p class="text-xs text-stone-500 text-center py-6">Cargando productos...</p>';
+  const { data, error } = await supabaseClient.from('productos').select('*');
+  if (error) { cont.innerHTML = '<p class="text-xs text-red-400 text-center py-6">No se pudieron cargar los productos. Revisa tu conexión.</p>'; return; }
+  productos = (data || []).map(p => ({
+    id: p.id,
+    titulo: p.titulo || p.nombre || 'Producto',
+    precio: parseFloat(p.precio || p.valor || 0) || 0,
+    imagen: p.imagen_url || p.imagen || '',
+    categoria: p.categoria || ''
+  })).sort((a, b) => a.titulo.localeCompare(b.titulo, 'es'));
+  renderProductos();
+}
+function renderProductos() {
+  const cont = document.getElementById('np-lista-productos');
+  const q = document.getElementById('np-buscar').value.trim().toLowerCase();
+  const lista = productos.filter(p => !q || (p.titulo + ' ' + p.categoria).toLowerCase().includes(q));
+  if (lista.length === 0) { cont.innerHTML = '<p class="text-xs text-stone-500 text-center py-6">Sin productos.</p>'; return; }
+  cont.innerHTML = lista.map(p => {
+    const c = cantidades[p.id] || 0;
+    return `<div class="flex items-center gap-3 p-2 rounded-xl ${c ? 'bg-amber-500/10 border border-amber-500/30' : 'border border-transparent'}">
+      ${p.imagen ? `<img src="${esc(p.imagen)}" alt="" class="w-12 h-12 rounded-lg object-cover border border-[#3a3122] flex-shrink-0" loading="lazy">` : '<div class="w-12 h-12 rounded-lg bg-[#1f1a12] flex-shrink-0"></div>'}
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-semibold truncate">${esc(p.titulo)}</p>
+        <p class="text-xs font-mono text-amber-200">${dinero(p.precio)}</p>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <button class="qty-btn" onclick="cambiarCantidad('${esc(String(p.id))}', -1)" aria-label="Quitar">−</button>
+        <span class="w-6 text-center font-mono font-bold">${c}</span>
+        <button class="qty-btn" onclick="cambiarCantidad('${esc(String(p.id))}', 1)" aria-label="Agregar">+</button>
+      </div>
+    </div>`;
+  }).join('');
+  actualizarTotal();
+}
+function cambiarCantidad(id, delta) {
+  const prod = productos.find(p => String(p.id) === String(id)); if (!prod) return;
+  const n = Math.max(0, Math.min(999, (cantidades[prod.id] || 0) + delta));
+  if (n === 0) delete cantidades[prod.id]; else cantidades[prod.id] = n;
+  renderProductos();
+}
+function itemsSeleccionados() {
+  return productos.filter(p => cantidades[p.id]).map(p => ({ id: p.id, titulo: p.titulo, precio: p.precio, cantidad: cantidades[p.id] }));
+}
+function actualizarTotal() {
+  const items = itemsSeleccionados();
+  document.getElementById('np-cant').textContent = items.reduce((a, i) => a + i.cantidad, 0);
+  document.getElementById('np-total').textContent = dinero(items.reduce((a, i) => a + i.precio * i.cantidad, 0));
+}
+async function guardarPedido() {
+  const nombre = document.getElementById('np-nombre').value.trim();
+  const telefono = document.getElementById('np-telefono').value.trim();
+  const direccion = document.getElementById('np-direccion').value.trim();
+  const sector = document.getElementById('np-sector').value.trim();
+  const fecha = document.getElementById('np-fecha').value || hoyStr();
+  const nota = document.getElementById('np-nota').value.trim();
+  const items = itemsSeleccionados();
+  if (!nombre || !telefono || !direccion) { toast('Completa nombre, teléfono y dirección del cliente.'); return; }
+  if (telWhatsApp(telefono).length < 11) { toast('Revisa el teléfono: ej. 0414-1234567'); return; }
+  if (items.length === 0) { toast('Agrega al menos un producto.'); return; }
+  const btn = document.getElementById('btn-guardar-pedido'); btn.disabled = true;
+  const r = await rpc('promotor_crear_pedido', Object.assign(credenciales(), {
+    p_cliente_nombre: nombre, p_cliente_telefono: telefono, p_direccion: direccion, p_sector: sector,
+    p_items: items, p_fecha_entrega: fecha, p_nota: nota || null
+  }));
+  btn.disabled = false;
+  if (!r.ok) { toast(r.error || 'No se pudo guardar.', 4000); return; }
+  ['np-nombre', 'np-telefono', 'np-direccion', 'np-sector', 'np-nota', 'np-buscar'].forEach(id => document.getElementById(id).value = '');
+  cantidades = {}; renderProductos();
+  toast('Pedido #' + r.pedido.id + ' guardado por ' + dinero(r.pedido.total_usd));
+  document.getElementById('ent-fecha').value = r.pedido.fecha_entrega || fecha;
+  setTimeout(() => cambiarVista('entregas'), 700);
+}
+
+// ===================== MIS ENTREGAS =====================
+function moverDia(d) {
+  const inp = document.getElementById('ent-fecha');
+  inp.value = sumarDias(inp.value || hoyStr(), d);
+  cargarEntregas();
+}
+function filtrarEstado(e) {
+  filtroEstado = e;
+  document.querySelectorAll('#ent-filtros .chip').forEach(b => b.classList.toggle('activo', b.dataset.estado === e));
+  renderEntregas();
+}
+async function cargarEntregas() {
+  const fecha = document.getElementById('ent-fecha').value || hoyStr();
+  const lista = document.getElementById('ent-lista');
+  lista.innerHTML = '<p class="text-xs text-stone-500 text-center py-8">Cargando...</p>';
+  const r = await rpc('promotor_mis_pedidos', Object.assign(credenciales(), { p_desde: fecha, p_hasta: fecha }));
+  if (!r.ok) { lista.innerHTML = `<p class="text-xs text-red-400 text-center py-8">${esc(r.error)}</p>`; return; }
+  entregas = (r.pedidos || []).filter(p => p.fecha_entrega === fecha);
+  renderEntregas();
+}
+function renderEntregas() {
+  const fecha = document.getElementById('ent-fecha').value || hoyStr();
+  const lista = document.getElementById('ent-lista');
+  const vis = entregas.filter(p => filtroEstado === 'todos' || p.estado === filtroEstado);
+  const pend = entregas.filter(p => p.estado === 'pendiente').length;
+  document.getElementById('ent-resumen').textContent = (fecha === hoyStr() ? 'Hoy, ' : '') + fechaBonita(fecha) + ' · ' + entregas.length + ' pedidos · ' + pend + ' pendientes';
+  if (vis.length === 0) { lista.innerHTML = '<div class="tarjeta p-6 text-center text-xs text-stone-500">No hay entregas para este día.</div>'; return; }
+  lista.innerHTML = vis.map(p => {
+    const items = (p.items || []).map(i => `${esc(i.cantidad)}× ${esc(i.titulo)}`).join(' · ');
+    const wa = telWhatsApp(p.cliente_telefono);
+    let acciones = '';
+    if (p.estado === 'pendiente') {
+      acciones = `<div class="grid grid-cols-3 gap-2 pt-1">
+        <button onclick="abrirCobro(${p.id})" class="btn-oro col-span-2 py-3 text-xs flex items-center justify-center gap-1.5"><i data-lucide="banknote" class="w-4 h-4"></i> Cobrado</button>
+        <button onclick="cancelarPedido(${p.id})" class="btn-sec py-3 text-xs text-red-300">Cancelar</button>
+      </div>`;
+    } else if (p.estado === 'entregado_cobrado') {
+      acciones = `<div class="flex items-center justify-between gap-2 pt-1 text-xs">
+        <span class="text-stone-400">${esc(NOMBRES_METODO[p.metodo_pago] || p.metodo_pago || '')} · Comisión <b class="font-mono text-green-400">${dinero(p.comision_usd)}</b></span>
+        <a href="${esc(enlaceGracias(p))}" target="_blank" rel="noopener" class="btn-sec px-3 py-2 flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Recibo</a>
+      </div>`;
+    }
+    return `<article class="tarjeta p-4 space-y-2">
+      <div class="flex items-start justify-between gap-2">
+        <div class="min-w-0">
+          <p class="font-bold text-base truncate">${esc(p.cliente_nombre)}</p>
+          <p class="text-xs text-stone-400 truncate"><i data-lucide="map-pin" class="w-3.5 h-3.5 inline -mt-0.5 text-amber-300"></i> ${esc(p.direccion)}${p.sector ? ' · ' + esc(p.sector) : ''}</p>
+        </div>
+        <span class="text-[10px] font-bold uppercase px-2 py-1 rounded-md whitespace-nowrap estado-${esc(p.estado)}">${esc(NOMBRES_ESTADO[p.estado] || p.estado)}</span>
+      </div>
+      <p class="text-xs text-stone-300">${items}</p>
+      ${p.nota ? `<p class="text-[11px] text-stone-400 italic">${esc(p.nota)}</p>` : ''}
+      <div class="flex items-center justify-between">
+        <div class="flex gap-2">
+          <a href="tel:${esc(p.cliente_telefono)}" class="btn-sec px-3 py-2 text-xs flex items-center gap-1"><i data-lucide="phone" class="w-3.5 h-3.5"></i> Llamar</a>
+          <a href="https://wa.me/${esc(wa)}" target="_blank" rel="noopener" class="btn-sec px-3 py-2 text-xs flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp</a>
+        </div>
+        <span class="font-mono font-extrabold text-lg text-amber-200">${dinero(p.total_usd)}</span>
+      </div>
+      <p class="text-[10px] text-stone-500 font-mono">Pedido #${esc(p.id)}${p.origen === 'web' ? ' · desde la tienda web' + (p.ref_codigo === sesion.codigo ? ' (tu enlace)' : '') : ''}</p>
+      ${acciones}
+    </article>`;
+  }).join('');
+  iconos();
+}
+function abrirCobro(id) {
+  pedidoCobro = entregas.find(p => p.id === id); if (!pedidoCobro) return;
+  metodoCobro = pedidoCobro.metodo_pago && NOMBRES_METODO[pedidoCobro.metodo_pago] ? pedidoCobro.metodo_pago : 'efectivo_usd';
+  document.getElementById('cobro-detalle').innerHTML = `Pedido #${esc(pedidoCobro.id)} · ${esc(pedidoCobro.cliente_nombre)} · <b class="text-amber-200 font-mono">${dinero(pedidoCobro.total_usd)}</b><br>Confirma solo cuando ya recibiste el pago.`;
+  pintarMetodos();
+  document.getElementById('modal-cobro').classList.remove('hidden');
+  iconos();
+}
+function pintarMetodos() {
+  document.getElementById('cobro-metodos').innerHTML = METODOS_PAGO.map(m =>
+    `<button onclick="metodoCobro='${m.id}';pintarMetodos()" class="chip py-3 text-xs ${metodoCobro === m.id ? 'activo' : ''}">${m.nombre}</button>`).join('');
+}
+function enlaceGracias(p) {
+  const primerNombre = String(p.cliente_nombre || '').trim().split(/\s+/)[0] || '';
+  const lineas = (p.items || []).map(i => `• ${i.cantidad} x ${i.titulo} (${dinero(i.precio * i.cantidad)})`).join('\n');
+  const metodo = NOMBRES_METODO[p.metodo_pago] || p.metodo_pago || '';
+  const msg = `¡Hola ${primerNombre}! Gracias por tu compra en DUNIGSHOP. 🙌\n\n🧾 *Recibo del pedido #${p.id}*\n${lineas}\n\n💵 *Total pagado:* ${dinero(p.total_usd)}${metodo ? ' (' + metodo + ')' : ''}\n\nCualquier cosa que necesites, escríbeme por aquí. ¡Que lo disfrutes!\n— ${(sesion.promotor && sesion.promotor.nombre) || 'Tu promotor'}, DUNIGSHOP`;
+  return 'https://wa.me/' + telWhatsApp(p.cliente_telefono) + '?text=' + encodeURIComponent(msg);
+}
+async function confirmarCobro() {
+  if (!pedidoCobro) return;
+  const btn = document.getElementById('btn-confirmar-cobro'); btn.disabled = true; btn.textContent = 'Guardando...';
+  const ped = pedidoCobro;
+  const r = await rpc('promotor_marcar_cobrado', Object.assign(credenciales(), { p_pedido_id: ped.id, p_metodo_pago: metodoCobro }));
+  btn.disabled = false; btn.textContent = 'Confirmar cobro';
+  if (!r.ok) { toast(r.error || 'No se pudo marcar como cobrado.', 4000); return; }
+  cerrarModal('modal-cobro');
+  const pagado = Object.assign({}, ped, r.pedido || {});
+  document.getElementById('cobrado-detalle').innerHTML = `Pedido #${esc(pagado.id)} · ${dinero(pagado.total_usd)} · ${esc(NOMBRES_METODO[pagado.metodo_pago] || pagado.metodo_pago || '')}<br>Tu comisión: <b class="text-green-400 font-mono">${dinero(pagado.comision_usd)}</b>`;
+  document.getElementById('cobrado-wa').href = enlaceGracias(pagado);
+  document.getElementById('modal-cobrado').classList.remove('hidden');
+  iconos();
+  cargarEntregas();
+}
+async function cancelarPedido(id) {
+  const motivo = prompt('¿Por qué se cancela? (opcional)');
+  if (motivo === null) return;
+  const r = await rpc('promotor_cancelar_pedido', Object.assign(credenciales(), { p_pedido_id: id, p_motivo: motivo || null }));
+  if (!r.ok) { toast(r.error || 'No se pudo cancelar.', 4000); return; }
+  toast('Pedido #' + id + ' cancelado.');
+  cargarEntregas();
+}
+
+// ===================== MIS VENTAS =====================
+function enlaceReferido() { return TIENDA_URL + '?ref=' + encodeURIComponent(sesion.codigo); }
+function pintarEnlace() {
+  const url = enlaceReferido();
+  document.getElementById('v-enlace').value = url;
+  const msg = `✨ Mira el catálogo de DUNIGSHOP y haz tu pedido aquí. Te lo llevo a tu casa y pagas al recibir:\n${url}`;
+  document.getElementById('v-enlace-wa').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+}
+async function copiarEnlace() {
+  const url = enlaceReferido();
+  try { await navigator.clipboard.writeText(url); toast('Enlace copiado.'); }
+  catch (e) { const i = document.getElementById('v-enlace'); i.select(); try { document.execCommand('copy'); toast('Enlace copiado.'); } catch (e2) { toast('Mantén presionado el enlace para copiarlo.'); } }
+}
+async function cargarVentas() {
+  pintarEnlace();
+  const hoy = hoyStr(), lunes = lunesDe(hoy), domingo = sumarDias(lunes, 6);
+  cargarRanking(hoy.slice(0, 7));
+  const r = await rpc('promotor_mis_pedidos', Object.assign(credenciales(), { p_desde: lunes, p_hasta: domingo }));
+  if (!r.ok) { toast(r.error || 'No se pudieron cargar tus ventas.', 4000); return; }
+  const aj = sesion.ajustes || {};
+  const meta = Math.max(1, parseInt(aj.meta_diaria || 20, 10));
+  const metaSem = Math.max(1, parseInt(aj.meta_semanal || 100, 10));
+  const bonoDia = Number(aj.bono_diario || 0), bonoSem = Number(aj.bono_semanal || 0);
+  const cobrados = (r.pedidos || []).filter(p => p.estado === 'entregado_cobrado' && p.fecha_cobro >= lunes && p.fecha_cobro <= domingo);
+  const resumir = arr => ({
+    ventas: arr.length,
+    prod: arr.reduce((a, p) => a + (Number(p.cantidad_productos) || 0), 0),
+    total: arr.reduce((a, p) => a + (Number(p.total_usd) || 0), 0),
+    com: arr.reduce((a, p) => a + (Number(p.comision_usd) || 0), 0)
+  });
+  const dHoy = resumir(cobrados.filter(p => p.fecha_cobro === hoy));
+  const dSem = resumir(cobrados);
+  // Bonos: un bono diario por cada día de la semana en que se llegó a la meta + bono semanal
+  const porDia = {};
+  cobrados.forEach(p => { porDia[p.fecha_cobro] = (porDia[p.fecha_cobro] || 0) + (Number(p.cantidad_productos) || 0); });
+  const diasMeta = Object.values(porDia).filter(n => n >= meta).length;
+  const bonoHoy = dHoy.prod >= meta ? bonoDia : 0;
+  const bonosSem = diasMeta * bonoDia + (dSem.prod >= metaSem ? bonoSem : 0);
+  const set = (id, v) => document.getElementById(id).textContent = v;
+  set('v-hoy-total', dinero(dHoy.total)); set('v-hoy-ventas', dHoy.ventas); set('v-hoy-prod', dHoy.prod); set('v-hoy-com', dinero(dHoy.com));
+  set('v-sem-total', dinero(dSem.total)); set('v-sem-ventas', dSem.ventas); set('v-sem-prod', dSem.prod); set('v-sem-com', dinero(dSem.com));
+  set('v-hoy-bono', dinero(bonoHoy)); set('v-sem-bono', dinero(bonosSem));
+  document.getElementById('v-hoy-bono-l').classList.toggle('hidden', !(bonoDia > 0));
+  document.getElementById('v-sem-bono-l').classList.toggle('hidden', !(bonoDia > 0 || bonoSem > 0));
+  set('v-sem-ganado', dinero(dSem.com + bonosSem));
+  set('v-pct', Number((sesion.promotor || {}).comision_pct || 0));
+  // Meta diaria
+  set('v-meta-actual', dHoy.prod); set('v-meta-total', meta);
+  const pct = Math.min(100, Math.round(dHoy.prod / meta * 100));
+  document.getElementById('v-meta-barra').style.width = pct + '%';
+  const txtBonoDia = bonoDia > 0 ? ` y ganas un bono de ${dinero(bonoDia)}` : '';
+  set('v-meta-texto', dHoy.prod >= meta ? (bonoDia > 0 ? `¡Meta cumplida! Ganaste el bono de ${dinero(bonoDia)}. 🏆` : '¡Meta cumplida! Excelente trabajo. 🏆') : `Te faltan ${meta - dHoy.prod} productos para la meta de hoy${txtBonoDia} (${pct}%).`);
+  // Meta semanal
+  set('v-msem-actual', dSem.prod); set('v-msem-total', metaSem);
+  const pctS = Math.min(100, Math.round(dSem.prod / metaSem * 100));
+  document.getElementById('v-msem-barra').style.width = pctS + '%';
+  const txtBonoSem = bonoSem > 0 ? ` y ganas un bono de ${dinero(bonoSem)}` : '';
+  set('v-msem-texto', dSem.prod >= metaSem ? (bonoSem > 0 ? `¡Meta semanal cumplida! Bono de ${dinero(bonoSem)}. 🏆` : '¡Meta semanal cumplida! 🏆') : `Te faltan ${metaSem - dSem.prod} productos para la meta semanal${txtBonoSem} (${pctS}%). Días con meta cumplida: ${diasMeta}.`);
+}
+async function cargarRanking(mes) {
+  document.getElementById('v-rank-mes').textContent = nombreMes(mes);
+  const cont = document.getElementById('v-ranking');
+  const r = await rpc('promotor_ranking', Object.assign(credenciales(), { p_mes: mes }));
+  if (!r.ok) { cont.innerHTML = `<p class="text-xs text-red-400 text-center py-4">${esc(r.error)}</p>`; return; }
+  const lista = (r.ranking || []);
+  if (lista.length === 0) { cont.innerHTML = '<p class="text-xs text-stone-500 text-center py-4">Aún no hay ventas este mes.</p>'; return; }
+  const medalla = n => n === 1 ? '🥇' : n === 2 ? '🥈' : n === 3 ? '🥉' : '#' + n;
+  const yo = lista.find(x => x.yo);
+  let vis = lista.slice(0, 10);
+  if (yo && !vis.includes(yo)) vis = vis.concat([yo]);
+  cont.innerHTML = vis.map(x => `<div class="flex items-center gap-3 px-3 py-2 rounded-xl ${x.yo ? 'bg-amber-500/15 border border-amber-500/40' : 'bg-black/20'}">
+      <span class="w-8 text-center font-bold ${Number(x.posicion) <= 3 ? 'text-lg' : 'text-xs text-stone-400 font-mono'}">${medalla(Number(x.posicion))}</span>
+      <span class="flex-1 min-w-0 text-sm truncate">${esc(x.nombre)} <span class="text-[10px] font-mono text-stone-500">${esc(x.codigo)}</span>${x.yo ? ' <b class="text-[10px] text-amber-300">(tú)</b>' : ''}</span>
+      <span class="text-[11px] text-stone-400 font-mono">${esc(x.productos)} prod.</span>
+      <span class="font-mono font-bold text-amber-200 text-sm">${dinero(x.total)}</span>
+    </div>`).join('');
+}
+
+// ===================== ARRANQUE =====================
+if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', () => { iconos(); restaurarSesion(); });
+else { iconos(); restaurarSesion(); }
+</script>
+</body>
+</html>
